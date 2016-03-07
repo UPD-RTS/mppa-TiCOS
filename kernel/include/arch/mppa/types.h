@@ -1,5 +1,8 @@
 /*
- *  Copyright (c) 2012  University of Padua, Department of Mathematics
+ *  Copyright (C) 2013-2016 Kalray SA.
+ *  All rights reserved.
+ *
+ *  Author: Matheus Schuh, mschuh@kalray.eu
  *
  *  This file is free software: you may copy, redistribute and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -14,10 +17,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  This file incorporates work covered by the following copyright and
- *  permission notice:
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -48,37 +51,18 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef __POK_MPPA_TYPES_H__
+#define __POK_MPPA_TYPES_H__
 
-#ifndef __POK_TYPES_H__
-#define __POK_TYPES_H__
+#include "mOS_common_types_c.h"
+#include "mOS_common_types_s_c.h"
+#include "mOS_constants_c.h"
+#include "mOS_vcore_c.h"
 
-#ifdef POK_ARCH_PPC
-#include <arch/ppc/types.h>
-#endif
+/** Processor callback on inter-pe interrutps prototype */
+typedef void (*mppa_ticos_pe_callback_t) (mOS_vcore_set_t pe_list);
 
-#ifdef POK_ARCH_MPPA
-#include <arch/mppa/types.h>
-#endif
-
-#define NULL	0
-#define FALSE  	0
-#define TRUE	1
-#define bool_t 	int
-#define pok_bool_t int
-
-typedef uint32_t pok_port_size_t;
-typedef uint8_t pok_port_direction_t;
-typedef uint8_t pok_port_kind_t;
-typedef uint8_t pok_queueing_discipline_t;
-typedef uint8_t pok_port_id_t;
-typedef uint8_t pok_size_t;
-typedef uint8_t pok_range_t;
-//typedef uint8_t pok_buffer_id_t;		// not used at this time
-//typedef uint8_t pok_blackboard_id_t;	// not used at this time
-typedef uint8_t pok_lockobj_id_t;
-//typedef uint8_t pok_sem_id_t;			// not used at this time
-//typedef uint8_t pok_event_id_t;		// not used at this time
-typedef uint8_t pok_partition_id_t;
-typedef uint16_t pok_sem_value_t;
+/** Timer callback on timer interrupts*/
+typedef void (*mppa_ticos_timer_callback_t) (int timer_id);
 
 #endif
