@@ -33,6 +33,7 @@
 #include <dependencies.h>
 #include <arch.h>
 #include <stdio.h>
+#include "bsp.h"
 
 // defined in a link script
 extern char _end[];

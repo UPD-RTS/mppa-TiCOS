@@ -3,7 +3,9 @@ include $(POK_PATH)/misc/mk/config.mk
 
 LO_TARGET=	prep.lo
 
-LO_OBJS=	bsp.o
+LO_OBJS=	bsp.o \
+		bsp_events.o \
+		bsp_handlers.o
 
 LO_DEPS=
 
@@ -21,4 +23,3 @@ depend:
 
 include $(POK_PATH)/misc/mk/rules-common.mk
 include $(POK_PATH)/misc/mk/rules-kernel.mk
-
