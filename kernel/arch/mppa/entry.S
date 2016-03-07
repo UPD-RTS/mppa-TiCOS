@@ -1,5 +1,8 @@
 /*
- * Copyright (c) 2012  University of Padua, Department of Mathematics
+ *  Copyright (C) 2013-2016 Kalray SA.
+ *  All rights reserved.
+ *
+ *  Author: Matheus Schuh, mschuh@kalray.eu
  *
  *  This file is free software: you may copy, redistribute and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -59,7 +62,7 @@
 
 # Global variables
 .global __proceed
-.global _entry_point
+.global _c_entry_point
 .global _vstart
 
 # vstart function definition
@@ -91,7 +94,7 @@ __proceed:
 	;;
 	add $r12 = $r12, $r2 # move stack down
 	;;
-	call _entry_point
+	call _c_entry_point
 	;;
 	wpurge
 	;;
@@ -110,7 +113,3 @@ __proceed:
 	goto -8 # should never return
 	;;
 	.endp
-
-_entry_point:
-	idle1
-	;;

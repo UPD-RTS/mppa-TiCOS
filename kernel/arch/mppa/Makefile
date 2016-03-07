@@ -6,8 +6,9 @@ include $(TOPDIR)/misc/mk/config.mk
 LO_TARGET=	mppa.lo
 
 LO_OBJS=	entry.o \
-			bin_descriptor.o
-		
+		bin_descriptor.o \
+		boot.o
+
 
 LO_DEPS=	$(BSP)/$(BSP).lo
 
@@ -39,4 +40,3 @@ endif
 
 include $(TOPDIR)/misc/mk/rules-common.mk
 include $(TOPDIR)/misc/mk/rules-kernel.mk
-
