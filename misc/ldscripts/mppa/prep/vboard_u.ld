@@ -1,0 +1,42 @@
+/**
+ * Copyright (C) 2013-2014 Kalray SA.
+ *
+ * All rights reserved.
+ */
+
+/* user accessible constants and memory layout */
+INCLUDE common_memory_map.ld 
+
+DEBUGGER_HAVE_MOS = 1;
+
+INTERNAL_RAM_BASE = DEFINED(INTERNAL_RAM_BASE) ? INTERNAL_RAM_BASE : ORIGIN(internal_mem);
+INTERNAL_RAM_SIZE = DEFINED(INTERNAL_RAM_SIZE) ? INTERNAL_RAM_SIZE : LENGTH(internal_mem);
+
+S_RAM_BASE = INTERNAL_RAM_BASE;
+S_RAM_SIZE = INTERNAL_RAM_SIZE;
+
+ROM_MEM_SIZE = 4K; 
+ROM_MEM_END  = INTERNAL_RAM_BASE + INTERNAL_RAM_SIZE ;
+ROM_MEM_START = INTERNAL_RAM_BASE + INTERNAL_RAM_SIZE - ROM_MEM_SIZE ;
+
+DEBUG_SIZE = 32;
+DEBUG_START = ROM_MEM_END - DEBUG_SIZE;
+
+K1_BOOT_ADDRESS = 0x0;
+
+PAGE_SIZE = 4096;
+
+MPPA_SPAWN_DIRECTORY_SIZE = DEFINED(MPPA_SPAWN_DIRECTORY_SIZE) ? MPPA_SPAWN_DIRECTORY_SIZE : 8K;
+
+/* We want a virtual memory entry at mem_base + mem_size of size mem_base + mem_size. On the K1 TLB entries have to begin at a multiple of their size, which has to be a multiple of 2. This little trick rounds INTERNAL_RAM_SIZE up to the nearest power of 2, or is a nop if INTERNAL_RAM_SIZE is already aligned */
+
+K1_KERNEL_DATA_ADDR_ALIGN = INTERNAL_RAM_SIZE - 1;
+K1_KERNEL_DATA_ADDR_ALIGN |= K1_KERNEL_DATA_ADDR_ALIGN >> 1;
+K1_KERNEL_DATA_ADDR_ALIGN |= K1_KERNEL_DATA_ADDR_ALIGN >> 2;
+K1_KERNEL_DATA_ADDR_ALIGN |= K1_KERNEL_DATA_ADDR_ALIGN >> 4;
+K1_KERNEL_DATA_ADDR_ALIGN |= K1_KERNEL_DATA_ADDR_ALIGN >> 8;
+K1_KERNEL_DATA_ADDR_ALIGN |= K1_KERNEL_DATA_ADDR_ALIGN >> 16;
+K1_KERNEL_DATA_ADDR_ALIGN += 1;
+
+K1_KERNEL_DATA_ADDR = ALIGN(INTERNAL_RAM_BASE + INTERNAL_RAM_SIZE, K1_KERNEL_DATA_ADDR_ALIGN ); /* kernel data is @ 256K, but loaded continuously to text in kernel_mem */
+
