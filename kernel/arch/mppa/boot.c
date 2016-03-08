@@ -58,8 +58,6 @@
 #include "locked_assert.h" //TODO VBSP leftover
 #include "dsu_os_comm.h" //TODO VBSP leftover
 
-typedef void (*lib_ctor_t) (void);
-
 extern mOS_scoreboard_t _scoreboard_start; /* score_board pointer */
 extern int _user_stack_start   __attribute__((weak));
 extern int _user_stack_end     __attribute__((weak));
@@ -77,10 +75,6 @@ extern void __k1_replace_sp_and_call(uint32_t value, void (*)(uint32_t));
 extern void _do_slave_pe(uint32_t old_sp);
 extern void _do_master_pe(uint32_t old_sp);
 
-extern int __libs_ctors_start;
-extern int __libs_ctors_end;
-
-extern __k1_uint32_t INTERNAL_RAM_SIZE;
 extern __k1_uint8_t _bss_start;
 extern __k1_uint8_t _bss_end;
 extern __k1_uint8_t _sbss_start;
@@ -115,18 +109,16 @@ unsigned char __debug_handler_stack[MOS_NB_PE_P * DEBUG_HANDLER_STACK_SIZE] __at
 #define DEBUG_HANDLER_MEM_AREA_SIZE 256
 struct dsu_os_s __debug_handler_mem_area __attribute__ ((section(".locked_data"), aligned (8)));
 
-
 /* Interruption handlers */
-void utask_it_handler(int ev_src, __k1_vcontext_t *ctx)
-					__attribute__((section(TARGET_TEXT)));
-void utask_it_pe_handler(int line,   __k1_vcontext_t *ctx)
-					__attribute__((section(TARGET_TEXT)));
-
 static mppa_ticos_pe_callback_t pe_callbacks [BSP_NB_PE_MAX]
 					__attribute__((section (TARGET_DATA)));
-mppa_ticos_timer_callback_t timer_callbacks  [BSP_NB_PE_MAX][BSP_NB_TIMERS]
+mppa_ticos_timer_callback_t timer_callbacks [BSP_NB_PE_MAX][BSP_NB_TIMERS]
 					__attribute__((section (TARGET_DATA)));
 
+void mppa_ticos_it_pe_handler(int line, __k1_vcontext_t *ctx)
+					__attribute__((section(TARGET_TEXT)));
+void mppa_ticos_it_handler(int ev_src, __k1_vcontext_t *ctx)
+					__attribute__((section(TARGET_TEXT)));
 
 void __attribute__((section(TARGET_TEXT)))
 mppa_ticos_it_pe_handler(int line, __k1_vcontext_t *ctx __attribute__((unused))) {
@@ -147,7 +139,7 @@ mppa_ticos_it_handler(int ev_src, __k1_vcontext_t *ctx __attribute__((unused))) 
 		{
 			/* enums ev_src value are 0/1 */
 			mppa_ticos_timer_callback_t cb = (mppa_ticos_timer_callback_t)
-				__builtin_k1_lwu( &timer_callbacks[pid][ev_src]);
+				__builtin_k1_lwu(&timer_callbacks[pid][ev_src]);
 			if(cb) {
 				cb (ev_src);
 			} else {
