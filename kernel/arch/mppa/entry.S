@@ -57,15 +57,16 @@
 # ax: section is allocatable and executable
 # progbits: section contains data
 # .section ".start" ?
-.section ".boot", "ax", @progbits
+.section .boot, "ax", @progbits
 .align 8
 
 # Global variables
 .global __proceed
 .global _c_entry_point
-.global _vstart
 
 # vstart function definition
+.global _data_start
+.global _vstart
 .proc _vstart
 .type _vstart, @function
 _vstart:
