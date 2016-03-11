@@ -16,13 +16,13 @@
 .global __vk1_asm_debug_handler
 .proc __vk1_asm_debug_handler
 __vk1_asm_debug_handler:
-	break 0x1ffff
+	break	0x1ffff
 	;;
-	add   $r12, $r12, -16        ## create scratch area
-	call  __vk1_debug_handler            ## jump to C code
+	add	$r12, $r12, -16			## create scratch area
+	call	__vk1_debug_handler		## jump to C code
 	;;
-	add   $r12, $r12, 16          ## destroy scratch area
+	add	$r12, $r12, 16			## destroy scratch area
 	;;
-	scall MOS_DEBUG_RETURN_TO_DEBUG
+	scall	MOS_DEBUG_RETURN_TO_DEBUG
 	;;
-	.endp __vk1_asm_debug_handler
+	.endp	__vk1_asm_debug_handler

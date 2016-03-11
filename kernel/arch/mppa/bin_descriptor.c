@@ -3,13 +3,12 @@
  *
  * All rights reserved.
  *
- * Author: Pierre Guironnet de Massas, pgmassas@kalray.eu 
+ * Author: Pierre Guironnet de Massas, pgmassas@kalray.eu
  *
  */
 
-#include "mOS_common_types_c.h"
+#include <types.h>
 #include "mOS_vcore_u.h"
-#include "vbsp.h"
 
 #ifdef __k1a__
 #define TLB_INVAL_ENTRY_LOW  TLB_INVAL_ENTRY_LOW_K1A
@@ -78,125 +77,15 @@ extern int _MOS_SECURITY_LEVEL;
 
 extern int __MPPA_BURN_TX;
 extern int __MPPA_BURN_FDIR;
-#if 00
-// APPLICATION REQUIREMENTS
-volatile mOS_bin_desc_t bin_descriptor_mppa_dsm_client __attribute__((section (".binaries_dsm"),weak)) = {
-#ifdef __k1io__
-	.pe_pool            = (0x1 << ((BSP_NB_RM_IO_P ))) - 1,
-#else
-	.pe_pool            = (0x1 << ((BSP_NB_PE_P & ~(0x3)))) - 1,
-#endif
-	.smem_start_frame        = (int)&_bin_start_frame,
-	.smem_end_frame          = (int)&_bin_end_frame,
-#ifdef __k1io__
-	.ddr_start_frame        = (int)&_ddr_frame_start,
-	.ddr_end_frame          = (int)&_ddr_frame_end,
-#else
-	.ddr_start_frame        = 0,
-	.ddr_end_frame          = 0,
-#endif
-	.tlb_small_size         = (unsigned int) &_LIBMPPA_DSM_CLIENT_PAGE_SIZE,
-	.tlb_big_size           = ((unsigned int) &_LIBMPPA_DSM_CLIENT_PAGE_SIZE) + 1,
-	.entry_point               = (uint32_t) & _vstart,
-	.scoreboard_offset  = ( int ) &(_scoreboard_offset),
-	.domain_id          = 0,
-	.security_level     = (int) &_MOS_SECURITY_LEVEL,
-	.ltlb               = {
-		{
-#ifdef __k1a__
-			._dword     = (0x000000000000087bULL) | (((uint64_t)MEM_SIZE_ALIGN(BSP_CLUSTER_INTERNAL_MEM_SIZE_P)) << 31)
-#else
-			._dword     = (0x00000000000000dbULL) | (((uint64_t)MEM_SIZE_ALIGN(BSP_CLUSTER_INTERNAL_MEM_SIZE_P)) << 31)
-#endif
-		},
-		[ 1 ... (MOS_VC_NB_USER_LTLB - 1) ] = {
-			.high   = (__k1_uint32_t) &TLB_INVAL_ENTRY_HIGH,
-			.low    = (__k1_uint32_t) &TLB_INVAL_ENTRY_LOW
-		},
-	},
-
-	.jtlb               = {
-		[ 0 ... (MOS_VC_NB_USER_JTLB - 1) ] = {
-			.high   = (__k1_uint32_t) &TLB_INVAL_ENTRY_HIGH,
-			.low    = (__k1_uint32_t) &TLB_INVAL_ENTRY_LOW
-		},
-	},
-	.rx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = {  .array64_bit = { ~(0x0ULL),         ~(0x0ULL),~(0x0ULL), ~(0x0ULL)}}},
-	.uc_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ~(0x0)},
-	//.tx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ((0x1 << MPPA_DNOC_TX_CHANNELS_NUMBER)-1) & 0x3F}, /* All tx from 0 to 6 exclusted */
-	.tx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ((0x1 << MPPA_DNOC_TX_CHANNELS_NUMBER)-1)}, /* All tx */
-	.mb_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = { .array64_bit = { ~(0x0ULL),         ~(0x0ULL)}}},
-	.mb_tx_pool = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = 0xF},
-	.fdir_pool  = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] =  0x1F},  /* Only loopback dir */ 
-#ifdef __k1dp__
-	.burn_tx    = (int)&__MPPA_BURN_TX,
-	.burn_fdir  = (int)&__MPPA_BURN_FDIR,
-#else
-	.burn_tx    = -1,
-	.burn_fdir  = -1,
-#endif
-};
-
-volatile mOS_bin_desc_t bin_descriptor_mppa_dsm_client_text __attribute__((section (".binaries_dsm_text"),weak)) = {
-#ifdef __k1io__
-	.pe_pool            = (0x1 << ((BSP_NB_RM_IO_P ))) - 1,
-#else
-	.pe_pool            = (0x1 << ((BSP_NB_PE_P & ~(0x3)))) - 1,
-#endif
-	.smem_start_frame        = (int)&_bin_start_frame,
-	.smem_end_frame          = (int)&_bin_end_frame,
-#ifdef __k1io__
-	.ddr_start_frame        = (int)&_ddr_frame_start,
-	.ddr_end_frame          = (int)&_ddr_frame_end,
-#else
-	.ddr_start_frame        = 0,
-	.ddr_end_frame          = 0,
-#endif
-	.tlb_small_size         = (unsigned int) &_LIBMPPA_DSM_CLIENT_PAGE_SIZE,
-	.tlb_big_size           = ((unsigned int) &_LIBMPPA_DSM_CLIENT_PAGE_SIZE) + 1,
-	.entry_point               = (uint32_t) & _vstart,
-	.scoreboard_offset  = ( int ) &(_scoreboard_offset),
-	.domain_id          = 0,
-
-	.ltlb               = {
-		{
-#ifdef __k1a__
-			// frame number 
-			._dword     = (0x800000000000087bULL) | (((uint64_t)MEM_SIZE_ALIGN(BSP_CLUSTER_INTERNAL_MEM_SIZE_P)) << 31)
-#else
-			._dword     = (0x80000000000000dbULL) | (((uint64_t)MEM_SIZE_ALIGN(BSP_CLUSTER_INTERNAL_MEM_SIZE_P)) << 31)
-#endif
-		},
-		[ 1 ... (MOS_VC_NB_USER_LTLB - 1) ] = {
-			.high   = (__k1_uint32_t) &TLB_INVAL_ENTRY_HIGH,
-			.low    = (__k1_uint32_t) &TLB_INVAL_ENTRY_LOW
-		},
-	},
-
-	.jtlb               = {
-		[ 0 ... (MOS_VC_NB_USER_JTLB - 1) ] = {
-			.high   = (__k1_uint32_t) &TLB_INVAL_ENTRY_HIGH,
-			.low    = (__k1_uint32_t) &TLB_INVAL_ENTRY_LOW
-		},
-	},
-	.rx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = {  .array64_bit = { ~(0x0ULL),         ~(0x0ULL),~(0x0ULL), ~(0x0ULL)}}},
-	.uc_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ~(0x0)},
-	//.tx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ((0x1 << MPPA_DNOC_TX_CHANNELS_NUMBER)-1) & 0x3F}, /* All tx from 0 to 6 exclusted */
-	.tx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ((0x1 << MPPA_DNOC_TX_CHANNELS_NUMBER)-1)}, /* All tx */
-	.mb_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = { .array64_bit = { ~(0x0ULL),         ~(0x0ULL)}}},
-	.mb_tx_pool = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = 0xF},
-	.fdir_pool  = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] =  0x1F},  /* Only loopback dir */ 
-	.burn_tx    = (int)&__MPPA_BURN_TX,
-	.burn_fdir  = (int)&__MPPA_BURN_FDIR,
-};
-#endif
 
 // APPLICATION REQUIREMENTS
 volatile mOS_bin_desc_t bin_descriptor __attribute__((section (".binaries"),weak)) = {
 #ifdef __k1io__
-	.pe_pool            = (0x1 << ((BSP_NB_RM_IO_P ))) - 1,
+	//.pe_pool            = (0x1 << ((BSP_NB_RM_IO_P ))) - 1,
+	.pe_pool            = (0x1),
 #else
-	.pe_pool            = (0x1 << ((BSP_NB_PE_P & ~(0x3)))) - 1,
+	// .pe_pool            = (0x1 << ((BSP_NB_PE_P & ~(0x3)))) - 1,
+	.pe_pool            = (0x1),
 #endif
 	.smem_start_frame        = (int)&_bin_start_frame,
 	.smem_end_frame          = (int)&_bin_end_frame,
@@ -216,10 +105,10 @@ volatile mOS_bin_desc_t bin_descriptor __attribute__((section (".binaries"),weak
 #ifdef __k1io__
 	.tlb_big_size           = 0x10000,
 #else
-	.tlb_big_size           = 0x8000, 
+	.tlb_big_size           = 0x8000,
 #endif
 #endif
-	.entry_point               = (uint32_t) & _vstart,
+	.entry_point        = (uint32_t) & _vstart,
 	.security_level     = (int) &_MOS_SECURITY_LEVEL,
 	.scoreboard_offset  = ( int ) &(_scoreboard_offset),
 	.ltlb               = {
@@ -520,7 +409,7 @@ volatile mOS_bin_desc_t bin_descriptor __attribute__((section (".binaries"),weak
 	.tx_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = ((0x1 << MPPA_DNOC_TX_CHANNELS_NUMBER)-1)}, /* All tx */
 	.mb_pool    = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = { .array64_bit = { ~(0x0ULL),         ~(0x0ULL)}}},
 	.mb_tx_pool = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] = 0xF},
-	.fdir_pool  = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] =  0x1F},  /* Only loopback dir */ 
+	.fdir_pool  = { . interface [ 0 ... MOS_NB_DMA_MAX -1 ] =  0x1F},  /* Only loopback dir */
 #ifdef __k1dp__
 	.burn_tx    = (int)&__MPPA_BURN_TX,
 	.burn_fdir  = (int)&__MPPA_BURN_FDIR,

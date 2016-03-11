@@ -49,7 +49,7 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <types.h>
+#include "mOS_common_types_s_c.h"
 .section .locked_text, "ax", @progbits
 .align 8
 .global __user_do_scall
