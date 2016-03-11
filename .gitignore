@@ -1,5 +1,6 @@
 *.o
 *.lo
 *.bc
+*.elf
 .depend
 .depend.mk
