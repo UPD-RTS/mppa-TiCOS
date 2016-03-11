@@ -2,18 +2,20 @@
 
 AR_ppc=powerpc-elf-ar rcs
 AR_x86=/usr/bin/ar rcs
-AR_mppa=k1-elf-gcc-ar rcs
+AR_mppa=k1-ar rcs
 AWK=/usr/bin/gawk
 CAT=/bin/cat
 CC_ppc=powerpc-elf-gcc
 CC_x86=/usr/bin/gcc
-CC_mppa=k1-elf-gcc
+CC_mppa=k1-gcc
 CD=cd
 CONFIG_CFLAGS=-W -Wall -g -m32
 CONFIG_LDFLAGS=--warn-common
 CONFIG_QEMU_x86= -fda $(POK_PATH)/misc/grub-boot-only.img 
-CONFIG_MPPA_CC_CFLAGS=-std=gnu99 -mhypervisor -g -Wall -Werror
-CONFIG_MPPA_IO_CFLAGS=-std=gnu99 -g -DMPPA_TRACE_ENABLE -Wall -Werror -mhypervisor
+CONFIG_MPPA_CC_CFLAGS=-std=gnu99 -mcluster=node -mboard=developer -march=k1b -mos=bare
+CONFIG_MPPA_IO_CFLAGS=-std=gnu99 -DMPPA_TRACE_ENABLE
+CONFIG_MPPA_CC_LFLAGS=-L$(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP) 
+CONFIG_MPPA_IO_CFLAGS=-L$(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)
 COPY=/bin/cp
 CP=/bin/cp
 CXX_x86=/usr/bin/g++
