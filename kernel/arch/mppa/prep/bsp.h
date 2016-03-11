@@ -108,6 +108,25 @@ extern "C" {
 int __vbsp_get_router_id(unsigned int node_id) __attribute__((section(".locked_text")));
 int __vbsp_get_cluster_offset_within_bsp_platform(unsigned int router_id) __attribute__ ((section(".locked_text")));
 
+/*
+ * \brief The macro locked_assert checks a condition. If the condition evaluates to false then a message is printed and the execution is stopped.
+ * If the macro NDEBUG was defined at the moment locked_assert.h was last included then the macro locked_assert does not generate any code.
+ * \param exp a condition to be evaluated at runtime.
+ *
+ */
+void
+locked_assert_func(const char*, int, const char*, const char*) __attribute__((__noreturn__, section(".locked_text")));
+
+#ifdef NDEBUG
+#  define locked_assert(exp) ((void)0)
+#else
+#  define locked_assert(exp) ((exp) ? (void)0 : locked_assert_func (__FILE__, __LINE__, __func__, # exp))
+#endif
+
+int
+locked_puts(const char *str) __attribute__((section (".locked_text")));
+
+
 extern int _VBSP_OVERRIDE_NB_PE __attribute__ ((weak));
 /** Number of physical cores in the cluster */
 #ifdef __k1io__
@@ -262,27 +281,28 @@ typedef struct {
 /** Interrupt handler prototype */
 typedef void ( *it_handler_t)(int nb, __k1_vcontext_t *ctx);
 
+
 /**
  * \brief Implements an intra-cluster barrier. It blocks until all the processors
  * of the cluster enters the same barrier.
  * \param *b A pointer to the barrier structure
  */
-void
-bsp_barrier(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
+//void
+//bsp_barrier(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
 
 /**
  * \brief Implements an intra-cluster half barrier prologue.
  * \param *b A pointer to the barrier structure
  */
-void
-bsp_barrier_in(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
+//void
+//bsp_barrier_in(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
 
 /**
  * \brief Implements an intra-cluster half barrier epilogue.
  * \param *b A pointer to the barrier structure
  */
-void
-bsp_barrier_out(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
+//void
+//bsp_barrier_out(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
 
 /**
  * \brief Initialize a intra-cluster barrier.
@@ -290,8 +310,10 @@ bsp_barrier_out(bsp_barrier_t *b)  __attribute__ ((section(".locked_text") ));
  * \param line Event line to be used by the barrier. The line number depends
  * on the expected processor mode for the barrier invocation.
  */
-void
-bsp_barrier_init(bsp_barrier_t *b, enum bsp_barrier_line line)  __attribute__ ((section(".locked_text")));
+//void
+//bsp_barrier_init(bsp_barrier_t *b, enum bsp_barrier_line line)  __attribute__ ((section(".locked_text")));
+
+
 
 /**
  * \brief Register an interrupt handler for a bsp interrupt source.

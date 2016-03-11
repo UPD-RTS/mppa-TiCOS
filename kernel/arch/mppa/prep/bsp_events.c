@@ -51,8 +51,6 @@
 
 #include "bsp.h"
 #include "mOS_vcore_u.h"
-#include "locked_assert.h"
-
 
 mOS_pad_vcore_set_t sub_pe_ev_source[MOS_NB_PE_P][MOS_VC_NB_EV_LINES][BSP_NB_PE_EV_SRC] __attribute__((section(".locked_data"), aligned(_K1_DCACHE_LINE_SIZE)));
 uint64_t global_pe_lines __attribute__((

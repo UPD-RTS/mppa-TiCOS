@@ -59,11 +59,8 @@
 #include "mOS_dnoc_u.h"
 #include "mOS_segment_manager_u.h"
 #include <HAL/hal/hal.h>
-#include <locked_assert.h> //TODO VBSP leftover
-
 
 extern int VIRT_U_MEM_START;
-
 
 /*********************************************************************************************
  * Interrupts handlers should be used as they would be on a real hardware. They should save  *
