@@ -5,7 +5,7 @@
  */
 
 /* Include board-specific definitions */
-INCLUDE vboard_u.ld 
+INCLUDE vboard_u.ld
 
 __MPPA_BURN_TX = DEFINED(__MPPA_BURN_TX) ? __MPPA_BURN_TX : 7;
 __MPPA_BURN_FDIR = DEFINED(__MPPA_BURN_FDIR) ? __MPPA_BURN_FDIR : 4;
@@ -22,7 +22,7 @@ KSTACK_SIZE    = DEFINED(KSTACK_SIZE) ? KSTACK_SIZE : 0x400;
 _MOS_SECURITY_LEVEL = DEFINED(_MOS_SECURITY_LEVEL) ? _MOS_SECURITY_LEVEL : (DEFINED(_LIBNOC_DISABLE_FIFO_FULL_CHECK) ? 0 : 1);
 TOTAL_USER_STACK_SPACE = USER_STACK_SIZE * 16;
 
-EXTERN( _vstart,__bsp_global_desc, bin_descriptor, locked_assert_func, locked_memset, __bsp_get_router_id, __stack_overflow_detected, bsp_barrier, micro_interface_ctor, libnoc_ctor, __mppa_dsm_client_ctor, main, __proceed, mppa_power_base_exit, _scoreboard, __mppa_remote_client_init_ctor)
+EXTERN( _vstart,__bsp_global_desc, bin_descriptor, locked_assert_func, locked_memset, __bsp_get_router_id, __stack_overflow_detected, micro_interface_ctor, libnoc_ctor, __mppa_dsm_client_ctor, main, mppa_power_base_exit, _scoreboard, __mppa_remote_client_init_ctor)
 /* Definition of sections */
 SECTIONS
 {
@@ -109,7 +109,7 @@ INCLUDE "prologue_link.ld"
     . += _tls_size;
     . = ALIGN(8);
     _tls_pe8_end = ABSOLUTE(.);
-   } =0x12345678 
+   } =0x12345678
 
    .tls_pe9 ALIGN(8) : AT ( ALIGN( LOADADDR(.tls_pe8) + SIZEOF(.tls_pe8), 8))
    {

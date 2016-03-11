@@ -11,56 +11,54 @@
 
   .boot VIRT_U_MEM_START :  AT (ALIGN ( LOADADDR(.mOS) + MOS_RESERVED, 0x1000))
   {
-	KEEP(*(.locked.binaries)) 
+	KEEP(*(.binaries))
     _bin_start = ABSOLUTE(.);
     _vstart = ABSOLUTE(.);
-    *(.locked.boot)    /* boot section */
+    *(.my_boot)    /* boot section */
     . = ALIGN(0x8);
   }  =0x12345678
 
 
-  .locked_text ALIGN(0x1000) : AT ( ALIGN( LOADADDR(.boot) + SIZEOF(.boot), 0x1000))
+  .text ALIGN(0x1000) : AT ( ALIGN( LOADADDR(.boot) + SIZEOF(.boot), 0x1000))
   {
 	__text_begin = ABSOLUTE(.);
     _handler_start = ABSOLUTE(.);
-    *(.locked.handler) /* trap handlers */
-    *(.locked.init_code) /* trap handlers */
-    *(.locked.locked_text)
-    *(.locked.text)
-    *(.locked.text.*)
-	*(.bsp_config_text)	
+    *(.handler) /* trap handlers */
+    *(.init_code) /* trap handlers */
+    *(.locked_text)
+    *(.locked_text.*)
+    KEEP(*(.init))
+    KEEP(*(.fini))
+    *(.text)
+    *(.text.*)
+	*(.bsp_config_text)
+     *(.gnu.linkonce.t.*)
     _debug_start = ABSOLUTE(.);
     . += DEBUG_SIZE;
-    . = ALIGN(0x8);
-  }  =0x12345678
-  _debug_start_lma  = LOADADDR( .locked_text ) + _debug_start - __text_begin;
-
-  .text  ALIGN(0x100) : AT ( ALIGN( LOADADDR(.locked_text) + SIZEOF(.locked_text), 0x100))
-  {
-      KEEP(*(.init))
-      KEEP(*(.fini))
-      *(.text)
-      *(.text.*)
-      *(.gnu.linkonce.t.*)
-    . = ALIGN(4096);
+    . = ALIGN(0x1000);
 	__text_end = ABSOLUTE(.);
-  }
+  }  =0x12345678
+  _debug_start_lma  = LOADADDR( .text ) + _debug_start - __text_begin;
+
 
   .stack   ALIGN(0x1000) :  AT ( ALIGN( LOADADDR(.text) + SIZEOF(.text) , 0x1000))
   {
       __user_stack_begin = ABSOLUTE(.);
       _user_stack_end     = ABSOLUTE(.);
       _master_stack_end     = ABSOLUTE(.);
-      . += TOTAL_USER_STACK_SPACE; 
+      . += TOTAL_USER_STACK_SPACE;
       _master_stack_start   = ABSOLUTE(.);
       _user_stack_start   = ABSOLUTE(.);
       . = ALIGN(0x1000);
       __user_stack_end = ABSOLUTE(.);
+      /* Allocate the main stack area. */
+      _end = __user_stack_end;
+
   }
 
   /* This is the value of the GP base */
   .rodata   ALIGN(0x1000) :  AT ( ALIGN( LOADADDR(.stack) + SIZEOF(.stack), 0x1000))  {
-  	__rodata_begin = ABSOLUTE(.);
+	  __rodata_begin = ABSOLUTE(.);
     KEEP(*crtbegin.o(.ctors))
     KEEP(*crtbegin.?(.ctors))
     KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o $OTHER_EXCLUDE_FILES) .ctors))
@@ -68,8 +66,8 @@
     KEEP (*(.ctors))
     *(.rodata.*)
     *(.rodata)
-    *(.locked.rodata.*)
-    *(.locked.rodata)
+    *(.rodata.*)
+    *(.rodata)
 
     KEEP (*crtbegin.o(.dtors))
     KEEP (*crtbegin?.o(.dtors))
@@ -82,30 +80,35 @@
     *(.gcc_except_table)
     *(.gcc_except_table.*)
     . = ALIGN(0x1000);
-  	__rodata_end = ABSOLUTE(.);
+	  __rodata_end = ABSOLUTE(.);
   } =0x12345678
 
-  .locked_data ALIGN(0x1000) : AT ( ALIGN( LOADADDR(.rodata) + SIZEOF(.rodata), 0x1000))
+  .data ALIGN(0x1000) : AT ( ALIGN( LOADADDR(.rodata) + SIZEOF(.rodata), 0x1000))
   {
-  	__data_begin = ABSOLUTE(.);
+  __data_begin = ABSOLUTE(.);
     _locked_data_start = ABSOLUTE(.);
-    *(.locked.locked_data) /* trap handlers */
-    *(.locked.lowmem_data) /* trap handlers */
-    *(.locked.tls_start)
-    *(.locked.data) /* trap handlers */
-    *(.locked.data.*) /* trap handlers */
-    *(.locked.bss)
-    *(.locked.bss.*)
-    *(.locked.ctors)
-    *(.locked.dtors)
+    _data_start = ABSOLUTE(.);
+    *(.data) /* trap handlers */
+    *(.lowmem_data) /* trap handlers */
+    *(.tls_start)
+    *(.tls_start*)
+    *(.data.*) /* trap handlers */
+    *(.locked_data) /* trap handlers */
+    *(.locked_data.*) /* trap handlers */
+    *(.ctors)
+    *(.dtors)
     *(.lowmem_data)
-    . = ALIGN(0x8);
+    *(.gnu.linkonce.d.*)
+    *(COMMON)
+    . = ALIGN(0x20);
     __libs_ctors_start = ABSOLUTE(.);
-    KEEP(*(SORT(.locked.libs_ctors.*)))
+    KEEP(*(SORT(.libs_ctors.*)))
     __libs_ctors_end   = ABSOLUTE(.);
+    . = ALIGN(0x20);
   }  =0x12345678
 
-  .bsp_config ALIGN(0x8) : AT ( ALIGN( LOADADDR(.locked_data) + SIZEOF(.locked_data), 0x8))
+
+  .bsp_config ALIGN(0x8) : AT ( ALIGN( LOADADDR(.data) + SIZEOF(.data), 0x8))
   {
 	  *(.bsp_config_desc)
 	  *(.bsp_config)
@@ -115,23 +118,23 @@
   .scoreboard ALIGN(0x100) :  AT ( ALIGN( LOADADDR(.bsp_config) + SIZEOF(.bsp_config), 0x100))
   {
       _scoreboard_start  = ABSOLUTE(.);
-      KEEP(*(.locked.scoreboard))
+      KEEP(*(.scoreboard))
       _scb_mem_frames_array = ABSOLUTE(.);
       . += (INTERNAL_RAM_SIZE >> 15);
       _scoreboard_end    = ABSOLUTE(.);
       _scoreboard_boot_stack_end = ABSOLUTE(.);
-      . += (BOOTSTACK_SIZE*16);  
+      . += (BOOTSTACK_SIZE*16);
       _scoreboard_boot_stack_start = ABSOLUTE(.);
       _scoreboard_kstack_end = ABSOLUTE(.);
-      . += (KSTACK_SIZE*16);  
+      . += (KSTACK_SIZE*16);
       _scoreboard_kstack_start = ABSOLUTE(.);
       MPPA_ARGAREA_START = ABSOLUTE(.);
       . += MPPA_ARGAREA_SIZE;
   }
 
   MPPA_ARGAREA_FILE_OFFSET  =  LOADADDR( .scoreboard ) + MPPA_ARGAREA_START - _scoreboard_start ;
-  
-  /* Section used with dynamic executable */  
+
+  /* Section used with dynamic executable */
   .interp ALIGN(0x8):   AT ( ALIGN( LOADADDR(.scoreboard) + SIZEOF(.scoreboard), 0x8))
   {
     *(.interp)
@@ -177,20 +180,9 @@
   {
     *(.rela.plt)
   }
-  
-  .data   ALIGN(0x8) :  AT ( ALIGN( LOADADDR(.rela.plt) + SIZEOF(.rela.plt), 0x8))
-  {
-    _data_start = ABSOLUTE(.);
-    *(.data)
-    *(.tls_start*)
-    *(.data.*)
-    *(.gnu.linkonce.d.*)
-    *(COMMON)
-    . = ALIGN(0x20);
-  }  =0x12345678
-  
 
-  .bss   ALIGN(0x20) :  AT ( ALIGN( LOADADDR(.data) + SIZEOF(.data), 0x20))
+
+  .bss   ALIGN(0x20) :  AT ( ALIGN( LOADADDR(.rela.plt) + SIZEOF(.rela.plt), 0x20))
   {
     _bss_start = ABSOLUTE(.);
     *(.bss)
@@ -213,20 +205,19 @@
   } =0x12345678
   . = _tdata_end;
   _tdata_size = _tdata_end - _tdata_start;
-  
+
   .tbss   ALIGN(8) : AT ( ALIGN( LOADADDR(.tdata) + SIZEOF(.tdata), 8))
   {
     _tbss_start = ABSOLUTE(.);
     *(.tbss)
     *(.tbss.*)
-    *(.locked.tbss)
+    *(.tbss)
     *(.tcommon)
     *(.gnu.linkonce.tb.*)
     . = ALIGN(8);
-    _tbss_end = ABSOLUTE(.); 
+    _tbss_end = ABSOLUTE(.);
   } =0x12345678
   . = _tbss_end;
-  _tbss_size = _tbss_end - _tbss_start; 
+  _tbss_size = _tbss_end - _tbss_start;
 
   _tls_size = _tbss_size + _tdata_size;
-
