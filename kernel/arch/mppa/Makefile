@@ -7,8 +7,12 @@ LO_TARGET=	mppa.lo
 
 LO_OBJS=	entry.o \
 		bin_descriptor.o \
-		boot.o
-
+		boot.o \
+		scall_wrapper.o \
+		debug.o \
+		exception.o \
+		interrupt.o \
+		main.o
 
 LO_DEPS=	$(BSP)/$(BSP).lo
 
@@ -40,3 +44,6 @@ endif
 
 include $(TOPDIR)/misc/mk/rules-common.mk
 include $(TOPDIR)/misc/mk/rules-kernel.mk
+
+LDOPTS = -M
+LD = k1-ld

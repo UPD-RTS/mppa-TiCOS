@@ -5,7 +5,8 @@ LO_TARGET=	prep.lo
 
 LO_OBJS=	bsp.o \
 		bsp_events.o \
-		bsp_handlers.o
+		bsp_handlers.o \
+		bsp_functions.o
 
 LO_DEPS=
 
@@ -23,3 +24,6 @@ depend:
 
 include $(POK_PATH)/misc/mk/rules-common.mk
 include $(POK_PATH)/misc/mk/rules-kernel.mk
+
+LDOPTS = -M
+LD = k1-ld
