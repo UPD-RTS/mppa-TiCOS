@@ -71,6 +71,7 @@
 
 # Global stuff (why _data_start is here?)
 .global _c_entry_point
+.global _data_start
 
 .global _vstart
 .proc _vstart
@@ -83,8 +84,10 @@ _vstart: # _vstart ()
 # Register usage
 # $ no particular register usage scheme
 #**************
-	get	$r5 = $pcr		# Get processor id
+	make $r14, _data_start		# r14 is used at some compilation modes
 	;;				# ;; ends instruction bundle
+	get	$r5 = $pcr		# Get processor id
+	;;
 	extfz	$r2, $r5, 15, 11	# between 0 - 15 (PE), 16 (RM) in $r2
 	;;
 	cb.eqz	$r2, __proceed		# if it's PE0 it jumps to proceed
