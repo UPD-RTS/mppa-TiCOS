@@ -33,9 +33,8 @@
 #include <dependencies.h>
 #include <arch.h>
 #include <stdio.h>
-#include "bsp.h"
 
-// defined in a link script
+// defined in a linker script
 extern char _end[];
 
 static char *heap_end = _end;

@@ -7,10 +7,8 @@ LO_TARGET=	mppa.lo
 
 LO_OBJS=	entry.o \
 		bin_descriptor.o \
-		boot.o \
+		arch.o \
 		scall_wrapper.o \
-		debug.o \
-		exception.o \
 		interrupt.o \
 		main.o
 

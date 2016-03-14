@@ -65,4 +65,6 @@ typedef void (*mppa_ticos_pe_callback_t) (mOS_vcore_set_t pe_list);
 /** Timer callback on timer interrupts*/
 typedef void (*mppa_ticos_timer_callback_t) (int timer_id);
 
+typedef unsigned int		size_t;
+
 #endif

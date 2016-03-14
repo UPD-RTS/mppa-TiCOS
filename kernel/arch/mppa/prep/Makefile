@@ -4,9 +4,6 @@ include $(POK_PATH)/misc/mk/config.mk
 LO_TARGET=	prep.lo
 
 LO_OBJS=	bsp.o \
-		bsp_events.o \
-		bsp_handlers.o \
-		bsp_functions.o
 
 LO_DEPS=
 

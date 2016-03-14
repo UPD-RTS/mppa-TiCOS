@@ -69,8 +69,8 @@
  .section .my_boot, "ax", @progbits
  .align 8
 
-# Global stuff (why _data_start is here?)
-.global _c_entry_point
+# Global stuff
+.global pok_arch_init
 .global _data_start
 
 .global _vstart
@@ -109,7 +109,7 @@ __proceed:				# Defines stack for each PE in the scoreboard
 	;;
 	add	$r12 = $r12, $r2 	# move stack down
 	;;
-	call	_c_entry_point		# pok_boot and clear_bss before
+	call	pok_arch_init		# pok_boot and clear_bss before
 	;;
 	wpurge
 	;;

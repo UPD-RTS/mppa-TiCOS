@@ -57,8 +57,7 @@ extern "C" {
 #endif
 
 #include <types.h>
-#include "mOS_vcore_u.h"
-#include <mppa_bsp.h>
+#include <mOS_vcore_u.h>
 
 /** Event and interrupt line definitions */
 #define BSP_EV_LINE 0

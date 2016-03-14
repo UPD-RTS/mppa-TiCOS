@@ -13,7 +13,6 @@
   {
 	KEEP(*(.binaries))
     _bin_start = ABSOLUTE(.);
-    _vstart = ABSOLUTE(.);
     *(.my_boot)    /* boot section */
     . = ALIGN(0x8);
   }  =0x12345678
