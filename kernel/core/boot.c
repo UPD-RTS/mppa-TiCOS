@@ -17,7 +17,7 @@
  *  This file incorporates work covered by the following copyright and
  *  permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -70,8 +70,8 @@ void pok_boot ()
 {
 	pok_arch_init();
 
-#ifdef POK_NEEDS_QEMU_SETUP 
-   pok_bsp_init();
+#ifdef POK_NEEDS_QEMU_SETUP
+	pok_bsp_init();
 #endif
 
 #ifdef POK_NEEDS_PARTITIONS
@@ -86,7 +86,7 @@ void pok_boot ()
 	pok_sched_init ();
 #endif
 
-#if defined (POK_NEEDS_LOCKOBJECTS) 
+#if defined (POK_NEEDS_LOCKOBJECTS)
 	pok_lockobj_init ();
 #endif
 
@@ -100,7 +100,7 @@ void pok_boot ()
 #endif
 
 #if defined (POK_NEEDS_TIME) || defined (POK_NEEDS_SCHED) || defined (POK_NEEDS_THREADS)
-	pok_time_init();		
+	pok_time_init();
 #endif
 
 	pok_arch_preempt_enable();
