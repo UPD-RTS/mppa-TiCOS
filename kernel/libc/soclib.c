@@ -1,31 +1,33 @@
 
-/*  
- * Copyright (c) 2012  University of Padua, Department of Mathematics  
- *  
- *  This file is free software: you may copy, redistribute and/or modify it  
- *  under the terms of the GNU General Public License as published by the  
- *  Free Software Foundation, either version 2 of the License, or (at your  
- *  option) any later version.  
- *  
- *  This file is distributed in the hope that it will be useful, but  
- *  WITHOUT ANY WARRANTY; without even the implied warranty of  
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  
- *  General Public License for more details.  
- *  
- *  You should have received a copy of the GNU General Public License  
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  
- *  
- * This file incorporates work covered by the following copyright and  
- * permission notice:  
- * 
+/*
+ * Copyright (c) 2012  University of Padua, Department of Mathematics
+ *
+ *  This file is free software: you may copy, redistribute and/or modify it
+ *  under the terms of the GNU General Public License as published by the
+ *  Free Software Foundation, either version 2 of the License, or (at your
+ *  option) any later version.
+ *
+ *  This file is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
  * Copyright (c) UPMC, Lip6, SoC
  *         Nicolas Pouillon <nipo@ssji.net>, 2006-2007
  *         Maintainers: nipo
  *
  * Copyright (c) Barcelona Supercomputing Center (BSC)
  *         Leonidas Kosmidi, 2011
- * 
+ *
  */
+#ifdef POK_ARCH_PPC
+
 #include "soclib.h"
 
 __asm__(
@@ -97,5 +99,6 @@ __asm__(
 	"lwz     31,-4(11) \n\t"
 	"mr      1,11 \n\t"
 	"blr \n\t"
-); 
-
+);
+#else //POK_ARCH_MPPA
+#endif

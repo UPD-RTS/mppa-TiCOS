@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifdef POK_ARCH_PPC
 
 #include "soclib.h"
 
@@ -23,7 +24,7 @@ void exit(int level)
 
 #ifdef POK_NEEDS_QEMU_SETUP
 	(void) level;
-	while (1); 
+	while (1);
 #else
 
 #define SIMHELPER_BASE                  0xD0800000
@@ -33,8 +34,27 @@ void exit(int level)
 		base(SIMHELPER),
 		SIMHELPER_END_WITH_RETVAL,
 		level);
-	trap(); 
-	while (1);     
-#endif 
+	trap();
+	while (1);
+#endif
 }
 
+#else //POK_ARCH_MPPA
+
+#include <libc.h>
+#include <reent.h>
+#include <unistd.h>
+#include "atexit.h"
+
+void
+_DEFUN (exit, (code),
+	int code)
+{
+  __call_exitprocs (code, NULL);
+
+  if (_GLOBAL_REENT->__cleanup)
+    (*_GLOBAL_REENT->__cleanup) (_GLOBAL_REENT);
+  _exit (code);
+}
+
+#endif
