@@ -32,7 +32,7 @@
 
 #include <dependencies.h>
 #include <arch.h>
-#include <stdio.h>
+#include <libc.h>
 
 // defined in a linker script
 extern char _end[];
