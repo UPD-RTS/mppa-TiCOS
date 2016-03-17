@@ -1,26 +1,5 @@
 /*
- *  Copyright (C) 2013-2016 Kalray SA.
- *  All rights reserved.
- *
- *  Author: Matheus Schuh, mschuh@kalray.eu
- *
- *  This file is free software: you may copy, redistribute and/or modify it
- *  under the terms of the GNU General Public License as published by the
- *  Free Software Foundation, either version 2 of the License, or (at your
- *  option) any later version.
- *
- *  This file is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * This file incorporates work covered by the following copyright and
- * permission notice:
- *
- *              Copyright (c) 2007-2009 POK team
+ * 		Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -51,20 +30,63 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __POK_MPPA_TYPES_H__
-#define __POK_MPPA_TYPES_H__
 
-#include "mOS_common_types_c.h"
-#include "mOS_common_types_s_c.h"
-#include "mOS_constants_c.h"
-#include "mOS_vcore_c.h"
+#include <errno.h>
+#include <core/debug.h>
+#include <core/syscall.h>
+#include <core/partition.h>
 
-typedef unsigned short		uint16_t;
-typedef unsigned long long	uint64_t;
+#include <types.h>
 
-typedef short			int16_t;
-typedef signed long long	int64_t;
+pok_ret_t pok_arch_sc_int(	uint32_t num,
+						uint32_t arg1,
+						uint32_t arg2,
+						uint32_t arg3,
+						uint32_t arg4,
+						uint32_t arg5,
+						uint32_t arg6,
+						uint32_t arg7) __attribute__((used));
 
-typedef unsigned int		size_t;
+pok_ret_t pok_arch_sc_int(	uint32_t num,
+						uint32_t arg1,
+						uint32_t arg2,
+						uint32_t arg3,
+						uint32_t arg4,
+						uint32_t arg5,
+						uint32_t arg6,
+						uint32_t arg7)
 
-#endif
+{
+
+
+	// uint8_t			part_id;
+	// pok_syscall_info_t	syscall_info;
+	pok_ret_t		syscall_ret;
+	// pok_syscall_args_t	syscall_args;
+	// pok_syscall_id_t	syscall_id;
+
+	// part_id  = 0; /*currently only PE0 --- pok_current_partition;*/
+	//
+	// /* prepare syscall_info */
+	// syscall_info.partition	= part_id;
+	// syscall_info.base_addr	= 0; /* pok_partitions[part_id].base_addr; */
+	// syscall_info.thread	= 0; /* currently monothread POK_SCHED_CURRENT_THREAD; */
+	//
+	// /* prepare syscall_args */
+	// syscall_args.arg1 = arg1;
+	// syscall_args.arg2 = arg2;
+	// syscall_args.arg3 = arg3;
+	// syscall_args.arg4 = arg4;
+	// syscall_args.arg5 = arg5;
+	// syscall_args.arg6 = arg6;
+	// syscall_args.arg7 = arg7;
+	// syscall_args.nargs = 7;
+	//
+	// /* prepare syscall_id */
+	// syscall_id = (pok_syscall_id_t) num;
+	(void)syscall_ret;
+	/* perform syscall */
+	/*syscall_ret = pok_core_syscall (syscall_id, &syscall_args, &syscall_info);*/
+	syscall_ret = POK_ERRNO_OK;
+	return syscall_ret;
+}

@@ -44,7 +44,7 @@
 #include <mOS_vcore_u.h>
 
  #ifdef POK_NEEDS_DEBUG
-	#include <stdio.h>
+	#include <libc.h>
  #endif
 
 //#include <machine/exceptions.h>
@@ -69,8 +69,9 @@ extern mOS_scoreboard_t _scoreboard_start; /* score_board pointer */
 extern int _scoreboard_kstack_start    __attribute__((weak));
 extern int KSTACK_SIZE          __attribute__((weak));
 extern void __vk1_asm_interrupt_handler(void);
+extern void _system_call_ISR(void);
 
-/* Patmos leftovers
+/* TODO Patmos leftovers
 extern unsigned long long time_new;
 
 extern void _interval_ISR(void);
@@ -79,32 +80,6 @@ extern void _system_call_ISR(void);
 
 extern void pok_clear_bss(void) __attribute__((used));
 */
-
-__attribute__((unused)) static int xputs(const char *str)  {
-	const char *ps = str;
-	while (*ps)
-		ps++;
-
-	#if 1
-	__asm__ __volatile__ ("make $r20 = 1\n\t;;");
-	__k1_club_syscall2 (/*1104*/ 4094, (volatile int) str, ps - str);
-	#endif
-
-	return 0;
-}
-
-/* Syscall auxiliary functions */
-void
-__user_do_scall_w(int r0, int r1, int r2, int r3, int r4, int r5, int r6, int r7);
-
-int __user_do_scall(int r0, int r1, int r2, int r3 __attribute__((unused)),
-	int r4 __attribute__((unused)), int r5 __attribute__((unused)),
-	int r6 __attribute__((unused)), int r7)
-{
-	int ret = -1;
-	mOS_enable_hw_loop();
-	return ret;
-}
 
 // Inits the architecture, no need to do anything in PATMOS
 pok_ret_t pok_arch_init ()
@@ -128,10 +103,11 @@ pok_ret_t pok_arch_init ()
 
 		/* Register _system_call_ISR function as interrupt service routine
 		 * for system call */
-		mOS_register_scall_handler((mOS_exception_handler_t) &__user_do_scall_w);
+		mOS_register_scall_handler((mOS_exception_handler_t) &_system_call_ISR);
 	}
 
-	xputs ("Entering in idle mode!");
+	printf ("Exiting\n");
+	exit(0);
 	/* go to sleep for a while */
 	do {
 		mOS_idle1();

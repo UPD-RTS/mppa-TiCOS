@@ -1,5 +1,6 @@
 TOPDIR=		../../../
 
+export DEPLOYMENT_HEADER=$(POK_PATH)/kernel/include/deployment.h
 include $(TOPDIR)/misc/mk/config.mk
 -include $(TOPDIR)/misc/mk/common-$(ARCH).mk
 
@@ -8,9 +9,8 @@ LO_TARGET=	mppa.lo
 LO_OBJS=	entry.o \
 		bin_descriptor.o \
 		arch.o \
-		scall_wrapper.o \
-		interrupt.o \
-		main.o
+		syscalls.o \
+		interrupt.o 
 
 LO_DEPS=	$(BSP)/$(BSP).lo
 
@@ -42,6 +42,3 @@ endif
 
 include $(TOPDIR)/misc/mk/rules-common.mk
 include $(TOPDIR)/misc/mk/rules-kernel.mk
-
-LDOPTS = -M
-LD = k1-ld
