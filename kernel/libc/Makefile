@@ -1,12 +1,13 @@
 TOPDIR=		../../
 
+export DEPLOYMENT_HEADER=$(POK_PATH)/kernel/include/deployment.h
 include $(TOPDIR)/misc/mk/config.mk
 -include $(TOPDIR)/misc/mk/common-$(ARCH).mk
 
 LO_TARGET=	libc.lo
 
 ifeq ($(ARCH), mppa)
-LO_OBJS=	soclib.o fflush.o fwalk.o atexit.o exit.o memcpy.o memset.o __udivdi3.o printf.o strlen.o strcmp.o
+LO_OBJS=	soclib.o exit.o memcpy.o memset.o custom_divdf3.o __udivdi3.o printf.o strlen.o strcmp.o
 else
 LO_OBJS=	soclib.o exit.o memcpy.o memset.o __udivdi3.o printf.o strlen.o strcmp.o
 endif

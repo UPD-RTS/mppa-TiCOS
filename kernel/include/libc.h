@@ -54,19 +54,20 @@
 
 #include <types.h>
 
-void  *memcpy(void * to, const void * from, size_t n);
+void *memcpy(void * to, const void * from, size_t n);
+void exit(int level);
 
 /* avoid errors for windows */
 /*__attribute__ ((weak))*/
 void *memset(void *dest, unsigned char val, size_t count);
-int	strlen (const char* str);
-int	strcmp (const char *s1, const char *s2);
+int strlen (const char* str);
+int strcmp (const char *s1, const char *s2);
 //int	strncmp(const char *s1, const char *s2, size_t size);
 
- #if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG) 
+#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
 int printf(const char *format, ...);
 void print_long(long long a);
 
- #endif /* NEEDS_CONSOLE or NEEDS_DEBUG */
+#endif /* NEEDS_CONSOLE or NEEDS_DEBUG */
 
 #endif

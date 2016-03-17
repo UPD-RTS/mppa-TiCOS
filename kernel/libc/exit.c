@@ -41,20 +41,11 @@ void exit(int level)
 
 #else //POK_ARCH_MPPA
 
-#include <libc.h>
-#include <reent.h>
-#include <unistd.h>
-#include "atexit.h"
+#include <mOS_vcore_u.h>
 
-void
-_DEFUN (exit, (code),
-	int code)
+void exit(int level)
 {
-  __call_exitprocs (code, NULL);
-
-  if (_GLOBAL_REENT->__cleanup)
-    (*_GLOBAL_REENT->__cleanup) (_GLOBAL_REENT);
-  _exit (code);
+	mOS_exit(1, level);
 }
 
 #endif
