@@ -112,8 +112,7 @@ int putchar(const int x) {
 	__asm__ __volatile__ ("make $r20 = 1\n\t;;");
 	/* syscall 4094 with two args: char (or string) address and size
 	 * Other possible syscall values are 4095 and 1104 */
-	ret = __k1_club_syscall2 (/*1104*/ 4094, (volatile int) &x, 1);
-
+	ret = __k1_club_syscall2 (4094, (volatile int) &x, 1);
 	return (int) ret;
 }
 

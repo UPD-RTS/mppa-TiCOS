@@ -76,19 +76,18 @@ extern int VIRT_U_MEM_START;
  *                                                                                           *
  *********************************************************************************************/
 
-it_handler_t second_level_handler[MOS_NB_PE_P][BSP_NB_IT_SOURCES /* number of possible event sources */] __attribute__((
-		section(
-		".locked_data")));
+/* MOS_NB_PE_P number of processor elements in the core
+ * BSP_NB_IT_SOURCES number of possible event sources */
+it_handler_t second_level_handler[MOS_NB_PE_P][BSP_NB_IT_SOURCES]
+				__attribute__((section(".locked_data")));
 
 
-void
-bsp_register_it(it_handler_t it_handler, bsp_ev_src_e source)
+void bsp_register_it(it_handler_t it_handler, bsp_ev_src_e source)
 {
 	second_level_handler[__inl_k1_get_cpu_id()][source] = it_handler;
 }
 
-it_handler_t
-bsp_get_registerered_it(bsp_ev_src_e source)
+it_handler_t bsp_get_registerered_it(bsp_ev_src_e source)
 {
 	return second_level_handler[__inl_k1_get_cpu_id()][source];
 }
@@ -116,8 +115,7 @@ static mOS_vcore_ev_src_t remaining_sources [MOS_NB_PE_P] __attribute__((section
 #endif
 
 void
-__k1_do_int(int it_nb  __attribute__((unused)),
-	__k1_vcontext_t *ctx)
+__k1_do_int(int it_nb  __attribute__((unused)), __k1_vcontext_t *ctx)
 {
 
 	/*********************************************************

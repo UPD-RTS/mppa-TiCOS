@@ -63,10 +63,10 @@ extern "C" {
 #define BSP_EV_LINE 0
 #define BSP_IT_LINE 1
 
-/** vsbp provides a set of virtualized event lines to be used by client librairies */
+/** bsp provides a set of virtualized event lines to be used by client librairies */
 #define BSP_NB_PE_EV_SRC 16
 
-/** Virtualized event lines 0..3 reserved to vbsp lib usage*/
+/** Virtualized event lines 0..3 reserved to bsp lib usage*/
 #define BSP_EVENT_BSP 0
 
 /** Virtualized event lines 4..7 reserved to guest libOS usage*/
@@ -78,11 +78,11 @@ extern "C" {
 /** Virtualized event lines 12..15 reserved to user application usage*/
 #define BSP_EVENT_USER 12
 
-#ifndef BSP_CLUSTER_INTERNAL_MEM_SIZE_P
+#ifndef BSP_CLUSTER_INTERNAL_MEM_SIZE_P /* in bytes */
 #  define BSP_CLUSTER_INTERNAL_MEM_SIZE_P (0x200000)
 #endif
 
-/** Number of timers exposed by the vbsp lib */
+/** Number of timers exposed by the bsp lib */
 #define BSP_NB_TIMERS 2
 
 /** Target section for data's */

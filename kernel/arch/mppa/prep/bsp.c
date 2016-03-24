@@ -39,15 +39,18 @@ extern char _end[];
 
 static char *heap_end = _end;
 
-void *pok_bsp_mem_alloc (size_t sz) {
+void *pok_bsp_mem_alloc (size_t sz)
+{
 	char *res;
 
 	res = (char *)(((unsigned int)heap_end + 4095) & ~4095);
 	heap_end = res + sz;
+	printf("[DEBUG] res:%p\n",res);
 	return res;
 }
 
-pok_bool_t pok_cons_write (const char *s, size_t length) {
+pok_bool_t pok_cons_write (const char *s, size_t length)
+{
 	for (size_t i = 0; i < length; i++) {
 		if (printf("%c", s[i])==0) return i;
 	}
