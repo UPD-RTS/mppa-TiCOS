@@ -60,11 +60,11 @@
 #include <arch/mppa/types.h>
 #endif
 
-#define NULL	0
-#define FALSE  	0
-#define TRUE	1
-#define bool_t 	int
-#define pok_bool_t int
+#define POK_NULL	0
+#define FALSE  		0
+#define TRUE		1
+#define bool_t 		int
+#define pok_bool_t 	int
 
 typedef uint32_t pok_port_size_t;
 typedef uint8_t pok_port_direction_t;

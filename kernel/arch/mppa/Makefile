@@ -9,8 +9,10 @@ LO_TARGET=	mppa.lo
 LO_OBJS=	entry.o \
 		bin_descriptor.o \
 		arch.o \
+		thread.o \
 		syscalls.o \
-		interrupt.o 
+		interrupt.o \
+		cswitch.o
 
 LO_DEPS=	$(BSP)/$(BSP).lo
 

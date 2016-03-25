@@ -1,4 +1,23 @@
 /*
+ *  Copyright (C) 2013-2016 Kalray SA.
+ *  All rights reserved.
+ *
+ *  This file is free software: you may copy, redistribute and/or modify it
+ *  under the terms of the GNU General Public License as published by the
+ *  Free Software Foundation, either version 2 of the License, or (at your
+ *  option) any later version.
+ *
+ *  This file is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
  * 		Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
@@ -23,7 +42,18 @@
  *		COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  *		INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
  *		BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTEtions and the following
+ *			  disclaimer in the documentation and/or other materials
+ *			  provided with the distribution.
+ *			* Neither the name of the POK Team nor the names of its main
+ *			  author (Julien Delange) or its contributors may be used to
+ *			  endorse or promote products derived from this software
+ *			  without specific prior written permission.
+ *
+ *		THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *		AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *		LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *		FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NORRUPTION) HOWEVER
  *		CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  *		LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *		ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -31,11 +61,9 @@
  */
 
 #include <bsp.h>
-#include <stdio.h>
-#include <string.h>
 #include <core/thread.h>
 #ifdef POK_NEEDS_DEBUG
-	#include <libc.h>
+#include <libc.h>
 #endif
 
 #include "thread.h"
@@ -89,8 +117,9 @@ uint32_t pok_context_create (uint32_t id, uint32_t stack_size, uint32_t entry)
 
 #ifdef POK_NEEDS_DEBUG
 
-/* Prints the context */
 #define NB_REGS_PERLINE 4
+
+/* Prints the context */
 void pok_context_print(context_t *ctx)
 {
 
@@ -122,5 +151,5 @@ void pok_context_print(context_t *ctx)
 	printf("+-----+------------+-----+------------+-----+------------+-----+------------+\n");
 
 }
-#endif
-#endif
+#endif /*POK_NEEDS_DEBUG*/
+#endif /*POK_NEEDS_THREADS*/
