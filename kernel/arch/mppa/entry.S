@@ -127,7 +127,7 @@ __proceed:				# Defines stack for each PE in the scoreboard
 	;;
 	goto 	-8			# should never return
 	;;
-.endp
+.endp _vstart
 
 .section .locked_text, "ax", @progbits
 .align 8
