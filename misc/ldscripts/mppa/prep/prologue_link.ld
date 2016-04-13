@@ -122,10 +122,10 @@
       . += (INTERNAL_RAM_SIZE >> 15);
       _scoreboard_end    = ABSOLUTE(.);
       _scoreboard_boot_stack_end = ABSOLUTE(.);
-      . += (BOOTSTACK_SIZE*16);
+      . += (BOOT_STACK_SIZE*16);
       _scoreboard_boot_stack_start = ABSOLUTE(.);
       _scoreboard_kstack_end = ABSOLUTE(.);
-      . += (KSTACK_SIZE*16);
+      . += (KERNEL_STACK_SIZE*16);
       _scoreboard_kstack_start = ABSOLUTE(.);
       MPPA_ARGAREA_START = ABSOLUTE(.);
       . += MPPA_ARGAREA_SIZE;

@@ -1,6 +1,5 @@
 TOPDIR=		../../../
 
-export DEPLOYMENT_HEADER=$(POK_PATH)/kernel/include/deployment.h
 include $(TOPDIR)/misc/mk/config.mk
 -include $(TOPDIR)/misc/mk/common-$(ARCH).mk
 
@@ -9,6 +8,7 @@ LO_TARGET=	mppa.lo
 LO_OBJS=	entry.o \
 		bin_descriptor.o \
 		arch.o \
+		space.o \
 		thread.o \
 		syscalls.o \
 		interrupt.o \

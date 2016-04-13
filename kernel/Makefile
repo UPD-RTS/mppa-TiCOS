@@ -1,3 +1,4 @@
+export DEPLOYMENT_HEADER=$(POK_PATH)/kernel/include/deployment.h
 include ../misc/mk/config.mk
 -include ../misc/mk/common-$(ARCH).mk
 
@@ -58,3 +59,14 @@ depend .depend:
 
 include ../misc/mk/rules-common.mk
 include ../misc/mk/rules-kernel.mk
+
+LD = k1-gcc
+LDFLAGS = $(CONFIG_MPPA_CC_LFLAGS)
+LDFLAGS += $(CONFIG_MPPA_CC_CFLAGS)
+LDFLAGS += -L$(POK_PATH)/kernel/libc/
+LDOPTS = -std=c11 -v -nodefaultlibs -nostdinc -nostdlib -Wl,--print-map -Wl,--whole-archive -lmOS -Wl,--no-whole-archive -T$(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.ld
+
+$(LO_TARGET): $(LO_DEPS) $(LO_OBJS)
+	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[LD] $@ "
+	$(LD) $(LO_DEPS) $(LDFLAGS) $(LDOPTS)  $(LO_OBJS) -o $(LO_TARGET)
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS)    $(ECHO_RED) " KO"; fi

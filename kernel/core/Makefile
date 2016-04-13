@@ -5,20 +5,32 @@ include $(TOPDIR)/misc/mk/config.mk
 
 LO_TARGET=	core.lo
 
+ifeq ($(ARCH), mppa)
 LO_OBJS=	partition.o \
-			div64.o \
-			debug.o \
-			lockobj.o \
-			thread.o \
-			sched.o \
-			time.o \
-			syscall.o \
-			error.o \
-			loader.o \
-			boot.o \
-			cons.o 
-# instrumentation.o \
-# kernel.o \
+		debug.o \
+		lockobj.o \
+		thread.o \
+		sched.o \
+		time.o \
+		syscall.o \
+		error.o \
+		loader.o \
+		boot.o \
+		cons.o
+else
+LO_OBJS=	partition.o \
+		div64.o \
+		debug.o \
+		lockobj.o \
+		thread.o \
+		sched.o \
+		time.o \
+		syscall.o \
+		error.o \
+		loader.o \
+		boot.o \
+		cons.o
+endif
 
 LO_DEPS=
 
