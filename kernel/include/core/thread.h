@@ -127,7 +127,7 @@ typedef struct pok_thread_t
 	uint32_t pos;
 	struct pok_sched_asynch_event_t* timeout;
 #endif
-						  
+
 } pok_thread_t;
 
 typedef struct
@@ -152,6 +152,11 @@ pok_ret_t	pok_thread_sleep (const uint32_t ms);
 //void		pok_thread_start (void (*entry)(), unsigned int id);
 //pok_ret_t	pok_thread_restart (const uint32_t tid);
 pok_ret_t	pok_thread_start (uint32_t *tid);
+
+#ifdef POK_ARCH_MPPA
+void pok_thread_start_execution(void (*entry)(), unsigned int id);
+#endif
+
 pok_ret_t	pok_thread_delayed_start (uint32_t *id, uint32_t delay_time);
 bool_t 		pok_thread_aperiodic(pok_thread_t	  pok_thread);
 bool_t 		pok_thread_preemption_enabled(pok_thread_t	  pok_thread);

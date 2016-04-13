@@ -74,9 +74,6 @@
 #include <mOS_vcore_u.h>
 #include <HAL/hal/hal.h>
 
-//TODO: remove, used for current test
-#include "thread.h"
-
 #ifdef POK_NEEDS_DEBUG
 #include <libc.h>
 #endif
@@ -94,7 +91,7 @@ extern __k1_uint8_t _sbss_end;
 
 extern mOS_scoreboard_t _scoreboard_start; /* score_board pointer */
 extern int _scoreboard_kstack_start    __attribute__((weak));
-extern int KSTACK_SIZE          __attribute__((weak));
+extern int KERNEL_STACK_SIZE          __attribute__((weak));
 extern void __vk1_asm_interrupt_handler(void);
 extern void _system_call_ISR(void);
 
@@ -134,22 +131,6 @@ pok_ret_t pok_arch_idle()
 	return (POK_ERRNO_OK);
 }
 
-
-/** TODO: REMOVE, ALSO FEATURED IN core/thread.c
- * Start a thread, giving its entry call with \a entry
- * and its identifier with \a id
- * DO NO REMOVE - This function is called in cswitch in order to start the
- * idle thread
- * MINOR CHANGE: function original name: pok_thread_start
- * the name has been changed in order to avoid ambiguity with the next function
- */
-void pok_thread_start_execution(void (*entry)(), unsigned int id)
-{
-	(void) id;
-	entry();
-}
-
-
 // Function used to start a system thread such as the idle thread
 // thread's id and entry point are supposed to be in r18 and r19
 // (see arch/thread.c)
@@ -167,27 +148,14 @@ void pok_arch_thread_start() {
 	pok_thread_start_execution((void (*)())entry, id);
 }
 
-uint32_t test;
-uint32_t test2;
-
-void pok_test() {
-	printf("I'm inside the pok test function\n");
-	pok_context_switch(test2);
-}
-
-void pok_test2() {
-	printf("I'm inside the pok test2 function\n");
-	pok_context_switch(test);
-}
-
 // Inits the architecture, no need to do anything in PATMOS
 pok_ret_t pok_arch_init ()
 {
 	int pid = __k1_get_cpu_id();
 
 	uintptr_t kstack = (uintptr_t)(&_scoreboard_kstack_start)
-						- pid * (int)&KSTACK_SIZE;
-	mOS_register_stack_handler((uint64_t*) kstack);
+						- pid * (int)&KERNEL_STACK_SIZE;
+	mOS_register_stack_handler((uint64_t *) kstack);
 	mOS_register_it_handler(__vk1_asm_interrupt_handler);
 	_scoreboard_start.SCB_VCORE.MAGIC_VALUE = 0x12344321;
 
@@ -205,14 +173,13 @@ pok_ret_t pok_arch_init ()
 		mOS_register_scall_handler((mOS_exception_handler_t) &_system_call_ISR);
 	}
 
-	test = pok_context_create(POK_CONFIG_NB_THREADS-1, 4096, (uint32_t)pok_test);
-	test2 = pok_context_create(POK_CONFIG_NB_THREADS-2, 4096, (uint32_t)pok_test2);
-	pok_context_print((context_t *)test);
-	pok_context_print((context_t *)test2);
-
-	pok_context_switch(test);
-
-	printf ("Exiting\n");
-	exit(0);
+	printf ("[DEBUG] Pok arch init finished");
 	return POK_ERRNO_OK;
+}
+
+// Computes the stack address of a given thread in a given
+// partition
+uint32_t pok_thread_stack_addr (const uint8_t partition_id, const uint32_t local_thread_id)
+{
+	return pok_partitions[partition_id].size - (local_thread_id * POK_USER_STACK_SIZE);
 }

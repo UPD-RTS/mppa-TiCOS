@@ -95,7 +95,7 @@ _vstart: # _vstart ()
 	scall	MOS_VC_IDLE1		# otherwise the PE waits the end of
 	;;				# the booting process
 __proceed:				# Defines stack for each PE in the scoreboard
-	make	$r3, BOOTSTACK_SIZE	# Normally BOOTSTACK_SIZE = 0x100
+	make	$r3, BOOT_STACK_SIZE	# Normally BOOT_STACK_SIZE = 0x100
 	;;
 	ctz	$r3, $r3		# 8 stored in $r3
 	;;
@@ -109,7 +109,7 @@ __proceed:				# Defines stack for each PE in the scoreboard
 	;;
 	add	$r12 = $r12, $r2 	# move stack down
 	;;
-	call	pok_arch_init		# pok_boot and clear_bss before
+	call	pok_boot		# pok_boot and clear_bss before
 	;;
 	wpurge
 	;;

@@ -103,7 +103,7 @@ uint32_t pok_context_create(uint32_t id,uint32_t stack_size, uint32_t entry);
 
 /* Interface not yet completely defined */
 //void pok_context_switch(uint32_t *old_sp, uint32_t new_sp);
-void pok_context_switch(uint32_t new_context);
+void pok_context_switch(uint32_t *old_sp, uint32_t new_sp);
 
 #ifdef POK_NEEDS_DEBUG
 void pok_context_print(context_t *ctx);
