@@ -173,9 +173,6 @@ pok_ret_t pok_arch_init ()
 		mOS_register_scall_handler((mOS_exception_handler_t) &_system_call_ISR);
 	}
 
-	mOS_set_it_level(0);
-	mOS_it_enable();
-
 	printf ("[DEBUG] Pok arch init finished");
 	return POK_ERRNO_OK;
 }
@@ -185,4 +182,43 @@ pok_ret_t pok_arch_init ()
 uint32_t pok_thread_stack_addr (const uint8_t partition_id, const uint32_t local_thread_id)
 {
 	return pok_partitions[partition_id].size - (local_thread_id * POK_USER_STACK_SIZE);
+}
+
+// TODO: Verify that preempt enable/disable are working
+pok_ret_t pok_arch_preempt_disable()
+{
+	// clear pending flags
+	mOS_it_clear_num(MOS_VC_IT_TIMER_0);
+	mOS_it_clear_num(MOS_VC_IT_TIMER_1);
+
+	// unmask interrupts - TODO in mppa
+
+	mOS_set_it_level(0);
+	// enable interrupts
+	mOS_it_disable();
+
+	return (POK_ERRNO_OK);
+}
+
+pok_ret_t pok_arch_preempt_enable()
+{
+	// clear pending flags
+	mOS_it_clear_num(MOS_VC_IT_TIMER_0);
+	mOS_it_clear_num(MOS_VC_IT_TIMER_1);
+
+	// unmask interrupts - TODO in mppa
+
+	mOS_set_it_level(0);
+	// enable interrupts
+	mOS_it_enable();
+
+	return (POK_ERRNO_OK);
+}
+
+pok_ret_t	pok_arch_cache_invalidate ()
+{
+	/* Performs a full data and instruction cache invalidation */
+	mOS_iinval();
+	mOS_dinval();
+	return (POK_ERRNO_OK);
 }
