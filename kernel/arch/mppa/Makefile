@@ -12,7 +12,8 @@ LO_OBJS=	entry.o \
 		thread.o \
 		syscalls.o \
 		interrupt.o \
-		cswitch.o
+		cswitch.o \
+		timer.o
 
 LO_DEPS=	$(BSP)/$(BSP).lo
 

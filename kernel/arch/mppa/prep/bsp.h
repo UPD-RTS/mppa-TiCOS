@@ -149,8 +149,10 @@ typedef enum {
 
 
 /** Interrupt handler prototype */
-typedef void ( *it_handler_t)(int nb, __k1_vcontext_t *ctx);
-
+//typedef void ( *it_handler_t)(int nb, __k1_vcontext_t *ctx);
+typedef void (*it_handler_t)(int nb);
+void bsp_register_it(it_handler_t it_handler, bsp_ev_src_e source);
+void bsp_handlers_init(void);
 
 #ifdef __cplusplus
 }
