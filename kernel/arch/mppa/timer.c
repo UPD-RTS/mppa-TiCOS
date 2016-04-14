@@ -41,6 +41,7 @@
 #include <mOS_vcore_u.h>
 
 #include "prep/bsp.h"
+#include "thread.h"
 
 /**
  * From "kernel/include/core/time.h"
@@ -58,7 +59,7 @@ unsigned int next_timer;
 
 unsigned long long time_new;
 
-unsigned long long get_mppa_tb(void)
+unsigned long long get_mppa_tb (void)
 {
 	return mOS_timer64_get_value();
 }
@@ -112,7 +113,7 @@ uint64_t pok_update_tick()
 }
 
 /* Called by the interrupt handled.  */
-void pok_arch_decr_int (int ev_src)
+void pok_arch_decr_int (int ev_src, __k1_vcontext_t *ctx)
 {
 	if (ev_src == BSP_IT_TIMER_0 || ev_src == BSP_IT_TIMER_1) {
 		dec_updated=FALSE;

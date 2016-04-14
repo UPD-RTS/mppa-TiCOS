@@ -148,9 +148,9 @@ typedef enum {
 }bsp_ev_src_e;
 
 
-/** Interrupt handler prototype */
-//typedef void ( *it_handler_t)(int nb, __k1_vcontext_t *ctx);
-typedef void (*it_handler_t)(int nb);
+/** Interrupt handler prototype, TODO: possibly define context_t here, not in
+* thread.h  */
+typedef void ( *it_handler_t)(int nb, __k1_vcontext_t *ctx);
 void bsp_register_it(it_handler_t it_handler, bsp_ev_src_e source);
 void bsp_handlers_init(void);
 
