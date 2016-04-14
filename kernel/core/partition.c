@@ -72,8 +72,8 @@
 #include <core/loader.h>
 #include <core/partition.h>
 
- #if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG) 
-	#include <libc.h>
+#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
+#include <libc.h>
 #endif
 
 #ifdef POK_NEEDS_SCHED_FPPS
@@ -143,9 +143,9 @@ void pok_partition_setup_scheduler (const uint8_t pid)
 void pok_partition_reinit (const uint8_t pid)
 {
 	uint32_t tmp;
-	
+
 	 // FIXME: reset queueing/sampling ports too
-	 
+
 	pok_partition_setup_scheduler (pid);
 	pok_partitions[pid].thread_index = 0;
 	pok_partitions[pid].current_thread = pok_partitions[pid].thread_index_low;
@@ -167,7 +167,7 @@ void pok_partition_reinit (const uint8_t pid)
  */
 void pok_partition_setup_main_thread (const uint8_t pid)
 {
-	uint32_t size;
+	uint32_t __attribute__((unused)) size ;
 	uint32_t main_thread;
 	pok_thread_attr_t attr;
 
@@ -214,7 +214,7 @@ pok_ret_t pok_partition_init ()
 		pok_partitions[i].base_addr   = base_addr;
 		pok_partitions[i].size        = size;
 		pok_partitions[i].sched       = POK_SCHED_RR;
-		pok_partitions[i].partition_id = i;     
+		pok_partitions[i].partition_id = i;
 //#ifdef POK_NEEDS_DEBUG
 //#include <libc.h>
 		printf ("[XCOV] Partition %d loaded at addr virt=|%x|, phys=|%x|\n", i, base_vaddr, base_addr);
@@ -270,7 +270,7 @@ pok_ret_t pok_partition_init ()
 		pok_partitions[i].error_status.error_kind       = POK_ERROR_KIND_INVALID;
 		pok_partitions[i].error_status.msg_size         = 0;
 #endif
-	
+
 #ifdef POK_NEEDS_DEBUG
 		printf("loading partition\n");
 #endif
@@ -315,7 +315,7 @@ pok_ret_t pok_partition_init ()
 	{
 		pok_partition_setup_main_thread (i);
 	}
-	
+
 	return POK_ERRNO_OK;
 }
 
@@ -347,7 +347,7 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
 			{
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
 				/* idle thread is always ready in the periodic threads queue */
-				pok_partitions[pid].runnables |= (1 << (IDLE_THREAD - pok_partitions[pid].thread_index_low));  
+				pok_partitions[pid].runnables |= (1 << (IDLE_THREAD - pok_partitions[pid].thread_index_low));
  #endif
 				// Check thread is not idle, kernel or (partition main) current thread and each thread belongs to the current partition
 				if ((thread_id != IDLE_THREAD) && (thread_id != KERNEL_THREAD) && (thread_id != POK_CURRENT_PARTITION.current_thread)
@@ -355,13 +355,13 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
 					&& pok_threads[thread_id].state == POK_STATE_WAITING) { // the thread has been started
 
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
-					/* if the thread is a successor set its bit in the successor bitmask and 
+					/* if the thread is a successor set its bit in the successor bitmask and
 	 				 * reset its bit in the executed_predecessors bitmask
 	 				 */
 					if ( ((bool_t[])POK_CONFIG_SUCCESSOR_THREADS)[pok_threads[thread_id].id] == TRUE)
 					{
 						pok_partitions[pid].successors |= (1 << (pok_threads[thread_id].pos - pok_partitions[pid].thread_index_low));
-						pok_partitions[pid].executed_predecessors &= 
+						pok_partitions[pid].executed_predecessors &=
 									~(1 << (pok_threads[thread_id].pos - pok_partitions[pid].thread_index_low));
 					}
 					/* if the thread is a predecessor set the bitmask corresponding to its successor in the successors_bitmasks */
@@ -379,11 +379,11 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
 						/* set the thread bit in the sporadic_mask bitmask */
 						pok_partitions[pid].sporadic_bitmask |= (1 << (pok_threads[thread_id].pos - pok_partitions[pid].thread_index_low));
   #endif
-						if(pok_threads[thread_id].timeout != NULL)
+						if(pok_threads[thread_id].timeout != POK_NULL)
 							// initiate a time counter with duration DELAY_TIME;
 							pok_sched_set_asynch_event(thread_id,
 										pok_threads[thread_id].timeout->timer,
-										POK_EVENT_DELAYED_START);						
+										POK_EVENT_DELAYED_START);
 						else
 						{
   #ifdef POK_NEEDS_SCHED_O1_SPLIT
@@ -400,21 +400,21 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
  #ifdef POK_NEEDS_SCHED_FPPS
 							insert_in_queue(POK_SCHED_CURRENT_PARTITION,&pok_threads[thread_id]);
  #endif
- 
+
  #ifdef POK_NEEDS_SCHED_O1
 						}
  #endif
 					}else{
 						// periodic thread
-						// set first release points of all previously started (not delayed) periodic processes to 
+						// set first release points of all previously started (not delayed) periodic processes to
 						// their next partition period;
 						// The partition period is unused
 						// check if  the next activation is set to the beginning of the next time slot of the partition
-						pok_threads[thread_id].next_activation = pok_partitions[pok_threads[thread_id].partition].activation 
+						pok_threads[thread_id].next_activation = pok_partitions[pok_threads[thread_id].partition].activation
 								+ get_partition_period(pok_threads[thread_id].partition);
  #ifdef POK_NEEDS_SCHED_O1
 
-						if(pok_threads[thread_id].timeout != NULL)
+						if(pok_threads[thread_id].timeout != POK_NULL)
 						{
 							pok_threads[thread_id].next_activation += pok_threads[thread_id].timeout->timer;
 							pok_sched_set_asynch_event(thread_id,pok_threads[thread_id].next_activation,POK_EVENT_DELAYED_START);
@@ -450,14 +450,14 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
 					}
 				}
 			}// end for
-	
+
 			// set the partition lock level to 0
 			pok_partitions[pid].lock_level = 0;
 
-			// setting the partition mode		
+			// setting the partition mode
 			pok_partitions[pid].mode = mode;
 
-			// stop the calling thread 
+			// stop the calling thread
 			pok_sched_stop_thread(pok_partitions[pid].thread_main);
 
 			// activate the process scheduling
@@ -466,7 +466,7 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
 #else
 			pok_sched();
 #endif
-		
+
 		break;
 
 		default:

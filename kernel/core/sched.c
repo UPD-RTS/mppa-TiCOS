@@ -54,7 +54,7 @@
  ** \brief  Function for partitions and kernel scheduling
  */
 
-#if defined (POK_NEEDS_SCHED) || defined (POK_NEEDS_THREADS) 
+#if defined (POK_NEEDS_SCHED) || defined (POK_NEEDS_THREADS)
 
 #include <types.h>
 #include <arch.h>
@@ -111,10 +111,13 @@ extern void pok_slot_write_flush (uint8_t pid);
 #endif
 
 /* Indicates how long every partition should execute */
-uint64_t pok_sched_slots[POK_CONFIG_SCHEDULING_NBSLOTS]            = (uint64_t[]) POK_CONFIG_SCHEDULING_SLOTS;
-uint8_t  pok_sched_slots_allocation[POK_CONFIG_SCHEDULING_NBSLOTS] = (uint8_t[]) POK_CONFIG_SCHEDULING_SLOTS_ALLOCATION;
+//uint64_t pok_sched_slots[POK_CONFIG_SCHEDULING_NBSLOTS]            = (uint64_t[]) POK_CONFIG_SCHEDULING_SLOTS;
+uint64_t pok_sched_slots[POK_CONFIG_SCHEDULING_NBSLOTS]            = POK_CONFIG_SCHEDULING_SLOTS;
+//uint8_t  pok_sched_slots_allocation[POK_CONFIG_SCHEDULING_NBSLOTS] = (uint8_t[]) POK_CONFIG_SCHEDULING_SLOTS_ALLOCATION;
+uint8_t  pok_sched_slots_allocation[POK_CONFIG_SCHEDULING_NBSLOTS] = POK_CONFIG_SCHEDULING_SLOTS_ALLOCATION;
 #ifdef POK_NEEDS_SCHED_O1
-uint8_t  pok_asynch_events[POK_CONFIG_NB_PARTITIONS] = ((uint8_t[])POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS);
+//uint8_t  pok_asynch_events[POK_CONFIG_NB_PARTITIONS] = ((uint8_t[])POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS);
+uint8_t  pok_asynch_events[POK_CONFIG_NB_PARTITIONS] = POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS;
  #if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)
 uint8_t  pok_postwrite_times[POK_CONFIG_SCHEDULING_NBSLOTS] = ((uint8_t[])POK_CONFIG_PARTITIONS_POSTWRITE_TIME);
  #endif
@@ -139,7 +142,7 @@ void remove_from_queue (uint16_t, pok_thread_t*);
  */
 void pok_sched_init (void)
 {
-#ifdef POK_NEEDS_PARTITIONS 
+#ifdef POK_NEEDS_PARTITIONS
  #if defined (POK_NEEDS_ERROR_HANDLING) || defined (POK_NEEDS_DEBUG)
 	/*
 	 * We check that the total time of time frame
@@ -165,7 +168,7 @@ void pok_sched_init (void)
   #endif
 	}
  #endif /* POK_NEEDS_ERROR_HANDLING) || defined (POK_NEEDS_DEBUG) */
-#endif /* POK_NEEDS_PARTITIONS */ 
+#endif /* POK_NEEDS_PARTITIONS */
 
 	pok_sched_current_slot        = 0;
 	/* POK_CONFIG_SCHEDULING_MAJOR_FRAME = sum of all scheduling slots */
@@ -196,18 +199,18 @@ void pok_sched_init (void)
 			if (counter -1 >= index_low)
 				asynch_queue[counter].previous = &(asynch_queue[counter-1]);
 			else
-				asynch_queue[counter].previous = NULL;
+				asynch_queue[counter].previous = POK_NULL;
 
 			if (counter +1 < index)
 				asynch_queue[counter].next = &(asynch_queue[counter+1]);
 			else
-				asynch_queue[counter].next = NULL;
+				asynch_queue[counter].next = POK_NULL;
 		}
 		if (index > 0)
 		{
-			pok_partitions[part].head_asynch_queue = NULL;
+			pok_partitions[part].head_asynch_queue = POK_NULL;
 			pok_partitions[part].head_asynch_empty = &(asynch_queue[index_low]);
-			pok_partitions[part].head_asynch_temporary = NULL;
+			pok_partitions[part].head_asynch_temporary = POK_NULL;
 		}
  #ifdef POK_NEEDS_DEBUG_O1
 		printf("DEBUG_O1::QUEUE for partition %d starts from index %d\n",part,index_low);
@@ -224,7 +227,7 @@ void pok_sched_init (void)
 void print_queue(pok_sched_asynch_event_t* head)
 {
 	pok_sched_asynch_event_t* current_asynch = head;
-	while (current_asynch != NULL){
+	while (current_asynch != POK_NULL){
 		print_long(current_asynch->timestamp);
 		printf(" -> ");
 		current_asynch = current_asynch->next;
@@ -236,7 +239,7 @@ void print_queue(pok_sched_asynch_event_t* head)
 #ifdef POK_NEEDS_SCHED_O1
 void pok_sched_set_asynch_event(uint32_t thread_id, uint64_t time, pok_event_type_t type)
 {
-	if ((pok_threads[thread_id].timeout != NULL) && (pok_threads[thread_id].timeout->type == POK_EVENT_DELAYED_START))
+	if ((pok_threads[thread_id].timeout != POK_NULL) && (pok_threads[thread_id].timeout->type == POK_EVENT_DELAYED_START))
 	{
 		// overwrite of the previously created DELAYED_START event on NORMAL partition mode
 		pok_threads[thread_id].timeout-> timestamp = time;
@@ -253,12 +256,12 @@ void pok_sched_set_asynch_event(uint32_t thread_id, uint64_t time, pok_event_typ
 	new_event->timestamp = now + time;
 	new_event->mask = the_mask;
 	new_event->type = type;
-	if (new_event->next != NULL)
-		new_event->next->previous = NULL;
+	if (new_event->next != POK_NULL)
+		new_event->next->previous = POK_NULL;
 	POK_CURRENT_PARTITION.head_asynch_empty = new_event->next;
 	// add to temporary queue
 	new_event->next = POK_CURRENT_PARTITION.head_asynch_temporary; //insert in head
-	if (new_event->next != NULL)
+	if (new_event->next != POK_NULL)
 		new_event->next->previous = new_event;
 	POK_CURRENT_PARTITION.head_asynch_temporary = new_event;
 	pok_threads[thread_id].timeout = new_event;
@@ -271,9 +274,9 @@ printf("Offsets: %d %d %d %d %d\n", offsetof(pok_sched_asynch_event_t, timer),of
 printf("TIME: ");print_long(time);printf("\tNOW+TIME: ");print_long(now+time);printf("\tTIMER: ");print_long(new_event->timer);printf("\tTIMESTAMP: ");print_long(new_event->timestamp);printf("\tMASK: %d",new_event->mask);printf("\n");
 //printf("by byte: %d %d\n",(uint32_t)(((new_event->timestamp) << 32)>>32),(uint32_t)(((new_event->timestamp) >> 32)<<32));*/
  #ifdef POK_NEEDS_DEBUG_O1
-	if (POK_CURRENT_PARTITION.head_asynch_empty != NULL || 
-	POK_CURRENT_PARTITION.head_asynch_temporary != NULL || 
-	POK_CURRENT_PARTITION.head_asynch_queue != NULL)
+	if (POK_CURRENT_PARTITION.head_asynch_empty != POK_NULL ||
+	POK_CURRENT_PARTITION.head_asynch_temporary != POK_NULL ||
+	POK_CURRENT_PARTITION.head_asynch_queue != POK_NULL)
 	{
 		printf("**********************************************************************\n");
 		printf("DEBUG_O1::CREATED ASYNCH EVENT: thread %d to be activated at time ",thread_id);print_long(new_event->timestamp);printf("\n");
@@ -290,31 +293,31 @@ void pok_sched_reorder_asynch_list()
 	pok_sched_asynch_event_t* current_temporary = POK_CURRENT_PARTITION.head_asynch_temporary;
 	pok_sched_asynch_event_t* current_asynch = POK_CURRENT_PARTITION.head_asynch_queue;
 	uint64_t current_timestamp;
-	while (current_temporary != NULL)
+	while (current_temporary != POK_NULL)
 	{
 		current_timestamp = current_temporary->timestamp;
-		pok_sched_asynch_event_t* prev = NULL;
-		while (current_asynch != NULL && current_asynch->timestamp < current_timestamp)
+		pok_sched_asynch_event_t* prev = POK_NULL;
+		while (current_asynch != POK_NULL && current_asynch->timestamp < current_timestamp)
 		{
 			prev = current_asynch;
 			current_asynch = current_asynch->next;
 		}
 		current_temporary->previous = prev;
 		current_temporary->next = current_asynch;
-		if (prev != NULL)
+		if (prev != POK_NULL)
 			prev->next = current_temporary;
 		else
 			POK_CURRENT_PARTITION.head_asynch_queue = current_temporary; //update head of queue
-		if (current_asynch != NULL)
+		if (current_asynch != POK_NULL)
 			current_asynch->previous = current_temporary;
-		
+
 		current_temporary = current_temporary->next;
 	}
-	POK_CURRENT_PARTITION.head_asynch_temporary = NULL;
+	POK_CURRENT_PARTITION.head_asynch_temporary = POK_NULL;
  #ifdef POK_NEEDS_DEBUG_O1
-	if (POK_CURRENT_PARTITION.head_asynch_empty != NULL 
-		|| POK_CURRENT_PARTITION.head_asynch_temporary != NULL 
-		|| POK_CURRENT_PARTITION.head_asynch_queue != NULL)
+	if (POK_CURRENT_PARTITION.head_asynch_empty != POK_NULL
+		|| POK_CURRENT_PARTITION.head_asynch_temporary != POK_NULL
+		|| POK_CURRENT_PARTITION.head_asynch_queue != POK_NULL)
 	{
 		printf("**********************************************************************\n");
 		printf("DEBUG_O1::REORDERED ASYNCH QUEUES:\n");
@@ -330,31 +333,31 @@ void pok_sched_service_asynch_events()
 {
 	uint64_t now = POK_GETTICK();
 	pok_sched_asynch_event_t* current_asynch = POK_CURRENT_PARTITION.head_asynch_queue;
-	while (current_asynch != NULL && current_asynch->timestamp <= now)
+	while (current_asynch != POK_NULL && current_asynch->timestamp <= now)
 	{
 		POK_CURRENT_PARTITION.runnables |= current_asynch->mask;
 		POK_CURRENT_PARTITION.head_asynch_queue = current_asynch->next;
 		if (pok_threads[current_asynch->pos].timeout->type == POK_EVENT_DELAYED_START)
 		{
 			current_asynch->next = POK_CURRENT_PARTITION.head_asynch_temporary; //put the event back in the (head of) temporary queue
-			if (POK_CURRENT_PARTITION.head_asynch_temporary != NULL)
+			if (POK_CURRENT_PARTITION.head_asynch_temporary != POK_NULL)
 				POK_CURRENT_PARTITION.head_asynch_temporary->previous = current_asynch;
 			POK_CURRENT_PARTITION.head_asynch_temporary = current_asynch;
 		}
 		else
 		{
 			current_asynch->next = POK_CURRENT_PARTITION.head_asynch_empty; //put the event in the (head of) empty queue
-			if (POK_CURRENT_PARTITION.head_asynch_empty != NULL)
+			if (POK_CURRENT_PARTITION.head_asynch_empty != POK_NULL)
 				POK_CURRENT_PARTITION.head_asynch_empty->previous = current_asynch;
 			POK_CURRENT_PARTITION.head_asynch_empty = current_asynch;
-			pok_threads[current_asynch->pos].timeout = NULL;
+			pok_threads[current_asynch->pos].timeout = POK_NULL;
 			current_asynch->timer =0;
 			current_asynch->timestamp =0;
 			current_asynch->mask =0;
 			current_asynch->pos =0;
 		}
  #ifdef POK_NEEDS_DEBUG_O1
-		if (POK_CURRENT_PARTITION.head_asynch_empty != NULL || POK_CURRENT_PARTITION.head_asynch_temporary != NULL || POK_CURRENT_PARTITION.head_asynch_queue != NULL)
+		if (POK_CURRENT_PARTITION.head_asynch_empty != POK_NULL || POK_CURRENT_PARTITION.head_asynch_temporary != POK_NULL || POK_CURRENT_PARTITION.head_asynch_queue != POK_NULL)
 		{
 			printf("**********************************************************************\n");
 			printf("DEBUG_O1::SERVICE ASYNCH EVENT: thread %d (to be activated at ");
@@ -364,7 +367,7 @@ void pok_sched_service_asynch_events()
 			printf("** Actual queue: ");print_queue(POK_CURRENT_PARTITION.head_asynch_queue);
 			printf("**********************************************************************\n");
 		}
- #endif				
+ #endif
 		current_asynch = POK_CURRENT_PARTITION.head_asynch_queue;
 	}
 }
@@ -409,7 +412,7 @@ uint8_t pok_sched_get_priority_max (const pok_sched_t sched_type)
 /* Elects next partition to be executed */
 pok_partition_t*	pok_elect_partition(uint64_t time)
 {
-	pok_bool_t switched = FALSE;
+	pok_bool_t switched __attribute__((unused)) = FALSE;
 	uint64_t now = time;
 	/* End of the curently executing partition slot */
 
@@ -428,23 +431,23 @@ pok_partition_t*	pok_elect_partition(uint64_t time)
 //		printf("DEBUG_O1::Start of MAF: ");print_long(start_of_MAF);printf("\n");
  #endif
 
- # if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)	
+ # if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)
 		// Convey data from SOURCE ports to DESTINATION ports
 		pok_port_flushall();
  #endif
   	}
-		
+
 	/* Sets the next partition switch instant */
 	pok_sched_next_deadline = pok_sched_next_deadline + pok_sched_slots[pok_sched_current_slot];
 
  #ifdef POK_NEEDS_DEBUG
 	printf ("Switch from partition %d to partition %d\n", pok_current_partition, pok_sched_current_slot);
  #endif
-  	
-	pok_partitions[pok_current_partition].prev_current_thread = pok_partitions[pok_current_partition].current_thread;		
+
+	pok_partitions[pok_current_partition].prev_current_thread = pok_partitions[pok_current_partition].current_thread;
 	pok_partitions[pok_current_partition].current_thread = POK_SCHED_CURRENT_THREAD;
 
-	// Switch current partition to elected new partition. 
+	// Switch current partition to elected new partition.
 	pok_current_partition = pok_sched_slots_allocation[pok_sched_current_slot];
 
 	// set the current activation time of the partition -- used to calculate the process first release point
@@ -454,33 +457,33 @@ pok_partition_t*	pok_elect_partition(uint64_t time)
 	printf("DEBUG_O1::Setting partition %d activation to ",pok_current_partition);print_long(now);printf("\n");
  #endif
 
- # if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)	
+ # if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)
 	// Prefetch reads after flush (new partition)
 	pok_slot_read_prefetch (pok_current_partition);
  #endif
-		
- 
+
+
  #ifdef POK_NEEDS_SCHED_O1
 	// Reorder asynch events of the partition and activate those that have timed out
 	pok_sched_reorder_asynch_list();
 	pok_sched_service_asynch_events();
  #endif
 
-//#endif  /* POK_CONFIG_NB_PARTITIONS > 1 */ 
+//#endif  /* POK_CONFIG_NB_PARTITIONS > 1 */
 
 	return (&(pok_partitions[pok_current_partition]));
 }
 
 uint32_t pok_elect_thread (pok_partition_t* current_partition, uint64_t now)
 {
-	// We elect the thread to be executed 
+	// We elect the thread to be executed
 	uint32_t 		elected;
  #ifdef POK_NEEDS_SCHED_O1
 	uint32_t moment;
  #else
 	uint8_t		i;
  #endif
-   
+
 	// Update of thread state only when the partition is in NORMAL mode
 	switch (current_partition->mode)
 	{
@@ -502,7 +505,7 @@ uint32_t pok_elect_thread (pok_partition_t* current_partition, uint64_t now)
 			break;
 		case POK_PARTITION_MODE_NORMAL:
  #ifdef POK_NEEDS_ERROR_HANDLING
-			if ((POK_SCHED_CURRENT_THREAD == POK_CURRENT_PARTITION.thread_error) && 
+			if ((POK_SCHED_CURRENT_THREAD == POK_CURRENT_PARTITION.thread_error) &&
 					(POK_CURRENT_THREAD.state == POK_STATE_RUNNABLE))
 			{
 					elected = POK_CURRENT_PARTITION.thread_error;
@@ -518,7 +521,7 @@ uint32_t pok_elect_thread (pok_partition_t* current_partition, uint64_t now)
 			printf("DEBUG_O1::Now: ");print_long(now);printf("\n");
 			printf("DEBUG_O1::Time since start of MAF: %d\n",moment);
   #endif
-			pok_partitions[pok_current_partition].runnables |= masks[moment][POK_STATE_RUNNABLE]; 
+			pok_partitions[pok_current_partition].runnables |= masks[moment][POK_STATE_RUNNABLE];
 
 // *********************************************************************************
  #else /* ! POK_NEEDS SCHED_O1 */
@@ -577,14 +580,14 @@ uint32_t pok_elect_thread (pok_partition_t* current_partition, uint64_t now)
 
 void pok_check_remaining_time_capacity(){
 
-	if ( (POK_SCHED_CURRENT_THREAD != IDLE_THREAD) && 
+	if ( (POK_SCHED_CURRENT_THREAD != IDLE_THREAD) &&
 		(POK_SCHED_CURRENT_THREAD != POK_CURRENT_PARTITION.thread_main) &&
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
 			(( POK_CURRENT_PARTITION.runnables & (1 << (POK_CURRENT_THREAD.pos - POK_CURRENT_PARTITION.thread_index_low)) ) != 0)
  #else
 		(POK_CURRENT_THREAD.state == POK_STATE_RUNNABLE)
  #endif
-		/* this is a necessary condition as the current thread could be in WAIT_FOR_NEXT_ACTIVATION state 
+		/* this is a necessary condition as the current thread could be in WAIT_FOR_NEXT_ACTIVATION state
 		   e.g. it has performed a periodic wait */
  #ifdef POK_NEEDS_ERROR_HANDLING
 		&& (POK_SCHED_CURRENT_THREAD != POK_CURRENT_PARTITION.thread_error)
@@ -598,7 +601,7 @@ void pok_check_remaining_time_capacity(){
 			// FIXED: if the current thread run out of time capacity then it
 			// should not be elected and its state is set to POK_STATE_WAIT_NEXT_ACTIVATION
 			if (POK_CURRENT_THREAD.remaining_time_capacity==0)
-			{  
+			{
 				POK_CURRENT_THREAD.state = POK_STATE_WAIT_NEXT_ACTIVATION;
 
 				// Original POK: next activation and deadline set when the thread is set to RUNNABLE
@@ -614,7 +617,7 @@ void pok_sched()
  #if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)
   #ifdef POK_NEEDS_SCHED_O1
 
- 	/* enable both caches */ 
+ 	/* enable both caches */
 	pok_arch_cache_enable();
 
 	/* manage POSTWRITE */
@@ -638,7 +641,7 @@ void pok_sched()
 
  #ifdef POK_NEEDS_SCHED_O1
 
-	/* Invalidate both caches */ 
+	/* Invalidate both caches */
 	pok_arch_cache_invalidate();
 
 	pok_partition_t* elected_partition = pok_elect_partition(now);
@@ -649,7 +652,7 @@ void pok_sched()
   # if ((defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)))
 	next_timer = (pok_sched_slots[pok_sched_current_slot] - pok_postwrite_times[pok_sched_current_slot]) * time_inter;
 	if (pok_postwrite_times[pok_sched_current_slot] > 0)
-		next_subslot_postwrite = TRUE; 
+		next_subslot_postwrite = TRUE;
   #else
 	next_timer = pok_sched_slots[pok_sched_current_slot] * time_inter;
   #endif
@@ -672,7 +675,7 @@ void pok_sched()
 			elected_thread = pok_elect_thread(elected_partition,now);
 			/* Switch partition (and context switch) */
 			pok_sched_partition_switch (elected_thread);
-			
+
 		} else {
 			/* Select thread */
 			elected_thread = pok_elect_thread(&(pok_partitions[pok_current_partition]),now);
@@ -683,7 +686,7 @@ void pok_sched()
 		printf("elect_thread %d\n",elected_thread);
   #endif
  #endif /* POK_NEEDS_SCHED_O1 */
-	
+
 }
 
 #endif /* ! POK_NEEDS_PARTITIONS */
@@ -709,7 +712,7 @@ void pok_sched_thread_switch ()
 	elected = pok_sched_part_election (0, POK_CONFIG_NB_THREADS);
 	pok_sched_context_switch(elected);
 }
-#endif 
+#endif
 */
 /* POK_NEEDS_PARTITIONS */
 
@@ -724,10 +727,10 @@ void pok_sched_context_switch (const uint32_t elected_id)
 
 	current_sp = &POK_CURRENT_THREAD.sp;
 	new_sp = pok_threads[elected_id].sp;
-	
+
 	/* No need to switch */
 	if (POK_SCHED_CURRENT_THREAD == elected_id)
-	{ 
+	{
 #ifdef POK_NEEDS_DEBUG
          printf("<=> NO switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
          printf("<=> NO switch to thread %d, sp=0x%x\n",elected_id, new_sp);
@@ -740,8 +743,8 @@ void pok_sched_context_switch (const uint32_t elected_id)
 #ifdef POK_NEEDS_DEBUG
 	 printf("switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
 	 printf("switch to thread %d, sp=0x%x entry point = 0x%x\n",elected_id, new_sp, pok_threads[elected_id].entry);
-#endif	 
-	// Update current thread id now 
+#endif
+	// Update current thread id now
 	current_thread = elected_id;
 	// Call to low-level context switch routine from entry.S
 	pok_context_switch(current_sp, new_sp);
@@ -760,24 +763,24 @@ void pok_sched_partition_switch (const uint32_t elected_id)
 	current_sp = &POK_CURRENT_THREAD.sp;
 	new_sp = pok_threads[elected_id].sp;
 
-	if (POK_SCHED_CURRENT_THREAD == elected_id)
-	{	
-#ifdef POK_NEEDS_DEBUG
-		printf("<=> NO switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
-		printf("<=> NO switch to thread %d, sp=0x%x\n",elected_id, new_sp);
-#endif
-		return;
-	}
-					
-	/* FIXME : current debug session about exceptions-handled */
-#ifdef POK_NEEDS_DEBUG
-	printf("switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
-	printf("switch to thread %d, sp=0x%x, entry point = 0x%x\n",elected_id, new_sp, pok_threads[elected_id].entry);
-#endif	 
-	
-	// Switch from one partition to another	
-	pok_space_switch(POK_CURRENT_THREAD.partition, pok_threads[elected_id].partition);
-	// Update current thread id now 
+// 	if (POK_SCHED_CURRENT_THREAD == elected_id)
+// 	{
+// #ifdef POK_NEEDS_DEBUG
+// 		printf("<=> NO switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
+// 		printf("<=> NO switch to thread %d, sp=0x%x\n",elected_id, new_sp);
+// #endif
+// 		return;
+// 	}
+//
+// 	/* FIXME : current debug session about exceptions-handled */
+// #ifdef POK_NEEDS_DEBUG
+// 	printf("switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
+// 	printf("switch to thread %d, sp=0x%x, entry point = 0x%x\n",elected_id, new_sp, pok_threads[elected_id].entry);
+// #endif
+//
+// 	// Switch from one partition to another
+// 	pok_space_switch(POK_CURRENT_THREAD.partition, pok_threads[elected_id].partition);
+	// Update current thread id now
 	current_thread = elected_id;
 
 	// Call to low-level context switch routine from entry.S
@@ -829,7 +832,7 @@ uint32_t pok_sched_part_rr (const uint32_t index_low, const uint32_t index_high)
 }
 
 
-#if defined (POK_NEEDS_LOCKOBJECTS) 
+#if defined (POK_NEEDS_LOCKOBJECTS)
 //|| defined (POK_NEEDS_PORTS_QUEUEING) || defined (POK_NEEDS_PORTS_SAMPLING)
 void pok_sched_unlock_thread (const uint32_t thread_id)
 {
@@ -846,7 +849,7 @@ void pok_sched_unlock_thread (const uint32_t thread_id)
   #endif
  #else /* ! POK_NEEDS_SCHED_O1 */
 	pok_threads[thread_id].state = POK_STATE_RUNNABLE;
-  #ifdef POK_NEEDS_SCHED_FPPS	
+  #ifdef POK_NEEDS_SCHED_FPPS
 	// We just insert it in the ready queue
 	insert_in_queue(POK_SCHED_CURRENT_PARTITION,&pok_threads[thread_id]);
   #endif
@@ -866,7 +869,7 @@ void pok_sched_unlock_threads_by_bitmask (const uint32_t current_runnables)
 void pok_sched_insert_sporadic_in_queue(uint32_t thread_bitmask)
 {
 	/* increment the tail index if thread_bitmask is not 0 (i.e. if we have to insert a thread in the queue) */
-	POK_CURRENT_PARTITION.tail_index = ( POK_CURRENT_PARTITION.tail_index + 
+	POK_CURRENT_PARTITION.tail_index = ( POK_CURRENT_PARTITION.tail_index +
 					(((thread_bitmask|(~(thread_bitmask)+1)) >> 31) & 1) ) % POK_CONFIG_NB_SPORADIC_THREADS;
 	/* insert the thread bitmask in the queue adding the thread bitmask in the (new) tail position; if thread_bitmask
 	 * is 0 the queue is not modified
@@ -881,7 +884,7 @@ void pok_sched_extract_sporadic_from_queue(uint32_t thread_bitmask)
 	 */
 	POK_CURRENT_PARTITION.sporadic_ready_queue[POK_CURRENT_PARTITION.head_index] &= ~(thread_bitmask);
 	/* increment the head index if thread_bitmask is not 0 (i.e. if we have to extract a thread from the queue) */
-	POK_CURRENT_PARTITION.head_index = ( POK_CURRENT_PARTITION.head_index + 
+	POK_CURRENT_PARTITION.head_index = ( POK_CURRENT_PARTITION.head_index +
 					(((thread_bitmask|(~(thread_bitmask)+1)) >> 31) & 1) ) % POK_CONFIG_NB_SPORADIC_THREADS;
 }
 #endif /* end ifdef POK_NEEDS_SCHED_O1_SPLIT */
@@ -927,7 +930,7 @@ void pok_sched_stop_self (void)
 #ifdef POK_NEEDS_SCHED_FPPS
 	remove_from_queue(POK_SCHED_CURRENT_PARTITION,&POK_CURRENT_THREAD);
 #endif
-	// the following instruction has been removed for consistency with similar procedures	
+	// the following instruction has been removed for consistency with similar procedures
 	// pok_sched ();
 }
 
@@ -959,7 +962,7 @@ void pok_sched_stop_thread (const uint32_t tid)
 #ifdef POK_NEEDS_SCHED_FPPS
 	// Remove from the ready queue (except for the main thread)
 	if (tid != pok_partitions[POK_SCHED_CURRENT_PARTITION].thread_main)
-	{	
+	{
 		remove_from_queue(POK_SCHED_CURRENT_PARTITION,&pok_threads[tid]);
 	}
 #endif
@@ -969,7 +972,7 @@ pok_ret_t pok_sched_end_period ()
 {
 	if (POK_SCHED_CURRENT_THREAD != IDLE_THREAD)
 	{
-		POK_CURRENT_THREAD.state = POK_STATE_WAIT_NEXT_ACTIVATION;	
+		POK_CURRENT_THREAD.state = POK_STATE_WAIT_NEXT_ACTIVATION;
 		// next realease point = process period + previous release point
 		POK_CURRENT_THREAD.next_activation =  POK_CURRENT_THREAD.next_activation  + POK_CURRENT_THREAD.period;
 		// deadline time = next release point + time capacity
@@ -979,10 +982,10 @@ pok_ret_t pok_sched_end_period ()
 #endif
 #if POK_NEEDS_SCHED_O1
 		// set up new timer for next activation in case of DELAYED_START
-		if(POK_CURRENT_THREAD.timeout != NULL)
+		if(POK_CURRENT_THREAD.timeout != POK_NULL)
 			pok_sched_set_asynch_event(POK_SCHED_CURRENT_THREAD, POK_CURRENT_THREAD.next_activation, POK_EVENT_DELAYED_START);
 #endif
-	
+
 #ifdef POK_NEEDS_SCHED_FPPS
 		remove_from_queue(POK_SCHED_CURRENT_PARTITION,&pok_threads[current_thread]);
 #endif
@@ -1024,9 +1027,9 @@ pok_ret_t pok_sched_end_period ()
                                                      POK_CURRENT_PARTITION.thread_index_high);
 	pok_sched_context_switch(elected);
 #else
-	pok_sched(); 
+	pok_sched();
 #endif
-	
+
 	return POK_ERRNO_OK;
 }
 
@@ -1061,9 +1064,9 @@ void remove_from_queue(uint16_t partition_id, pok_thread_t* thread)
 /*
 #ifdef POK_NEEDS_DEBUG
 	printf ("FPPS_DEBUG::Removing thread %d in partition %d\n",thread->id,partition_id);
-	if (thread == NULL)
+	if (thread == POK_NULL)
 	{
-		printf ("FPPS_DEBUG::WARNING::Thread is NULL!\n");
+		printf ("FPPS_DEBUG::WARNING::Thread is POK_NULL!\n");
 	}
    	if (heads[partition_id] != thread || priority_heads[partition_id][thread_priority] != thread)
 	{
@@ -1084,38 +1087,38 @@ void remove_from_queue(uint16_t partition_id, pok_thread_t* thread)
 		// move the pointer of the global queue to its successor
 		heads[partition_id] = thread->next;
 		// thread has no successor <==> priority queue is empty
-		if(thread->next == NULL)
+		if(thread->next == POK_NULL)
 		{
 			// search for the non-empty queue corresponding to the new highest priority
 			int i=POK_CONFIG_PRIORITY_LEVELS-1;
-			while(heads[partition_id]==NULL && i>=0)
+			while(heads[partition_id]==POK_NULL && i>=0)
 			{
 				heads[partition_id] = priority_heads[partition_id][i];
 				i--;
 			}
 		}
 	}
-   
+
 	// update the pointer to the tail of the queue
 	if (priority_tails[partition_id][thread_priority] == thread)
 	{
-		if (thread->previous != NULL)
+		if (thread->previous != POK_NULL)
 			// removed is the last (but not the only one) in its list
 			priority_tails[partition_id][thread_priority] = thread->previous;
 		else
 			// removed thread was the only one in its list
-			priority_tails[partition_id][thread_priority] = NULL;
+			priority_tails[partition_id][thread_priority] = POK_NULL;
 	}
 
 	// update pointers of neighbours threads in the queue
-	if (thread->previous != NULL)
+	if (thread->previous != POK_NULL)
 		thread->previous->next = thread->next;
-	if (thread->next != NULL)
+	if (thread->next != POK_NULL)
 		thread->next->previous = thread->previous;
-	
+
 	// reset pointers to previous and next threads in queue
-	thread->previous = NULL;
-	thread->next = NULL;
+	thread->previous = POK_NULL;
+	thread->next = POK_NULL;
 }
 
 void insert_in_queue(uint16_t partition_id, pok_thread_t* thread)
@@ -1124,21 +1127,21 @@ void insert_in_queue(uint16_t partition_id, pok_thread_t* thread)
 	uint8_t thread_priority = thread->priority;
 
 	// if any thread is in the queue update the pointer of the last thread
-	if (priority_tails[partition_id][thread_priority] != NULL)
+	if (priority_tails[partition_id][thread_priority] != POK_NULL)
 	{
 		thread->previous = priority_tails[partition_id][thread_priority];
 		priority_tails[partition_id][thread_priority]->next = thread;
 	}
-   
+
 	// update the pointer to the tail of the queue
 	priority_tails[partition_id][thread_priority] = thread;
 
 	// if queue was empty
-	if (priority_heads[partition_id][thread_priority] == NULL)
+	if (priority_heads[partition_id][thread_priority] == POK_NULL)
 	{
 		priority_heads[partition_id][thread_priority] = thread;
 		// global head of the list may need to be updated as well
-		if (heads[partition_id] == NULL || heads[partition_id]->priority < thread_priority)
+		if (heads[partition_id] == POK_NULL || heads[partition_id]->priority < thread_priority)
 			heads[partition_id] = priority_heads[partition_id][thread_priority];
 	}
 }
@@ -1147,9 +1150,9 @@ uint32_t pok_sched_part_fpps ()
 {
 	uint32_t res;
 	pok_thread_t* elected;
-   
+
 	elected = heads[POK_SCHED_CURRENT_PARTITION];
-	if (elected == NULL)
+	if (elected == POK_NULL)
 	{
 		// queue is empty
 		res = IDLE_THREAD;
@@ -1157,8 +1160,8 @@ uint32_t pok_sched_part_fpps ()
 		{
 			prev_current_thread = POK_SCHED_CURRENT_THREAD;
 		}
-	} 
-	else 
+	}
+	else
 	{
  #ifdef POK_NEEDS_DEBUG_FPPS
 		print_queues();
@@ -1183,7 +1186,7 @@ void print_queues()
 		{
 			printf("Priority level %d: ",j);
 			pok_thread_t* current = priority_heads[i][j];
-			while (current != NULL)
+			while (current != POK_NULL)
 			{
 				printf("%d-> ",current->id);
 				current = current->next;
@@ -1226,7 +1229,7 @@ uint32_t pok_sched_part_o1 ()
 	uint32_t res;
 	pok_thread_t* elected;
 
-	unsigned int current_runnables = pok_partitions[POK_SCHED_CURRENT_PARTITION].runnables; 
+	unsigned int current_runnables = pok_partitions[POK_SCHED_CURRENT_PARTITION].runnables;
 
  #ifdef POK_NEEDS_DEBUG_O1
 	printf("DEBUG_O1::Current runnables: %u\n", current_runnables);
@@ -1236,7 +1239,7 @@ uint32_t pok_sched_part_o1 ()
  #ifdef POK_NEEDS_DEBUG_O1
 		printf("DEBUG_O1::Dispatching idle thread\n");
  #endif
-		elected = NULL;
+		elected = POK_NULL;
 		res = IDLE_THREAD;
 		if (POK_SCHED_CURRENT_THREAD != IDLE_THREAD)
 		{
@@ -1257,7 +1260,7 @@ uint32_t pok_sched_part_o1 ()
 			current_runnables = pok_partitions[POK_SCHED_CURRENT_PARTITION].super_threads;
 		}
  #endif
-		
+
 		int thread_index = get_thread_index_deBruijn(current_runnables);
 		//int position = pok_partitions[POK_SCHED_CURRENT_PARTITION].thread_index_low - zeros -1;
 		int position =  pok_partitions[POK_SCHED_CURRENT_PARTITION].thread_index_low + thread_index;
@@ -1296,7 +1299,7 @@ uint32_t pok_sched_part_o1_split()
 	int sporadic_position = get_thread_index_deBruijn(POK_CURRENT_PARTITION.sporadic_ready_queue[POK_CURRENT_PARTITION.head_index]);
 	int original_sporadic_position = sporadic_position;
 	int sporadic_index = sporadic_position + POK_CURRENT_PARTITION.thread_index_low;
-	
+
 	uint64_t WCET = pok_threads[sporadic_index].time_capacity;
 	uint64_t current_time = POK_CLOCK();
 	/* check if the sporadic thread can execute within its deadline and if not check if it has tardiness

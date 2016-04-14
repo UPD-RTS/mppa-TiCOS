@@ -64,7 +64,7 @@
 #define POK_BUS_FREQ_HZ ( POK_BUS_FREQ_MHZ * 1000000U)
 
 #ifndef POK_FREQ_DIV
- #ifdef POK_NEEDS_QEMU_SETUP 
+ #ifdef POK_NEEDS_QEMU_SETUP
 	#define POK_FREQ_DIV 1
  #else
 	#define POK_FREQ_DIV 1
@@ -79,7 +79,7 @@
 /**
  * The rate of the clock in POK
  */
-#ifdef POK_NEEDS_QEMU_SETUP 
+#ifdef POK_NEEDS_QEMU_SETUP
 //	#define POK_TIMER_FREQUENCY 5
 	#define POK_TIMER_FREQUENCY 1
 #else
@@ -116,7 +116,7 @@ struct timespec
 	 long int tv_nsec;			  /* Nanoseconds.  */
 };
 
-typedef struct  
+typedef struct
 {
 	 unsigned int MSB;
 	 unsigned int LSB;
@@ -125,7 +125,7 @@ typedef struct
 
 typedef enum
 {
-	__POK_CLOCK_REALTIME = 0 
+	__POK_CLOCK_REALTIME = 0
 } pok_clockid_t;
 
 void		pok_time_init (void);
@@ -137,6 +137,9 @@ pok_ret_t	pok_get_HD_clock (uint64_t* clk_val);
 inline unsigned long long get_ppc_tb (void);
 #endif
 
+#ifdef POK_ARCH_MPPA
+unsigned long long get_mppa_tb (void);
+#endif
 
 #endif  /* __POK_TIME_H__ */
 #endif /* Needs clauses */

@@ -61,8 +61,13 @@
 #include <core/thread.h>
 #include <core/sched.h>
 #include <core/partition.h>
+#include <libc.h>
 
-T_TIME_64 DIV64(	T_TIME_64	DVD, T_TIME_64 DVS); 
+#ifdef POK_ARCH_MPPA
+T_TIME_64 __divdf3 (T_TIME_64 DVD, T_TIME_64 DVS);
+#else
+T_TIME_64 DIV64(	T_TIME_64	DVD, T_TIME_64 DVS);
+#endif
 
 
 /**
@@ -93,7 +98,7 @@ pok_ret_t pok_get_system_time (uint64_t* clk_val)
 	return POK_ERRNO_OK;
 }
 
- #if defined (POK_NEEDS_ARINC653) 
+ #if defined (POK_NEEDS_ARINC653)
 /**
  * Get the value of the TB and TBU registers in \a clk_val
  * Returns POK_ERRNO_OK
@@ -101,20 +106,25 @@ pok_ret_t pok_get_system_time (uint64_t* clk_val)
 pok_ret_t pok_get_HD_clock (uint64_t* clk_val)
 {
 	unsigned long long time_tmp;
-	 
-  #ifdef POK_ARCH_PPC // the POK_ARCH_PPC is defined in the misc/mk/common-ppc.mk file 
+
+#ifdef POK_ARCH_PPC // the POK_ARCH_PPC is defined in the misc/mk/common-ppc.mk file
 	unsigned long long cur_time = get_ppc_tb();
-  #endif
-	 
+#elif defined POK_ARCH_MPPA
+	unsigned long long cur_time = get_mppa_tb();
+#endif
+
 	T_TIME_64 time_tmp_64;
 	T_TIME_64 frequency;
 	frequency.MSB = 0;
 	frequency.LSB = POK_BUS_FREQ_MHZ;
-	 
+
 	time_tmp = cur_time <<POK_FREQ_SHIFT;
 	time_tmp_64 = * (T_TIME_64 * ) &time_tmp;
-	time_tmp_64 =  DIV64 (time_tmp_64,frequency  );
-	
+#ifdef POK_ARCH_PPC
+	time_tmp_64 = DIV64 (time_tmp_64,frequency  );
+#elif defined POK_ARCH_MPPA
+	time_tmp_64 = __divdf3(time_tmp_64, frequency);
+#endif
 	*clk_val = *(uint64_t *) &time_tmp_64;
 	return POK_ERRNO_OK;
 }

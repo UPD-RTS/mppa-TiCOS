@@ -67,7 +67,7 @@
 
 
 #include <dependencies.h>
-#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG) 
+#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
  #include <libc.h>
 #endif
 
@@ -183,7 +183,7 @@ void pok_thread_init(void)
 	pok_threads[KERNEL_THREAD].next_activation	= 0;
 
 	pok_threads[IDLE_THREAD].period				= 0;
-	
+
 #ifdef POK_NEEDS_SCHED_O1_SPLIT
 	pok_threads[IDLE_THREAD].deadline			= 1000000; // +INF
 	pok_threads[IDLE_THREAD].time_capacity		= 1000000; // +INF
@@ -219,19 +219,19 @@ void pok_thread_init(void)
 		}
 #endif
 	}
-	
+
 #ifdef POK_NEEDS_SCHED_FPPS
 	// FPPS pointers initialization
 	for (i = 0; i < POK_CONFIG_NB_PARTITIONS; ++i)
 	{
-		heads[i] = NULL;
+		heads[i] = POK_NULL;
  #ifdef POK_NEEDS_DEBUG_HEAD_TAIL
 		printf("heads[%d] configured\n",i);
  #endif
 		for (j = 0; j < POK_CONFIG_PRIORITY_LEVELS; ++j)
 		{
-			priority_heads[i][j] = NULL;
-			priority_tails[i][j] = NULL;
+			priority_heads[i][j] = POK_NULL;
+			priority_tails[i][j] = POK_NULL;
  #ifdef POK_NEEDS_DEBUG_HEAD_TAIL
 			printf("priority_heads[%d][%d] configured\n",i,j);
 			printf("priority_tails[%d][%d] configured\n",i,j);
@@ -274,8 +274,8 @@ pok_ret_t pok_partition_thread_create (	uint32_t*					thread_id,
 	}
 
 	id = pok_partitions[partition_id].thread_index_low +  pok_partitions[partition_id].thread_index;
-	
-	if ((attr->priority <= pok_sched_get_priority_max (pok_partitions[partition_id].sched)) 
+
+	if ((attr->priority <= pok_sched_get_priority_max (pok_partitions[partition_id].sched))
 		&& (attr->priority >= pok_sched_get_priority_min (pok_partitions[partition_id].sched)))
 	{
 		pok_threads[id].priority	= attr->priority;
@@ -316,13 +316,13 @@ pok_ret_t pok_partition_thread_create (	uint32_t*					thread_id,
 							0xdead,
 							0xbeaf);
 
-	pok_threads[id].partition		= partition_id; 
+	pok_threads[id].partition		= partition_id;
 	pok_threads[id].entry			= attr->entry;
 	pok_threads[id].init_stack_addr = stack_vaddr;
  # if defined POK_NEEDS_SCHED_FPPS || defined POK_NEEDS_SCHED_O1
 	pok_threads[id].id				= id;
-	pok_threads[id].next			= NULL;
-	pok_threads[id].previous		= NULL;
+	pok_threads[id].next			= POK_NULL;
+	pok_threads[id].previous		= POK_NULL;
  # endif
 
  # ifdef POK_NEEDS_SCHED_O1
@@ -374,7 +374,7 @@ pok_ret_t pok_partition_thread_create (	uint32_t*					thread_id,
 /**
  * Start a thread, giving its entry call with \a entry
  * and its identifier with \a id
- * DO NO REMOVE - This function is called in cswitch in order to start the 
+ * DO NO REMOVE - This function is called in cswitch in order to start the
  * idle thread
  * MINOR CHANGE: function original name: pok_thread_start
  * the name has been changed in order to avoid ambiguity with the next function
@@ -399,16 +399,16 @@ pok_ret_t	pok_thread_start (uint32_t *id)
 	{
 		// set the current priority of specified process to its base priority;
 		pok_threads[thread_id].current_priority =  pok_threads[thread_id].priority;
-	
+
 		//reset context and stack; Not necessary at this time
-	
-		// if (operating mode is NORMAL) then		
+
+		// if (operating mode is NORMAL) then
 		// the partition mode is set to NORMAL by the user code after the thread creation, not by the kernel
-		if (pok_partitions[pok_threads[thread_id].partition].mode ==  POK_PARTITION_MODE_NORMAL) 
+		if (pok_partitions[pok_threads[thread_id].partition].mode ==  POK_PARTITION_MODE_NORMAL)
 		{
 			// set the specified process state to RUNNABLE
 			pok_threads[thread_id].state = POK_STATE_RUNNABLE;
-#ifdef POK_NEEDS_SCHED_FPPS	
+#ifdef POK_NEEDS_SCHED_FPPS
 			insert_in_queue(POK_SCHED_CURRENT_PARTITION,&pok_threads[thread_id]);
 #endif
 			// set the DEADLINE_TIME value for the specified process to (current system clock plus TIME_CAPACITY);
@@ -418,7 +418,7 @@ pok_ret_t	pok_thread_start (uint32_t *id)
 			{
 				// ask for process scheduling;
 				// commented for RUN TO COMPLETION semantics
-				//pok_sched ();	
+				//pok_sched ();
 			}
 */
 		}else{
@@ -440,7 +440,7 @@ pok_ret_t	pok_thread_start (uint32_t *id)
 			// set the specified process state to WAITING;
 			pok_threads[thread_id].state = POK_STATE_WAITING;
 			// set the first release point of the specified process;
-			pok_threads[thread_id].next_activation = pok_partitions[pok_threads[thread_id].partition].activation + 
+			pok_threads[thread_id].next_activation = pok_partitions[pok_threads[thread_id].partition].activation +
 				get_partition_period(pok_threads[thread_id].partition);
 			// set the DEADLINE_TIME value for the specified process to (current system clock plus TIME_CAPACITY);
 			// process has to wait for its release point
@@ -467,12 +467,12 @@ pok_ret_t	pok_thread_delayed_start (uint32_t *id, uint32_t delay_time)
 	{
 		// set the current priority of specified process to its base priority;
 		pok_threads[thread_id].current_priority =  pok_threads[thread_id].priority;
-	
+
 		// reset context and stack -> Not necessary at this time
-	
-		// if (operating mode is NORMAL) then		
+
+		// if (operating mode is NORMAL) then
 		// the partition mode is set to NORMAL by the user code after the thread creation, not by the kernel
-		if (pok_partitions[pok_threads[thread_id].partition].mode ==  POK_PARTITION_MODE_NORMAL) 
+		if (pok_partitions[pok_threads[thread_id].partition].mode ==  POK_PARTITION_MODE_NORMAL)
 		{
 			if (delay_time == 0)
 			{
@@ -497,7 +497,7 @@ pok_ret_t	pok_thread_delayed_start (uint32_t *id, uint32_t delay_time)
 				// ask for process scheduling;
 				// The calling process may be preempted
 				// commented for RUN TO COMPLETION semantics
-				//pok_sched ();	
+				//pok_sched ();
 			}
 		}
 		else
@@ -521,7 +521,7 @@ pok_ret_t	pok_thread_delayed_start (uint32_t *id, uint32_t delay_time)
 			// set the specified process state to WAITING;
 			pok_threads[thread_id].state = POK_STATE_WAITING;
 			// set the first release point of the specified process including the delay time;
-			pok_threads[thread_id].next_activation = pok_partitions[pok_threads[thread_id].partition].activation + 
+			pok_threads[thread_id].next_activation = pok_partitions[pok_threads[thread_id].partition].activation +
 				get_partition_period(pok_threads[thread_id].partition) + delay_time;
 			// set the DEADLINE_TIME value for the specified process to (current system clock plus TIME_CAPACITY);
 			// specified process has to wait for its release point
@@ -564,7 +564,7 @@ pok_ret_t pok_thread_resume (const uint32_t* tid)
  #endif
 #else /* ! POK_NEEDS_SCHED_O1 */
 	pok_threads[*tid].state = POK_STATE_RUNNABLE;
- #ifdef POK_NEEDS_SCHED_FPPS	
+ #ifdef POK_NEEDS_SCHED_FPPS
 	// We just insert it in the ready queue
 	insert_in_queue(POK_SCHED_CURRENT_PARTITION,&pok_threads[*tid]);
  #endif
@@ -589,7 +589,7 @@ bool_t pok_thread_preemption_enabled(pok_thread_t pok_thread)
 }
 
 bool_t	pok_thread_is_suspended(pok_thread_t pok_thread)
-{ 
+{
 	return (pok_thread.suspended || pok_thread.suspended_self);
 }
 
@@ -656,10 +656,10 @@ pok_ret_t pok_thread_restart (const uint32_t tid)
 	pok_threads[tid].state						= POK_STATE_WAIT_NEXT_ACTIVATION;
 	pok_threads[tid].wakeup_time				= 0;
 
-	
+
 	// At this time, we build a new context for the thread.
 	// It is not the best solution but it works at this time
-	pok_threads[tid].sp	= pok_space_context_create (	
+	pok_threads[tid].sp	= pok_space_context_create (
 								pok_threads[tid].partition,
 								(uint32_t)pok_threads[tid].entry,
 								pok_threads[tid].init_stack_addr,

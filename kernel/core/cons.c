@@ -50,19 +50,19 @@
 
 #include <dependencies.h>
 
-#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG) 
+#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
 
 #include <arch.h>
 #include <errno.h>
 #include <core/cons.h>
 
-print_char_fn_t pok_print_char_fn = NULL;
-print_attr_fn_t pok_print_attr_fn = NULL;
+print_char_fn_t pok_print_char_fn = POK_NULL;
+print_attr_fn_t pok_print_attr_fn = POK_NULL;
 
 
 void pok_print_char (const char c)
 {
-	if (pok_print_char_fn != NULL)
+	if (pok_print_char_fn != POK_NULL)
 	{
 		return (pok_print_char_fn(c));
 	}
@@ -70,7 +70,7 @@ void pok_print_char (const char c)
 
 void pok_print_attr (uint8_t attr)
 {
-	if (pok_print_attr_fn != NULL)
+	if (pok_print_attr_fn != POK_NULL)
 	{
 		pok_print_attr_fn(attr);
 	}
