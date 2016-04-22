@@ -173,7 +173,7 @@ pok_ret_t pok_arch_init ()
 		mOS_register_scall_handler((mOS_exception_handler_t) &_system_call_ISR);
 	}
 
-	printf ("[DEBUG] Pok arch init finished");
+	printf ("[DEBUG] Pok arch init finished.\n");
 	return POK_ERRNO_OK;
 }
 

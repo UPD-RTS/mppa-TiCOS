@@ -126,19 +126,19 @@ static pok_ret_t pok_loader_elf_load	(char* file,
 		}
 		memcpy (dest+(j*POK_LOADER_BLOCK_SIZE), elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE) , elf_phdr[i].p_filesz-(j*POK_LOADER_BLOCK_SIZE ));
 	 	printf ("Copied last partial block from %x to %x ( size = %x ) \n",elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE),dest+(j*POK_LOADER_BLOCK_SIZE),elf_phdr[i].p_filesz-(j*POK_LOADER_BLOCK_SIZE )  );
- 
- #ifndef POK_DISABLE_LOADER_DATA_INIT	 
-		printf("Razing partition data from %x  for a size of : %x \n",dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE)  ,elf_phdr[i].p_memsz - elf_phdr[i].p_filesz );	
+
+ #ifndef POK_DISABLE_LOADER_DATA_INIT
+		printf("Razing partition data from %x  for a size of : %x \n",dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE)  ,elf_phdr[i].p_memsz - elf_phdr[i].p_filesz );
 		nb_blocks = (elf_phdr[i].p_memsz - elf_phdr[i].p_filesz)/ (POK_LOADER_BLOCK_SIZE);
-		for (j = 0; j < nb_blocks; j++ ) 
+		for (j = 0; j < nb_blocks; j++ )
 		{
 	  		memset (dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE) , 0, POK_LOADER_BLOCK_SIZE);
 			printf ("Razed block %d/%d, from %x to %x for a size of %x \n", j+1,nb_blocks, elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE),dest+(j*POK_LOADER_BLOCK_SIZE),POK_LOADER_BLOCK_SIZE	);
 		}
-		 
+
 		memset (dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE) , 0, (elf_phdr[i].p_memsz - elf_phdr[i].p_filesz)-(j*POK_LOADER_BLOCK_SIZE)) ;
 		printf ("Razed last block  from %x for a size of %x \n", dest + elf_phdr[i].p_filesz + (j*POK_LOADER_BLOCK_SIZE), (elf_phdr[i].p_memsz - elf_phdr[i].p_filesz)- (j*POK_LOADER_BLOCK_SIZE));
- #endif 
+ #endif
 	}
 #endif /* ! POK_SKIP_LOADER */
 	return POK_ERRNO_OK;
@@ -150,7 +150,7 @@ void pok_loader_load_partition (const uint8_t part_id,
 								uint32_t offset,
 								uint32_t *entry)
 {
-	void*		elf_entry = NULL;
+	void*		elf_entry = POK_NULL;
 	extern char __archive2_begin;
 	uint32_t	size;
 	uint16_t	t;

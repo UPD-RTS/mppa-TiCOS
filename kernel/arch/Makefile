@@ -1,6 +1,5 @@
 TOPDIR=		../../
 
-export DEPLOYMENT_HEADER=$(POK_PATH)/kernel/include/deployment.h
 include $(TOPDIR)/misc/mk/config.mk
 -include $(TOPDIR)/misc/mk/common-$(ARCH).mk
 

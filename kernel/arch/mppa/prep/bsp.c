@@ -45,7 +45,8 @@ void *pok_bsp_mem_alloc (size_t sz)
 
 	res = (char *)(((unsigned int)heap_end + 4095) & ~4095);
 	heap_end = res + sz;
-	printf("[DEBUG] res:%p\n",res);
+	printf("[DEBUG] MALLOC: Space reserved starting at: %p, with size: %u\n",
+									res, sz);
 	return res;
 }
 

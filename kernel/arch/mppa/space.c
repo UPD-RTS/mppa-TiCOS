@@ -45,8 +45,9 @@
 #define KERNEL_STACK_SIZE 8192
 
 #ifdef POK_CONFIG_DEFINE_BASE_VADDR
-uint32_t pok_space_vaddr[POK_CONFIG_NB_PARTITIONS] =
-	{ [0 ... POK_CONFIG_NB_PARTITIONS - 1 ] POK_CONFIG_PARTITIONS_BASE_VADDR };
+//uint32_t pok_space_vaddr[POK_CONFIG_NB_PARTITIONS] =
+//	{ [0 ... POK_CONFIG_NB_PARTITIONS - 1 ] POK_CONFIG_PARTITIONS_BASE_VADDR };
+uint32_t pok_space_vaddr[POK_CONFIG_NB_PARTITIONS] = POK_CONFIG_PARTITIONS_BASE_VADDR;
 #endif
 
 // Struct representing physical space reserved
