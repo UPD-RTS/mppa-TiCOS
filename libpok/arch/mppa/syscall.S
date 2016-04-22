@@ -1,22 +1,4 @@
 /*
- * Copyright (c) 2012  University of Padua, Department of Mathematics
- *
- *  This file is free software: you may copy, redistribute and/or modify it
- *  under the terms of the GNU General Public License as published by the
- *  Free Software Foundation, either version 2 of the License, or (at your
- *  option) any later version.
- *
- *  This file is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  This file incorporates work covered by the following copyright and
- *  permission notice:
- *
  * 		Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
@@ -48,21 +30,18 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <core/dependencies.h>
-
-#ifdef POK_NEEDS_THREADS
-
-#include <arch.h>
-#include <types.h>
-#include <core/syscall.h>
-#include <core/thread.h>
-
-
-# if defined (POK_NEEDS_ARINC653)
-pok_ret_t pok_thread_libpok_start (uint32_t thread_id)
-{
-	return pok_syscall2  (POK_SYSCALL_THREAD_START, (uint32_t)&thread_id, 0);
-}
-
-#endif
-#endif
+.text
+.globl pok_syscall2
+.globl pok_syscall3
+.globl pok_syscall4
+.globl pok_syscall5
+.globl pok_syscall6
+.globl pok_syscall7
+pok_syscall2:
+pok_syscall3:
+pok_syscall4:
+pok_syscall5:
+pok_syscall6:
+pok_syscall7:
+	scall $r0
+	ret

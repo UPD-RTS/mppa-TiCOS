@@ -92,6 +92,10 @@ pok_ret_t	pok_thread_resume (uint32_t thread_id);
 pok_ret_t	pok_thread_suspend_other (uint32_t thread_id);
 void 		pok_thread_init (void);
 
+/* Libpok thread headers */
+pok_ret_t pok_thread_libpok_start (uint32_t thread_id);
+pok_ret_t pok_thread_libpok_delayed_start (uint32_t thread_id, uint32_t delay_time);
+
 // #define pok_thread_sleep_until(time) pok_syscall2(POK_SYSCALL_THREAD_SLEEP_UNTIL, (uint32_t)time, 0)
 
 #define pok_thread_wait_infinite() pok_thread_suspend()

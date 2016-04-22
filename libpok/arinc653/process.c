@@ -59,23 +59,26 @@
 #include <libc/stdio.h>
 
 
-typedef char					pok_arinc653_threads_name_t[MAX_NAME_LENGTH];
+typedef char pok_arinc653_threads_name_t[MAX_NAME_LENGTH];
 /* thread names */
-pok_arinc653_threads_name_t 	pok_arinc653_threads_names[POK_CONFIG_NB_THREADS];
+pok_arinc653_threads_name_t pok_arinc653_threads_names[POK_CONFIG_NB_THREADS];
 
 
 /********************************************************************
 * SERVICE  GET_PROCESS_STATUS
 *********************************************************************/
 void GET_PROCESS_STATUS
-		(const PROCESS_ID_TYPE	 	/* in */	PROCESS_ID, 
-		PROCESS_STATUS_TYPE * const	/* out */	PROCESS_STATUS, 
+		(const PROCESS_ID_TYPE	 	/* in */	PROCESS_ID,
+		PROCESS_STATUS_TYPE * const	/* out */	PROCESS_STATUS,
 		RETURN_CODE_TYPE * const  	/* out */	RETURN_CODE)
 {
-
+	#ifdef POK_ARCH_MPPA
+	PROCESS_NAME_TYPE *name = &((PROCESS_STATUS->ATTRIBUTES).NAME);
+	strcpy(*name, pok_arinc653_threads_names[PROCESS_ID]);
+	#else
 	PROCESS_NAME_TYPE	* name = (PROCESS_STATUS->ATTRIBUTES).NAME;
-
-	strcpy(name, &(pok_arinc653_threads_names[PROCESS_ID])); 	
+	strcpy(name, &(pok_arinc653_threads_names[PROCESS_ID]));
+	#endif
 
 	(PROCESS_STATUS->ATTRIBUTES).ENTRY_POINT = 0;
 	(PROCESS_STATUS->ATTRIBUTES).STACK_SIZE = 0;
@@ -96,13 +99,13 @@ void GET_PROCESS_STATUS
 /********************************************************************
 * SERVICE  GET_MY_ID
 *********************************************************************/
-void GET_MY_ID (PROCESS_ID_TYPE * const		/* out */	PROCESS_ID, 
+void GET_MY_ID (PROCESS_ID_TYPE * const		/* out */	PROCESS_ID,
 		RETURN_CODE_TYPE * const	/* out */	RETURN_CODE)
 {
 
 	uint32_t	core_process_id;
 	pok_thread_id	(&core_process_id);
-	
+
 	*PROCESS_ID 	= core_process_id;
 	*RETURN_CODE 	= NO_ERROR;
 
@@ -113,14 +116,14 @@ void GET_MY_ID (PROCESS_ID_TYPE * const		/* out */	PROCESS_ID,
 * SERVICE  GET_PROCESS_ID
 *********************************************************************/
 void GET_PROCESS_ID
-		(const PROCESS_NAME_TYPE	/* in */	PROCESS_NAME, 
-		PROCESS_ID_TYPE * const		/* out */	PROCESS_ID, 
+		(const PROCESS_NAME_TYPE	/* in */	PROCESS_NAME,
+		PROCESS_ID_TYPE * const		/* out */	PROCESS_ID,
 		RETURN_CODE_TYPE * const 	/* out */	RETURN_CODE)
 {
 
 	uint16_t i;
 
-	bool_t  found = FALSE;
+	bool_t  found __attribute__((unused)) = FALSE;
 
 	for (i = 0 ; i < POK_CONFIG_NB_THREADS ; i++)
 	{
@@ -139,29 +142,29 @@ void GET_PROCESS_ID
 * SERVICE  CREATE_PROCESS
 ********************************************************************/
 void CREATE_PROCESS
-		(const PROCESS_ATTRIBUTE_TYPE * const /* Big */	/* in */ATTRIBUTE, 
-		PROCESS_ID_TYPE * const	/* out */		 				PROCESS_ID, 
+		(const PROCESS_ATTRIBUTE_TYPE * const /* Big */	/* in */ATTRIBUTE,
+		PROCESS_ID_TYPE * const	/* out */		 				PROCESS_ID,
 		RETURN_CODE_TYPE * const  /* out */		 				RETURN_CODE)
 {
-	pok_thread_attr_t	core_attr;
+	pok_thread_attr_t		core_attr;
 	pok_ret_t			core_ret;
 	uint32_t			core_process_id = 0;
 
 	core_attr.priority		= (uint8_t) ATTRIBUTE->BASE_PRIORITY;
 	core_attr.entry			= ATTRIBUTE->ENTRY_POINT;
-	core_attr.period		= ATTRIBUTE->PERIOD; 
+	core_attr.period		= ATTRIBUTE->PERIOD;
 
 	if ((core_attr.period) != INFINITE_SYSTEM_TIME_VALUE){
 		core_attr.period	= ATTRIBUTE->PERIOD / 10; // expressed in 100 us, converted ms
 	}
 
-	core_attr.deadline = ATTRIBUTE->DEADLINE; 
+	core_attr.deadline = ATTRIBUTE->DEADLINE;
 	if ((core_attr.deadline) > 0){
-		core_attr.deadline		  = ATTRIBUTE->DEADLINE / 10; 
+		core_attr.deadline		  = ATTRIBUTE->DEADLINE / 10;
 	}
 
 	core_attr.time_capacity	= ATTRIBUTE->TIME_CAPACITY;// expressed in 100 us, converted ms
-	
+
 	if ((core_attr.time_capacity) > 0){
 		core_attr.time_capacity = ATTRIBUTE->TIME_CAPACITY / 10;
 	}
@@ -171,7 +174,11 @@ void CREATE_PROCESS
 
 	*(pok_arinc653_threads_names[core_process_id]) = '\0';
 
+	#ifdef POK_ARCH_MPPA
+	strcpy(pok_arinc653_threads_names[core_process_id], ATTRIBUTE->NAME);
+	#else
 	strcpy(&(pok_arinc653_threads_names[core_process_id]),&(ATTRIBUTE->NAME));
+	#endif
 
 	*PROCESS_ID = core_process_id;
 
@@ -183,7 +190,7 @@ void CREATE_PROCESS
 /********************************************************************
 * SERVICE  STOP
 ********************************************************************/
-void STOP (const PROCESS_ID_TYPE	 	/* in */	PROCESS_ID, 
+void STOP (const PROCESS_ID_TYPE	 	/* in */	PROCESS_ID,
 		 RETURN_CODE_TYPE * const  	/* out */	RETURN_CODE){
 
 	pok_ret_t		core_ret;
@@ -198,7 +205,7 @@ void STOP (const PROCESS_ID_TYPE	 	/* in */	PROCESS_ID,
 * SERVICE  START
 ********************************************************************/
 void START
-	(const PROCESS_ID_TYPE		/* in */	PROCESS_ID, 
+	(const PROCESS_ID_TYPE		/* in */	PROCESS_ID,
 	RETURN_CODE_TYPE * const	/* out */	RETURN_CODE){
 
 	pok_ret_t			core_ret;
@@ -233,7 +240,7 @@ void SUSPEND (PROCESS_ID_TYPE	 PROCESS_ID, RETURN_CODE_TYPE	*return_code )
 		pok_ret_t		core_ret;
 
 		core_ret		= pok_thread_suspend_other(PROCESS_ID);
-		*return_code 	= NO_ERROR;
+		*return_code 	= core_ret;
 }
 
 /********************************************************************
@@ -243,7 +250,7 @@ void SUSPEND_SELF (SYSTEM_TIME_TYPE time_out, RETURN_CODE_TYPE *return_code )
 {
 		//pok_ret_t		core_ret;
 		(void) time_out; // Time-out function has not been implemented yet
-		//core_ret = 
+		//core_ret =
 	 pok_thread_suspend();
 		*return_code = NO_ERROR;
 }
@@ -254,7 +261,7 @@ void SUSPEND_SELF (SYSTEM_TIME_TYPE time_out, RETURN_CODE_TYPE *return_code )
 void RESUME (PROCESS_ID_TYPE  /* in*/	PROCESS_ID,
 				 RETURN_CODE_TYPE /*out*/  *RETURN_CODE )
 {
-		pok_ret_t	core_ret;	
+		pok_ret_t	core_ret;
 /* Implement required checks */
 		core_ret = pok_thread_resume (PROCESS_ID);
 		*RETURN_CODE =  core_ret;

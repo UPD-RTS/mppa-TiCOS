@@ -1,5 +1,8 @@
 /*
- * Copyright (c) 2012  University of Padua, Department of Mathematics
+ *  Copyright (C) 2013-2016 Kalray SA.
+ *  All rights reserved.
+ *
+ *  Author: Matheus Schuh, mschuh@kalray.eu
  *
  *  This file is free software: you may copy, redistribute and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -14,10 +17,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  This file incorporates work covered by the following copyright and
- *  permission notice:
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -48,21 +51,26 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <core/dependencies.h>
+#ifndef __POK_MPPA_TYPES_H__
+#define __POK_MPPA_TYPES_H__
 
-#ifdef POK_NEEDS_THREADS
+//#include "mOS_common_types_c.h"
+//#include "mOS_common_types_s_c.h"
+//#include "mOS_constants_c.h"
+//#include "mOS_vcore_c.h"
 
-#include <arch.h>
-#include <types.h>
-#include <core/syscall.h>
-#include <core/thread.h>
+typedef unsigned short		uint8_t;
+typedef unsigned short		uint16_t;
+typedef unsigned int		uint32_t;
+typedef long int		int32_t;
+typedef unsigned long long	uint64_t;
 
+typedef short			int8_t;
+typedef short			int16_t;
+typedef signed long long	int64_t;
+typedef unsigned long long	uint64_t;
 
-# if defined (POK_NEEDS_ARINC653)
-pok_ret_t pok_thread_libpok_start (uint32_t thread_id)
-{
-	return pok_syscall2  (POK_SYSCALL_THREAD_START, (uint32_t)&thread_id, 0);
-}
+typedef unsigned int		size_t;
+typedef unsigned long int	intptr_t;
 
-#endif
 #endif

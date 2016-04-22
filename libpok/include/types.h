@@ -52,13 +52,19 @@
 #ifndef __POK_TYPES_H__
 #define __POK_TYPES_H__
 
+#ifdef POK_ARCH_PPC
 #include <arch/ppc/types.h>
+#endif
+
+#ifdef POK_ARCH_MPPA
+#include <arch/mppa/types.h>
+#endif
 
 #define NULL	0
-#define FALSE	0
-#define TRUE	1
-#define bool_t 	int
-#define pok_bool_t int
+#define FALSE		0
+#define TRUE		1
+#define bool_t		int
+#define pok_bool_t 	int
 
 
 typedef uint32_t	pok_port_size_t;
@@ -70,7 +76,7 @@ typedef uint8_t		pok_range_t;
 typedef long		pok_buffer_id_t;
 typedef long		pok_blackboard_id_t;
 typedef uint8_t		pok_mutex_id_t;
-typedef uint8_t  	pok_event_id_t;	// must be of the same type of pok_lockobj_id_t (see kernel/include/types.h)  
+typedef uint8_t  	pok_event_id_t;	// must be of the same type of pok_lockobj_id_t (see kernel/include/types.h)
 typedef uint8_t		pok_sem_id_t;
 typedef uint8_t		pok_partition_id_t;
 typedef uint8_t		pok_sem_status_t;

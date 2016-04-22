@@ -31,8 +31,8 @@
 # if defined (POK_NEEDS_ARINC653)
 pok_ret_t pok_thread_resume (uint32_t thread_id)
 {
-	return pok_syscall2  (POK_SYSCALL_THREAD_RESUME, &thread_id, 0);
+	return pok_syscall2  (POK_SYSCALL_THREAD_RESUME, (uint32_t)&thread_id, 0);
 }
 
 #endif
-#endif 
+#endif
