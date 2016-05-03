@@ -2,5 +2,8 @@
 *.lo
 *.bc
 *.elf
+*.a
+*.map
+*.bin
 .depend
 .depend.mk
