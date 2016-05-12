@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2014 Kalray SA.
+ * Copyright (C) 2013-2016 Kalray SA.
  *
  * All rights reserved.
  *

@@ -18,7 +18,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- *              Copyright (c) 2007-2009 POK team
+ * 		Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -42,29 +42,89 @@
  *		COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  *		INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
  *		BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTEtions and the following
+ *			  disclaimer in the documentation and/or other materials
+ *			  provided with the distribution.
+ *			* Neither the name of the POK Team nor the names of its main
+ *			  author (Julien Delange) or its contributors may be used to
+ *			  endorse or promote products derived from this software
+ *			  without specific prior written permission.
+ *
+ *		THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *		AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *		LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *		FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NORRUPTION) HOWEVER
  *		CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  *		LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *		ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <HAL/hal/hal.h>
+#include "HAL/hal/context.h"
 #include "mOS_common_types_s_c.h"
+
 .section .locked_text, "ax", @progbits
 .align 8
-.global __user_do_scall
+.global _interval_ISR
+.proc _interval_ISR
+_interval_ISR:
+	add	$r12, $r12, -16     ## space for the registers
+	;;
+	sd 0[$r12] = $p16;
+	make $r16 = pok_current_context
+	;;
+	lw $r17 = 0[$r16]
+	;;
+	_vk1_context64_save $r17
+	;;
+	ld $p16 = 0[$r12]
+	make	$r0, _scoreboard_start
+	get	$r3, $pcr
+	;;
+	extfz	$r1, $r3, 15, 11
+	;;
+	sll	$r1, $r1, 8
+	;;
+	add	$r2, $r2, $r1
+	;;
+	lw	$r0 = MOS_VC_REG_PS[ $r2 ]
+	copy	$r1, $r12
+	;;
+	srl	$r0 = $r0, 28
+	add	$r12, $r12, -16			## create scratch area
+	call	__k1_do_int			## jump to C code
+	;;
+__vk1_asm_return_from_int:
+	add	$r12, $r12, 16			## destroy scratch area
+	;;
+	make $r16 = pok_current_context
+	;;
+	lw $r13 = 0[$r16]
+	;;
+	_vk1_context64_restore $r13
+	;;
+	scall	MOS_VC_RFE
+	;;
+.endp _interval_ISR
 
-.global __user_do_scall_w
-.proc __user_do_scall_w
-.type __user_do_scall_w, @function
-__user_do_scall_w:
-#ifdef __k1a__
-	add $r12 = $r12, -40
+.section .locked_text, "ax", @progbits
+.align 8
+.global _system_call_ISR
+.proc _system_call_ISR
+.type _system_call_ISR, @function
+#****************************************************************
+_system_call_ISR: # _system_call_ISR ()
+#**************
+# Syscall Interrupt Service Routine. In this case, it is not
+# called by an interrupt. Caused by SC instruction (such as in
+#  powerpc) but is explicitly called upon an API system call.
+#
+# Register usage
+# $ r0-r7 syscall parameters
+#**************
+	add $r12 = $r12, -64	# space for registers
 	;;
-#else
-	add $r12 = $r12, -56
-	;;
-#endif
 	copy $r40, $r0
 	copy $r41, $r1
 	copy $r42, $r2
@@ -75,39 +135,14 @@ __user_do_scall_w:
 	copy $r38, $r6
 	copy $r39, $r7
 	;;
-	get $r1, $pcr
-	make $r0, _scoreboard_start
+	make $r16 = pok_current_context
 	;;
-	extfz $r1, $r1, 15,11
+	lw $r17 = 0[$r16]
 	;;
-	sll $r1, $r1, 8
+	_vk1_context64_save $r17
 	;;
-	add $r0, $r0, $r1
+	make $r12 = pok_stack_end;
 	;;
-#ifndef __k1a__
-	lw $r2 = MOS_VC_REG_SPC[ $r0 ]
-	;;
-	lw $r3 = MOS_VC_REG_PS[ $r0 ]
-	;;
-	lw $r4 = MOS_VC_REG_SPS[ $r0 ]
-	;;
-	lw $r5 = MOS_VC_REG_SSP[ $r0 ]
-	;;
-	sd 32[$r12] = $r2r3
-	;;
-	sd 40[$r12] = $r4r5
-	;;
-#else
-	lw $r4 = MOS_VC_REG_SPS[ $r0 ]
-	;;
-#endif
-	extfz $r4, $r4, 4, 4
-	;;
-	cb.eqz $r4, __no_it_enable
-	;;
-	scall MOS_VC_ENABLE_IT
-	;;
-__no_it_enable:
 	copy $r0, $r40
 	copy $r1, $r41
 	copy $r2, $r42
@@ -118,62 +153,17 @@ __no_it_enable:
 	copy $r6, $r38
 	copy $r7, $r39
 	;;
-	;;
-	get $r8 = $ra
-	;;
-	copy $r10 = $r7
-	sw 16 [$r12] = $r10
-	;;
-	sw 24 [$r12] = $r14
-	;;
-	sw 20 [$r12] = $r8
 	add $r12 = $r12, -16
-	call __user_do_scall
+	call pok_arch_sc_int
 	;;
+__vk1_asm_return_from_sc:
 	add $r12 = $r12, 16
+	make $r16 = pok_current_context
 	;;
-#ifndef __k1a__
-	scall MOS_VC_DISABLE_IT
+	lw $r13 = 0[$r16]
 	;;
-	ld $r36r37 = 32[$r12]
-	;;
-	ld $r38r39 = 40[$r12]
-	;;
-	get $r40, $pcr
-	make $r41, _scoreboard_start
-	;;
-	extfz $r40, $r40, 15,11
-	;;
-	sll $r40, $r40, 8
-	;;
-	add $r41, $r41, $r40
-	;;
-	sw MOS_VC_REG_SPC[ $r41 ] = $r36
-	;;
-	sw MOS_VC_REG_PS[ $r41 ] = $r37
-	;;
-	sw MOS_VC_REG_SPS[ $r41 ] = $r38
-	;;
-	sw MOS_VC_REG_SSP[ $r41 ] = $r39
-	;;
-#endif
-	lw $r8 = 20 [$r12]
-	;;
-	lw $r14 = 24 [$r12]
-	;;
-	lw $r10 = 16 [$r12]
-	;;
-#ifdef __k1a__
-	add $r12 = $r12, 40
-	;;
-#else
-	add $r12 = $r12, 56
-	;;
-#endif
-	set $ra = $r8
+	_vk1_context64_restore $r13
 	;;
 	scall MOS_VC_RFE
 	;;
-	ret
-	;;
-	.endp
+.endp _system_call_ISR

@@ -11,7 +11,7 @@ LO_OBJS=	entry.o \
 		space.o \
 		thread.o \
 		syscalls.o \
-		interrupt.o \
+		isr.o \
 		cswitch.o \
 		timer.o
 

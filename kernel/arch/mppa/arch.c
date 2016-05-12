@@ -78,40 +78,24 @@
 #include <libc.h>
 #endif
 
-/*
-unsigned* _loader_baseaddr;
-/// _loader_off - the offset of the loading function (one per core)
-unsigned* _loader_off;
-*/
-
+/* bss and shadowbss sections holdmarkers */
 extern __k1_uint8_t _bss_start;
 extern __k1_uint8_t _bss_end;
 extern __k1_uint8_t _sbss_start;
 extern __k1_uint8_t _sbss_end;
 
 extern mOS_scoreboard_t _scoreboard_start; /* score_board pointer */
-extern int _scoreboard_kstack_start    __attribute__((weak));
-extern int KERNEL_STACK_SIZE          __attribute__((weak));
-extern void __vk1_asm_interrupt_handler(void);
-extern void _system_call_ISR(void);
-
-/* TODO: Patmos leftovers
-extern unsigned long long time_new;
-
+extern int _scoreboard_kstack_start __attribute__((weak));
+extern int KERNEL_STACK_SIZE __attribute__((weak));
 extern void _interval_ISR(void);
-
 extern void _system_call_ISR(void);
-
-extern void pok_clear_bss(void) __attribute__((used));
-*/
-
 
 // Set the processor to idle (lightsleep)
 pok_ret_t pok_arch_idle()
 {
-	mOS_idle1();
-
-	//normally what follows isn't executed until an interrupt arrives
+	while (1) {
+		mOS_idle1();
+	}
 	/*
 	while (1)
 	{
@@ -156,15 +140,15 @@ pok_ret_t pok_arch_init ()
 	uintptr_t kstack = (uintptr_t)(&_scoreboard_kstack_start)
 						- pid * (int)&KERNEL_STACK_SIZE;
 	mOS_register_stack_handler((uint64_t *) kstack);
-	mOS_register_it_handler(__vk1_asm_interrupt_handler);
+	mOS_register_it_handler(_interval_ISR);
 	_scoreboard_start.SCB_VCORE.MAGIC_VALUE = 0x12344321;
 
 	if (pid == 0) {
 		/* Disable Dcache and Icache */
 		mOS_dcache_disable();
-		mOS_icache_disable(); //__k1_icache_disable
+		mOS_icache_disable();
 
-		/* Clear bss. This function is in legay.h, thus deprecated */
+		/* Clear bss. This function is in legacy.h, thus deprecated */
 		__k1_bss_section(((__k1_uint8_t*) &_bss_start), ((__k1_uint32_t)&_bss_end) - ((__k1_uint32_t)     &_bss_start));
 		__k1_bss_section(((__k1_uint8_t*) &_sbss_start), ((__k1_uint32_t)&_sbss_end) - ((__k1_uint32_t)   &_sbss_start));
 
@@ -184,14 +168,11 @@ uint32_t pok_thread_stack_addr (const uint8_t partition_id, const uint32_t local
 	return pok_partitions[partition_id].size - (local_thread_id * POK_USER_STACK_SIZE);
 }
 
-// TODO: Verify that preempt enable/disable are working
 pok_ret_t pok_arch_preempt_disable()
 {
 	// clear pending flags
 	mOS_it_clear_num(MOS_VC_IT_TIMER_0);
 	mOS_it_clear_num(MOS_VC_IT_TIMER_1);
-
-	// unmask interrupts - TODO in mppa
 
 	mOS_set_it_level(0);
 	// enable interrupts
@@ -206,7 +187,9 @@ pok_ret_t pok_arch_preempt_enable()
 	mOS_it_clear_num(MOS_VC_IT_TIMER_0);
 	mOS_it_clear_num(MOS_VC_IT_TIMER_1);
 
-	// unmask interrupts - TODO in mppa
+	/* Activate stack switch for interrupts and exceptions */
+	_scoreboard_start.SCB_VCORE.PER_CPU[0].SFR_PS.isw = 1;
+	_scoreboard_start.SCB_VCORE.PER_CPU[0].SFR_PS.esw = 1;
 
 	mOS_set_it_level(0);
 	// enable interrupts
@@ -215,7 +198,7 @@ pok_ret_t pok_arch_preempt_enable()
 	return (POK_ERRNO_OK);
 }
 
-pok_ret_t	pok_arch_cache_invalidate ()
+pok_ret_t pok_arch_cache_invalidate ()
 {
 	/* Performs a full data and instruction cache invalidation */
 	mOS_iinval();

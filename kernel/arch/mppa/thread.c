@@ -95,22 +95,20 @@ uint32_t pok_context_create (uint32_t id, uint32_t stack_size, uint32_t entry)
 	ctx->k1_base_ctx.regs[18] = entry;
 	ctx->k1_base_ctx.regs[19] = id;
 
+	//initialize ps and sps with default values
+	ctx->k1_base_ctx.ps = pok_default_ps.word;
+	ctx->k1_base_ctx.sps = pok_default_ps.word;
+
 	// Setting base function address to return to
-	ctx->k1_base_ctx.ra = (uint32_t) pok_arch_thread_start;
+	ctx->k1_base_ctx.spc = (uint32_t) pok_arch_thread_start;
 
 	// Setting stack pointer
-	ctx->k1_base_ctx.regs[12] = (uint32_t) (ctx - 4);
-
-	/*
-	ctx->k1_base_ctx.regs[31] = (uint32_t) (ctx - stack_size - 4);
-
-	// Initial exception state has interrupts enabled
-	ctx->k1_base_ctx.regs[7] = 0x1 ; */
+	ctx->ssp = (uint32_t) ctx - 16;
 
 	#ifdef POK_NEEDS_DEBUG
 	printf ("[DEBUG]\t Context size %x\n",sizeof (context_t));
 	printf ("[DEBUG]\t Creating system context %x, ctx: %p, sp: %x\n",
-				(unsigned int)id, ctx, ctx->k1_base_ctx.regs[12]);
+				(unsigned int)id, ctx, ctx->ssp);
 	#endif
 	return (uint32_t)ctx;
 }

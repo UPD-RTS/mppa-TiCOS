@@ -59,34 +59,33 @@ pok_ret_t pok_arch_sc_int(	uint32_t num,
 {
 
 
-	// uint8_t			part_id;
-	// pok_syscall_info_t	syscall_info;
+	uint8_t			part_id;
+	pok_syscall_info_t	syscall_info;
 	pok_ret_t		syscall_ret;
-	// pok_syscall_args_t	syscall_args;
-	// pok_syscall_id_t	syscall_id;
+	pok_syscall_args_t	syscall_args;
+	pok_syscall_id_t	syscall_id;
 
-	// part_id  = 0; /*currently only PE0 --- pok_current_partition;*/
-	//
-	// /* prepare syscall_info */
-	// syscall_info.partition	= part_id;
-	// syscall_info.base_addr	= 0; /* pok_partitions[part_id].base_addr; */
-	// syscall_info.thread	= 0; /* currently monothread POK_SCHED_CURRENT_THREAD; */
-	//
-	// /* prepare syscall_args */
-	// syscall_args.arg1 = arg1;
-	// syscall_args.arg2 = arg2;
-	// syscall_args.arg3 = arg3;
-	// syscall_args.arg4 = arg4;
-	// syscall_args.arg5 = arg5;
-	// syscall_args.arg6 = arg6;
-	// syscall_args.arg7 = arg7;
-	// syscall_args.nargs = 7;
-	//
-	// /* prepare syscall_id */
-	// syscall_id = (pok_syscall_id_t) num;
-	(void)syscall_ret;
+	part_id  = pok_current_partition;
+
+	/* prepare syscall_info */
+	syscall_info.partition = part_id;
+	//syscall_info.base_addr = pok_partitions[part_id].base_addr;
+	syscall_info.base_addr = 0;
+	syscall_info.thread = POK_SCHED_CURRENT_THREAD;
+
+	/* prepare syscall_args */
+	syscall_args.arg1 = arg1;
+	syscall_args.arg2 = arg2;
+	syscall_args.arg3 = arg3;
+	syscall_args.arg4 = arg4;
+	syscall_args.arg5 = arg5;
+	syscall_args.arg6 = arg6;
+	syscall_args.arg7 = arg7;
+	syscall_args.nargs = 7;
+
+	/* prepare syscall_id */
+	syscall_id = (pok_syscall_id_t) num;
 	/* perform syscall */
-	/*syscall_ret = pok_core_syscall (syscall_id, &syscall_args, &syscall_info);*/
-	syscall_ret = POK_ERRNO_OK;
+	syscall_ret = pok_core_syscall (syscall_id, &syscall_args, &syscall_info);
 	return syscall_ret;
 }

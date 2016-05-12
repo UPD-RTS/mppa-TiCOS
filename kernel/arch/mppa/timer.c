@@ -68,13 +68,15 @@ uint64_t last_mppa_tb;
 
 bool_t dec_updated;
 
+#define TIMER_RELOAD_CORRECTION 2
+
 #ifdef POK_NEEDS_SCHED_O1
 uint64_t pok_update_tick()
 {
 	uint64_t current_time = get_mppa_tb();
 	uint64_t the_counter;
 	if(!dec_updated)
-		the_counter = (current_time - time_last)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
+		the_counter = (current_time + TIMER_RELOAD_CORRECTION - time_last)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
 	else
 		the_counter = (current_time - last_mppa_tb)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
 
@@ -107,13 +109,13 @@ uint64_t pok_update_tick()
 	else
 	{
 		// value, reload_value, it_disable: 0 -> it is enabled
-		mOS_timer64_setup(time_new, time_new, 0);
+		mOS_timer64_setup(delta, delta, 0);
 		return POK_ERRNO_OK;
 	}
 }
 
 /* Called by the interrupt handled.  */
-void pok_arch_decr_int (int ev_src, __k1_vcontext_t *ctx)
+void pok_arch_decr_int (int ev_src, __k1_vcontext_t __attribute__((unused)) *ctx)
 {
 	if (ev_src == BSP_IT_TIMER_0 || ev_src == BSP_IT_TIMER_1) {
 		dec_updated=FALSE;

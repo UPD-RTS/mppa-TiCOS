@@ -99,11 +99,28 @@ typedef struct
 
 } context_t;
 
-uint32_t pok_context_create(uint32_t id,uint32_t stack_size, uint32_t entry);
+static const mOS_vc_vps_t pok_default_ps __attribute__((used)) = {
+	.itt = 0,
+	0, //ext
+	1, //isw
+	1, //esw
+	1, //ie
+	1, //hle
+	0, //gme
+	1, //ice
+	1, //use
+	1, //dce
+	0, //pm
+	0, //il
+	0, //sn
+	0 //ec
+};
+
+uint32_t pok_context_create(uint32_t id, uint32_t stack_size, uint32_t entry);
 
 /* Interface not yet completely defined */
 //void pok_context_switch(uint32_t *old_sp, uint32_t new_sp);
-void pok_context_switch(uint32_t *old_sp, uint32_t new_sp);
+void pok_context_switch(uint32_t old_sp, uint32_t new_sp);
 
 #ifdef POK_NEEDS_DEBUG
 void pok_context_print(context_t *ctx);

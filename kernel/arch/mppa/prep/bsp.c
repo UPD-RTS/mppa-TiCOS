@@ -35,9 +35,9 @@
 #include <libc.h>
 
 // defined in a linker script
-extern char _end[];
+extern char _heap_start[];
 
-static char *heap_end = _end;
+static char *heap_end = _heap_start;
 
 void *pok_bsp_mem_alloc (size_t sz)
 {
@@ -45,7 +45,7 @@ void *pok_bsp_mem_alloc (size_t sz)
 
 	res = (char *)(((unsigned int)heap_end + 4095) & ~4095);
 	heap_end = res + sz;
-	printf("[DEBUG] MALLOC: Space reserved starting at: %p, with size: %u\n",
+	printf("[DEBUG] MALLOC: Space reserved starting at: %p, with size: %x\n",
 									res, sz);
 	return res;
 }
