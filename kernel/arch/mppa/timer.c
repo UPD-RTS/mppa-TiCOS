@@ -50,25 +50,28 @@
  */
 
 /* Last time when decr was set.  */
-static unsigned long long time_last;
+static uint64_t time_last;
 
 /* Decrementer optimal value.  */
-/*static*/ unsigned int time_inter;
+/*static*/ uint64_t time_inter;
 
-unsigned int next_timer;
+uint64_t next_timer;
 
-unsigned long long time_new;
+uint64_t time_new;
 
-unsigned long long get_mppa_tb (void)
+uint64_t get_mppa_tb (void)
 {
-	return mOS_timer64_get_value();
+	return mOS_dsu_ts_read() / (_K1_DEFAULT_CLOCK_DIV);
+}
+
+unsigned long long get_mppa_rb (void)
+{
+	return mOS_timer64_get_reload();
 }
 
 uint64_t last_mppa_tb;
 
 bool_t dec_updated;
-
-#define TIMER_RELOAD_CORRECTION 2
 
 #ifdef POK_NEEDS_SCHED_O1
 uint64_t pok_update_tick()
@@ -76,28 +79,32 @@ uint64_t pok_update_tick()
 	uint64_t current_time = get_mppa_tb();
 	uint64_t the_counter;
 	if(!dec_updated)
-		the_counter = (current_time + TIMER_RELOAD_CORRECTION - time_last)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
+		the_counter = (current_time - time_last)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
 	else
 		the_counter = (current_time - last_mppa_tb)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
 
+	printf("THE COUNTER: ");print_long(the_counter);printf("\n");
 	return pok_tick_counter+the_counter;
 }
 #endif
 
 /* Compute new value for the decrementer.  If the value is in the future,
 	sets the decrementer else returns an error.  */
-/*static*/ int pok_arch_set_decr (unsigned int timer)
+/*static*/ int pok_arch_set_decr (uint64_t timer)
 {
 	time_new = time_last + timer;
-	unsigned long long time_cur = get_mppa_tb();
-	int delta = time_new - time_cur;
+	uint64_t time_cur = get_mppa_tb();
+	int64_t delta = time_new - time_cur;
 
 	#ifdef POK_NEEDS_DEBUG
 	printf("TIME LAST: ");
 	print_long(time_last);
-	printf(", TIMER: %u, TIME NEW: ",timer);
+	printf(", TIMER: ");
+	print_long(timer);printf(", TIME NEW: ");
 	print_long(time_new);printf(", TIME CUR: ");
-	print_long(time_cur);printf(", DELTA: %d\n",delta);
+	print_long(time_cur);printf(", DELTA: ");
+	print_long((unsigned long long)delta);
+	printf("\n");
 	#endif
 	last_mppa_tb = time_last;
 	time_last = time_new;
@@ -114,7 +121,7 @@ uint64_t pok_update_tick()
 	}
 }
 
-/* Called by the interrupt handled.  */
+/* Called by the interrupt handler.  */
 void pok_arch_decr_int (int ev_src, __k1_vcontext_t __attribute__((unused)) *ctx)
 {
 	if (ev_src == BSP_IT_TIMER_0 || ev_src == BSP_IT_TIMER_1) {
