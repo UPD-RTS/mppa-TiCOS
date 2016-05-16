@@ -72,8 +72,8 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 {
 	switch (syscall_id)
 	{
-#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG) 
-		 case POK_SYSCALL_CONSWRITE:
+#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
+		case POK_SYSCALL_CONSWRITE:
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg1 + infos->base_addr)
 			if (pok_cons_write ((const char*)args->arg1 + infos->base_addr, args->arg2))
 			{
@@ -91,7 +91,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 			return pok_get_system_time ((uint64_t*) (args->arg1 + infos->base_addr));
 			break;
 
-#if defined (POK_NEEDS_ARINC653) 
+#if defined (POK_NEEDS_ARINC653)
 		case POK_SYSCALL_GET_TIME:
 			return pok_get_HD_clock ((uint64_t*) (args->arg1 + infos->base_addr));
 			break;
@@ -161,7 +161,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 			break;
 #endif
 
-	  
+
 #ifdef POK_NEEDS_ERROR_HANDLING
 
 //		case POK_SYSCALL_ERROR_HANDLER_CREATE:
@@ -184,17 +184,17 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 
 			/* Middleware syscalls */
 #ifdef POK_NEEDS_PORTS_SAMPLING
-		case POK_SYSCALL_MIDDLEWARE_SAMPLING_CREATE: 
+		case POK_SYSCALL_MIDDLEWARE_SAMPLING_CREATE:
 			if (args->arg6 != NULL){
  #ifdef POK_SD
-				printf("in syscall.c base addr: 0x%x, args->arg6 0x%x,(args->arg6 + infos->base_addr) 0x%x\n", 
-				infos->base_addr, args->arg6,(args->arg6 + infos->base_addr));		
+				printf("in syscall.c base addr: 0x%x, args->arg6 0x%x,(args->arg6 + infos->base_addr) 0x%x\n",
+				infos->base_addr, args->arg6,(args->arg6 + infos->base_addr));
  #endif
 				POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg6 + infos->base_addr)
 			}
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg1 + infos->base_addr)
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg5 + infos->base_addr)
- 											
+
 			return pok_port_sampling_create ((char*)(args->arg1 + infos->base_addr),
 							(pok_port_size_t) args->arg2,
 							(pok_port_direction_t) args->arg3,
@@ -202,7 +202,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 							(pok_port_id_t*) (args->arg5 + infos->base_addr),
 							(void*) args->arg6);
 			break;
-		
+
 		case POK_SYSCALL_MIDDLEWARE_SAMPLING_WRITE:
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg2 + infos->base_addr)
 			return pok_port_sampling_write ((const pok_port_id_t)args->arg1,
@@ -218,14 +218,14 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 													(pok_port_size_t*) (args->arg3 + infos->base_addr),
 													(bool_t*) (args->arg4 + infos->base_addr));
 			break;
-		
+
 		case POK_SYSCALL_MIDDLEWARE_SAMPLING_ID:
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg1 + infos->base_addr)
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg2 + infos->base_addr)
 			return pok_port_sampling_id	((char*)(args->arg1 + infos->base_addr),
 								(pok_port_id_t*)(args->arg2 + infos->base_addr));
 			break;
-			 
+
 /* NOT USED at the moment
 		case POK_SYSCALL_MIDDLEWARE_SAMPLING_STATUS:
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg2+infos->base_addr)
@@ -237,21 +237,21 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 
 
 #ifdef POK_NEEDS_PORTS_QUEUEING
-		case POK_SYSCALL_MIDDLEWARE_QUEUEING_CREATE: 
+		case POK_SYSCALL_MIDDLEWARE_QUEUEING_CREATE:
 			if (args->arg7 != NULL){
 #ifdef POK_QD
-				printf("in syscall.c base addr: 0x%x, args->arg6 0x%x,(args->arg6 + infos->base_addr) 0x%x\n", 
-				infos->base_addr, args->arg7,(args->arg7 + infos->base_addr));		
+				printf("in syscall.c base addr: 0x%x, args->arg6 0x%x,(args->arg6 + infos->base_addr) 0x%x\n",
+				infos->base_addr, args->arg7,(args->arg7 + infos->base_addr));
 #endif
 				POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg7 + infos->base_addr)
 			}
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg1 + infos->base_addr)
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg6 + infos->base_addr)
-			return pok_port_queueing_create ((char*) (args->arg1 + infos->base_addr), 
+			return pok_port_queueing_create ((char*) (args->arg1 + infos->base_addr),
 											(pok_port_size_t)					args->arg2,
-											(pok_range_t)						args->arg3,	 
-											(pok_port_direction_t)				args->arg4, 
-											(pok_port_queueing_discipline_t)	args->arg5, 
+											(pok_range_t)						args->arg3,
+											(pok_port_direction_t)				args->arg4,
+											(pok_port_queueing_discipline_t)	args->arg5,
 											(pok_port_id_t*)					(args->arg6 + infos->base_addr),
 											(void*)								args->arg7);
 			break;
@@ -259,7 +259,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 		case POK_SYSCALL_MIDDLEWARE_QUEUEING_SEND:
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg2 + infos->base_addr)
 			return pok_port_queueing_send ((const pok_port_id_t)		args->arg1,
-											(const void*)		((void*)args->arg2 + infos->base_addr), 
+											(const void*)		((void*)args->arg2 + infos->base_addr),
 											(const uint8_t)		(args->arg3),
 											(const uint64_t)	args->arg4);
 			break;
@@ -267,10 +267,10 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 		case POK_SYSCALL_MIDDLEWARE_QUEUEING_RECEIVE:
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg4 + infos->base_addr)
 			POK_CHECK_PTR_OR_RETURN(infos->partition, args->arg5 + infos->base_addr)
-			return pok_port_queueing_receive(	(const pok_port_id_t)	args->arg1, 
+			return pok_port_queueing_receive(	(const pok_port_id_t)	args->arg1,
 												(uint64_t)				args->arg2,
 												(pok_port_size_t)		args->arg3,
-												(void*)					((void*)args->arg4 + infos->base_addr), 
+												(void*)					((void*)args->arg4 + infos->base_addr),
 												(pok_port_size_t*)		(args->arg5 + infos->base_addr));
 			break;
 
@@ -317,7 +317,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 
 		/**
 		 * Here is the default syscall handler. In this case, the syscall
-		 * ID was not properly identified and thus, we should return an 
+		 * ID was not properly identified and thus, we should return an
 		 * error. If error management is activated, we raise an error
 		 * in kernel of partitions, calling the error handler.
 		 */

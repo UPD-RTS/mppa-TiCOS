@@ -130,7 +130,13 @@ uint64_t pok_sched_next_major_frame;
 int pok_sched_current_slot = 0; /* Which slot are we executing at this time ?*/
 uint32_t current_thread = KERNEL_THREAD;
 
-//void pok_sched_thread_switch (void);
+/**
+ * Pointers to the current executing thread's context
+ * and the next executing threads context
+ */
+#ifdef POK_ARCH_MPPA
+uint32_t pok_current_context __attribute__((used));
+#endif
 
 #ifdef POK_NEEDS_SCHED_FPPS
 void insert_in_queue (uint16_t, pok_thread_t*);
@@ -722,10 +728,14 @@ void pok_sched_thread_switch ()
  */
 void pok_sched_context_switch (const uint32_t elected_id)
 {
+#ifndef POK_ARCH_MPPA
 	uint32_t *current_sp;
-	uint32_t new_sp;
-
 	current_sp = &POK_CURRENT_THREAD.sp;
+#else
+	uint32_t current_sp;
+	current_sp = POK_CURRENT_THREAD.sp;
+#endif
+	uint32_t new_sp;
 	new_sp = pok_threads[elected_id].sp;
 
 	/* No need to switch */
@@ -738,7 +748,6 @@ void pok_sched_context_switch (const uint32_t elected_id)
 		return;
 	}
 
-
 	/*  FIXME : current debug session about exceptions-handled */
 #ifdef POK_NEEDS_DEBUG
 	 printf("switch from thread %d, sp=0x%x\n",POK_SCHED_CURRENT_THREAD, current_sp);
@@ -746,6 +755,9 @@ void pok_sched_context_switch (const uint32_t elected_id)
 #endif
 	// Update current thread id now
 	current_thread = elected_id;
+#ifdef POK_ARCH_MPPA
+	pok_current_context = new_sp;
+#endif
 	// Call to low-level context switch routine from entry.S
 	pok_context_switch(current_sp, new_sp);
 
@@ -757,12 +769,13 @@ void pok_sched_context_switch (const uint32_t elected_id)
  */
 void pok_sched_partition_switch (const uint32_t elected_id)
 {
+#ifndef POK_ARCH_MPPA
 	uint32_t *current_sp;
 	uint32_t new_sp;
 
 	current_sp = &POK_CURRENT_THREAD.sp;
 	new_sp = pok_threads[elected_id].sp;
-
+#endif
 // 	if (POK_SCHED_CURRENT_THREAD == elected_id)
 // 	{
 // #ifdef POK_NEEDS_DEBUG
@@ -782,9 +795,12 @@ void pok_sched_partition_switch (const uint32_t elected_id)
 // 	pok_space_switch(POK_CURRENT_THREAD.partition, pok_threads[elected_id].partition);
 	// Update current thread id now
 	current_thread = elected_id;
-
+#ifdef POK_ARCH_MPPA
+	pok_current_context = pok_threads[current_thread].sp;
+#else
 	// Call to low-level context switch routine from entry.S
 	pok_context_switch(current_sp, new_sp);
+#endif
 }
 
 uint32_t pok_sched_part_rr (const uint32_t index_low, const uint32_t index_high)

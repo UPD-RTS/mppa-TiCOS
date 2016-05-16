@@ -87,8 +87,10 @@ void pok_debug_print_current_state ()
 	printf ("Thread high		: %d\n", POK_CURRENT_PARTITION.thread_index_high);
 	printf ("Thread capacity	: %d\n", POK_CURRENT_PARTITION.nthreads);
 	printf ("Base addr		: 0x%x\n", POK_CURRENT_PARTITION.base_addr);
+#ifdef POK_ARCH_PPC
 	printf ("Base vaddr		: 0x%x\n", POK_CURRENT_PARTITION.base_vaddr);
-	printf ("Size			: %d\n", POK_CURRENT_PARTITION.size);
+#endif
+	printf ("Size			: %x\n", POK_CURRENT_PARTITION.size);
 	printf ("Current thread		: %d\n", POK_CURRENT_PARTITION.current_thread);
 	printf ("Prev current thread	: %d\n", POK_CURRENT_PARTITION.prev_current_thread);
 	printf ("Main thread		: %d\n", POK_CURRENT_PARTITION.thread_main);
@@ -113,10 +115,17 @@ void pok_debug_print_current_state ()
 
 void pok_fatal (const char* message)
 {
-  pok_write ("FATAL ERROR: \n", 13);
-  pok_write (message , debug_strlen(message));
-  POK_DEBUG_PRINT_CURRENT_STATE
-  pok_arch_idle ();
+#ifdef POK_ARCH_PPC
+	pok_write ("FATAL ERROR: \n", 13);
+	pok_write (message , debug_strlen(message));
+	POK_DEBUG_PRINT_CURRENT_STATE
+	pok_arch_idle ();
+#else
+	printf("FATAL ERROR: \n");
+	printf(message);
+	POK_DEBUG_PRINT_CURRENT_STATE
+	pok_arch_idle ();
+#endif
 }
 
 #endif /* POK_CONFIG_NEEDS_DEBUG */

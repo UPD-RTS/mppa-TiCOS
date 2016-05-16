@@ -56,7 +56,7 @@
  */
 
 #include <types.h>
-
+#include <bsp.h>
 #include <arch.h>
 #include <core/debug.h>
 #include <core/error.h>
@@ -70,7 +70,6 @@
 #if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
  #include <libc.h>
 #endif
-
 
 #ifdef POK_NEEDS_THREADS
 
@@ -178,28 +177,38 @@ void pok_thread_init(void)
  #endif
 #endif /* POK_NEEDS_PARTITIONS */
 
-	pok_threads[KERNEL_THREAD].priority			= pok_sched_get_priority_min(0);
-	pok_threads[KERNEL_THREAD].state			= POK_STATE_RUNNABLE;
+#ifdef POK_NEEDS_DEBUG
+	printf ("[DEBUG]\t Creating KERNEL thread, id: %d\n", KERNEL_THREAD);
+#endif
+	pok_threads[KERNEL_THREAD].priority		= pok_sched_get_priority_min(0);
+	pok_threads[KERNEL_THREAD].state		= POK_STATE_RUNNABLE;
 	pok_threads[KERNEL_THREAD].next_activation	= 0;
+#ifdef POK_ARCH_MPPA
+	pok_threads[KERNEL_THREAD].sp = (uint32_t)pok_bsp_mem_alloc(MPPA_CONTEXT_SIZE);
+	pok_current_context = pok_threads[KERNEL_THREAD].sp;
+#endif
 
-	pok_threads[IDLE_THREAD].period				= 0;
+#ifdef POK_NEEDS_DEBUG
+	printf ("[DEBUG]\t Creating IDLE thread, id: %d\n", IDLE_THREAD);
+#endif
+	pok_threads[IDLE_THREAD].period			= 0;
 
 #ifdef POK_NEEDS_SCHED_O1_SPLIT
-	pok_threads[IDLE_THREAD].deadline			= 1000000; // +INF
+	pok_threads[IDLE_THREAD].deadline		= 1000000; // +INF
 	pok_threads[IDLE_THREAD].time_capacity		= 1000000; // +INF
-	pok_threads[IDLE_THREAD].pos				= IDLE_THREAD;
-	pok_threads[IDLE_THREAD].id					= IDLE_THREAD;
+	pok_threads[IDLE_THREAD].pos			= IDLE_THREAD;
+	pok_threads[IDLE_THREAD].id			= IDLE_THREAD;
 #else
-	pok_threads[IDLE_THREAD].deadline			= 0;
+	pok_threads[IDLE_THREAD].deadline		= 0;
 	pok_threads[IDLE_THREAD].time_capacity		= 0;
 #endif
 	pok_threads[IDLE_THREAD].next_activation	= 0;
 	pok_threads[IDLE_THREAD].remaining_time_capacity = 0;
 	pok_threads[IDLE_THREAD].wakeup_time		= 0;
-	pok_threads[IDLE_THREAD].entry				= pok_arch_idle;
-	pok_threads[IDLE_THREAD].priority			= pok_sched_get_priority_min(0);
-	pok_threads[IDLE_THREAD].state				= POK_STATE_RUNNABLE;
-	pok_threads[IDLE_THREAD].sp					= pok_context_create (IDLE_THREAD,IDLE_STACK_SIZE,(uint32_t)pok_arch_idle);
+	pok_threads[IDLE_THREAD].entry			= pok_arch_idle;
+	pok_threads[IDLE_THREAD].priority		= pok_sched_get_priority_min(0);
+	pok_threads[IDLE_THREAD].state			= POK_STATE_RUNNABLE;
+	pok_threads[IDLE_THREAD].sp			= pok_context_create (IDLE_THREAD,IDLE_STACK_SIZE,(uint32_t)pok_arch_idle);
 
 	// KERNEL_THREAD and IDLE_THREAD must not be initialized again
 	for (i = 0; i < POK_CONFIG_NB_THREADS-2; ++i)
@@ -249,12 +258,14 @@ void pok_thread_init(void)
  * Return POK_ERRNO_TOOMANY if the partition cannot contain
  * more threads.
  */
-pok_ret_t pok_partition_thread_create (	uint32_t*					thread_id,
-										const pok_thread_attr_t*	attr,
-										const uint8_t				partition_id)
+pok_ret_t pok_partition_thread_create (	uint32_t* thread_id,
+		const pok_thread_attr_t* attr, const uint8_t partition_id)
 {
 	uint32_t id;
 	uint32_t stack_vaddr;
+#ifdef POK_ARCH_MPPA
+ 	uint32_t stack_addr;
+#endif /*POK_ARCH_MPPA*/
 
 	/**
 	* We can create a thread only if the partition is in INIT mode
@@ -305,16 +316,24 @@ pok_ret_t pok_partition_thread_create (	uint32_t*					thread_id,
 
 	// allocate memory for the user stack (the memory is inside the partition area)
 	stack_vaddr = pok_thread_stack_addr (partition_id, pok_partitions[partition_id].thread_index);
-
 	pok_threads[id].state = POK_STATE_RUNNABLE;
 	pok_threads[id].wakeup_time	= 0;
 
+#ifndef POK_ARCH_MPPA
 	// allocate memory for the kernel stack (the memory is outside the partition area, it is in the heap)
 	pok_threads[id].sp = pok_space_context_create (partition_id,
 							(uint32_t)attr->entry,
 							stack_vaddr,
 							0xdead,
 							0xbeaf);
+#else
+	stack_addr = pok_partitions[partition_id].base_addr + stack_vaddr;
+	pok_threads[id].sp = pok_space_context_create (partition_id,
+							(uint32_t)attr->entry,
+							stack_addr,
+							0xdead,
+							0xbeaf);
+#endif /*POK_ARCH_MPPA*/
 
 	pok_threads[id].partition		= partition_id;
 	pok_threads[id].entry			= attr->entry;
@@ -361,8 +380,8 @@ pok_ret_t pok_partition_thread_create (	uint32_t*					thread_id,
  #endif /* ifdef POK_NEEDS_SCHED_O1 */
 
  #ifdef POK_NEEDS_DEBUG
-	printf("DEBUG::pok_thread %d created in partition %d\n",*thread_id,partition_id);
-	printf("DEBUG::partition %d: index_low %d, index_high %d\n",partition_id,pok_partitions[partition_id].thread_index_low,pok_partitions[partition_id].thread_index_high);
+	printf("[DEBUG] pok_thread %d created in partition %d\n",*thread_id,partition_id);
+	printf("[DEBUG] Partition %d: index_low %d, index_high %d\n",partition_id,pok_partitions[partition_id].thread_index_low,pok_partitions[partition_id].thread_index_high);
  #endif
 
 	pok_partitions[partition_id].thread_index =  pok_partitions[partition_id].thread_index + 1;

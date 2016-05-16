@@ -205,8 +205,10 @@ pok_ret_t pok_partition_init ()
 	{
 		uint32_t size = partition_size[i];
 		uint32_t base_addr = (uint32_t)pok_bsp_mem_alloc(partition_size[i]);
-		uint32_t program_entry;
+#ifdef POK_ARCH_PPC
 		uint32_t base_vaddr           = pok_space_base_vaddr(base_addr);
+#endif
+		uint32_t program_entry;
 #if defined (POK_CONFIG_PARTITIONS_LOADADDR) && defined (POK_SKIP_LOADER)
 		// One may want to check that consistent addresses were specified
 		printf ("Partition base addr phys=|%x| (user-defined |%x|)",base_addr, program_loadaddr[i]);
@@ -215,18 +217,21 @@ pok_ret_t pok_partition_init ()
 		pok_partitions[i].size        = size;
 		pok_partitions[i].sched       = POK_SCHED_RR;
 		pok_partitions[i].partition_id = i;
-//#ifdef POK_NEEDS_DEBUG
-//#include <libc.h>
-		printf ("[XCOV] Partition %d loaded at addr virt=|%x|, phys=|%x|\n", i, base_vaddr, base_addr);
-//#endif
-
+#ifdef POK_NEEDS_DEBUG
+#ifdef POK_ARCH_PPC
+		printf ("[DEBUG] Partition %d loaded at addr virt=|%x|, phys=|%x|\n", i, base_vaddr, base_addr);
+#else
+		printf ("[DEBUG] Partition %d loaded at addr phys=|%x|\n", i, base_addr);
+#endif /*POK_ARCH_PPC*/
+#endif /*POK_NEEDS_DEBUG*/
 		pok_partition_setup_scheduler (i);
 
 		pok_create_space (i, base_addr, size);
 
-		pok_partitions[i].base_vaddr = base_vaddr;
-		/* Set the memory space and so on */
-      		pok_partitions[i].thread_index_low    = threads_index;
+#ifdef POK_ARCH_PPC
+		pok_partitions[i].base_vaddr = base_vaddr; /* Set the memory space and so on */
+#endif /* POK_ARCH_PPC */
+		pok_partitions[i].thread_index_low    = threads_index;
 		pok_partitions[i].nthreads            = ((uint32_t[]) POK_CONFIG_PARTITIONS_NTHREADS) [i];
 
 #ifdef POK_NEEDS_ERROR_HANDLING
@@ -271,14 +276,11 @@ pok_ret_t pok_partition_init ()
 		pok_partitions[i].error_status.msg_size         = 0;
 #endif
 
-#ifdef POK_NEEDS_DEBUG
-		printf("loading partition\n");
-#endif
-		/** This invokation worked just because the base_vaddr was always 0 */
-		//pok_loader_load_partition (i, base_addr - base_vaddr, &program_entry);
+#ifndef POK_ARCH_MPPA
 		pok_loader_load_partition (i, base_addr, &program_entry);
-#ifdef POK_NEEDS_DEBUG
-		printf("\t end loading partition\n");
+#else
+		/* Partitions are always compiled with a base addr of 0 */
+		pok_loader_load_partition (i, 0, &program_entry);
 #endif
 		/*
 		 * Load the partition in its address space
@@ -313,6 +315,8 @@ pok_ret_t pok_partition_init ()
 
 	for (i = 0 ; i < POK_CONFIG_NB_PARTITIONS ; i++)
 	{
+		printf("[DEBUG] Setting up main thread of partition: %d, addr: %x\n",
+					i, pok_partitions[i].thread_main_entry);
 		pok_partition_setup_main_thread (i);
 	}
 

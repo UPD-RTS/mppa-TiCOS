@@ -64,7 +64,8 @@
 #include <core/boot.h>
 #include <core/lockobj.h>
 #include <dependencies.h>
-
+#include <core/debug.h>
+#include <mOS_vcore_u.h>
 
 void pok_boot ()
 {
@@ -104,4 +105,6 @@ void pok_boot ()
 #endif
 
 	pok_arch_preempt_enable();
+	pok_cons_write ("POK boot finished\n", 18);
+	mOS_idle1();
 }
