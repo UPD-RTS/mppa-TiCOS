@@ -61,7 +61,7 @@ uint64_t time_new;
 
 uint64_t get_mppa_tb (void)
 {
-	return mOS_dsu_ts_read() / (_K1_DEFAULT_CLOCK_DIV);
+	return mOS_dsu_ts_read() / _K1_DEFAULT_CLOCK_DIV;
 }
 
 unsigned long long get_mppa_rb (void)
@@ -83,7 +83,6 @@ uint64_t pok_update_tick()
 	else
 		the_counter = (current_time - last_mppa_tb)/((POK_BUS_FREQ_HZ /POK_FREQ_DIV) / POK_TIMER_FREQUENCY);
 
-	printf("THE COUNTER: ");print_long(the_counter);printf("\n");
 	return pok_tick_counter+the_counter;
 }
 #endif
@@ -96,7 +95,7 @@ uint64_t pok_update_tick()
 	uint64_t time_cur = get_mppa_tb();
 	int64_t delta = time_new - time_cur;
 
-	#ifdef POK_NEEDS_DEBUG
+#ifdef POK_NEEDS_DEBUG
 	printf("TIME LAST: ");
 	print_long(time_last);
 	printf(", TIMER: ");
@@ -105,7 +104,7 @@ uint64_t pok_update_tick()
 	print_long(time_cur);printf(", DELTA: ");
 	print_long((unsigned long long)delta);
 	printf("\n");
-	#endif
+#endif
 	last_mppa_tb = time_last;
 	time_last = time_new;
 	dec_updated=TRUE;
