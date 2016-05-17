@@ -57,10 +57,9 @@ void pok_arch_idle (void);
  * Dummy function that halts the CPU
  */
 
-void pok_context_switch (uint32_t* old_sp, uint32_t new_sp);
+void pok_context_switch (uint32_t old_sp, uint32_t new_sp);
 /*
  * Handle context-switch between two threads
  */
 
 #endif
-

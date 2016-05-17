@@ -44,4 +44,6 @@ pok_syscall5:
 pok_syscall6:
 pok_syscall7:
 	scall $r0
+	;;
 	ret
+	;;
