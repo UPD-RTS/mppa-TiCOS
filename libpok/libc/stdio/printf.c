@@ -78,7 +78,7 @@ union	u_arg
 {
 	uint32_t	value;
 	uint32_t	uint;
-	int			sint;
+	int		sint;
 	double		vdouble;
 	void		*ptr;
 };
@@ -189,8 +189,43 @@ static int print_int (union u_arg* value, struct s_file* file, int flags)
 
 static int print_float (union u_arg* value, struct s_file* file, int flags)
 {
-  int res = 0;
-  return res;
+	int sh = 0;
+	int decimal = 0;
+	double num = value->vdouble;
+	int fp_digits = 10;
+
+	if (num == 0.0)
+	{
+		my_putc('0', file);
+		my_putc('.', file);
+		my_putc('0', file);
+		return 3;
+	}
+	if (flags == FLOAT_SIGNED)
+	{
+		if (num < 0)
+		{
+			my_putc('-', file);
+			num = -num;
+			sh = 1;
+		}
+	}
+
+	decimal = (int) num;
+	sh += my_printnbr_base(decimal, digits, 10, file);
+
+	my_putc('.', file);
+	sh++;
+
+	while((num != 0.0)  && fp_digits--)
+	{
+		num -= decimal;
+		num *= 10.0;
+		decimal = (int) num;
+		sh += my_printnbr_base(decimal, digits, 10, file);
+	}
+
+	return sh;
 }
 
 
@@ -318,4 +353,3 @@ int		printf(const char *format, ...)
   va_end(args);
   return res;
 }
-
