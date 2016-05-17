@@ -59,6 +59,10 @@
 #include <types.h>
 #include <errno.h>
 
+#ifdef POK_ARCH_MPPA
+#define MPPA_CONTEXT_SIZE 0x130
+#endif
+
 /**
  * Function that initializes architecture concerns.
  */
@@ -74,41 +78,41 @@ pok_ret_t	pok_arch_preempt_disable ();
  */
 pok_ret_t	pok_arch_preempt_enable ();
 
-/** 
+/**
  * Freeze I- and D-cache
  */
 pok_ret_t	pok_arch_cache_freeze ();
 
-/** 
+/**
  * Unfreeze I- and D-cache
  */
 pok_ret_t	pok_arch_cache_unfreeze ();
 
-/** 
+/**
  * Invalidate I- and D- cache
  */
 pok_ret_t	pok_arch_cache_invalidate ();
 
-/** 
+/**
  * Enable and freeze I- and D- cache
  */
 pok_ret_t	pok_arch_cache_freeze_and_enable ();
-/** 
+/**
  * Enable I- and D-cache
  */
 pok_ret_t	pok_arch_cache_enable();
 
-/** 
+/**
  * Enable I-cache
  */
 pok_ret_t	pok_arch_Icache_enable();
 
-/** 
+/**
  * Save cache state
  */
 pok_ret_t	pok_arch_save_cache_state (unsigned int *cache_state);
 
-/** 
+/**
  * Restore cache state
  */
 pok_ret_t	pok_arch_restore_cache_state (unsigned int cache_state);
@@ -120,7 +124,7 @@ pok_ret_t	pok_arch_cache_read_HID0 ();
 
 
 /**
- * Function used in the idle task 
+ * Function used in the idle task
  */
 pok_ret_t	pok_arch_idle ();
 
@@ -128,7 +132,7 @@ uint32_t	pok_context_create (uint32_t thread_id,
 								uint32_t stack_size,
 								uint32_t entry);
 
-void		pok_context_switch (uint32_t* old_sp, uint32_t new_sp);
+void		pok_context_switch (uint32_t old_sp, uint32_t new_sp);
 
 pok_ret_t	pok_create_space (uint8_t partition_id, uint32_t addr, uint32_t size);
 

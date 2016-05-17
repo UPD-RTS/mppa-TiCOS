@@ -83,7 +83,11 @@
 //	#define POK_TIMER_FREQUENCY 5
 	#define POK_TIMER_FREQUENCY 1
 #else
+ #ifdef POK_ARCH_MPPA
+ 	#define POK_TIMER_FREQUENCY 400
+ #else
 	#define POK_TIMER_FREQUENCY 1000
+ #endif
 #endif
 extern uint64_t pok_tick_counter;
 
@@ -92,7 +96,12 @@ extern uint64_t pok_tick_counter;
 #ifdef POK_NEEDS_SCHED_O1
 
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
-  #define POK_CLOCK() get_ppc_tb()
+  #ifdef POK_ARCH_PPC
+   #define POK_CLOCK() get_ppc_tb()
+  #endif
+  #ifdef POK_ARCH_MPPA
+   #define POK_CLOCK() get_mppa_tb()
+  #endif
  #endif
 
 extern uint64_t pok_update_tick();

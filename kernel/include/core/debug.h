@@ -57,9 +57,9 @@
 #include <types.h>
 #include <libc.h>
 
-void	pok_fatal(const char* message);
-
-int		debug_strlen (const char* str);
+void pok_fatal(const char* message);
+int debug_strlen (const char* str);
+void pok_debug_print_current_state ();
 
 #define POK_FATAL(arg) pok_fatal(arg)
 
@@ -68,6 +68,5 @@ int		debug_strlen (const char* str);
 #endif /* __POK_KERNELDEBUG_H__ */
 #else
 #define POK_DEBUG_PRINT_CURRENT_STATE
-#define POK_FATAL(arg) 
+#define POK_FATAL(arg)
 #endif /* POK_NEEDS_DEBUG */
-

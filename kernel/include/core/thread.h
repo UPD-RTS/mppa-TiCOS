@@ -155,7 +155,7 @@ pok_ret_t	pok_thread_start (uint32_t *tid);
 
 #ifdef POK_ARCH_MPPA
 void pok_thread_start_execution(void (*entry)(), unsigned int id);
-#endif
+#endif /*POK_ARCH_MPPA*/
 
 pok_ret_t	pok_thread_delayed_start (uint32_t *id, uint32_t delay_time);
 bool_t 		pok_thread_aperiodic(pok_thread_t	  pok_thread);
@@ -176,6 +176,9 @@ pok_ret_t	pok_partition_thread_create (uint32_t* thread_id,
 #endif
 
 extern pok_thread_t	pok_threads[POK_CONFIG_NB_THREADS];
+#ifdef POK_ARCH_MPPA
+extern uint32_t pok_current_context;
+#endif /*POK_ARCH_MPPA*/
 
 #define POK_CURRENT_THREAD pok_threads[POK_SCHED_CURRENT_THREAD]
 

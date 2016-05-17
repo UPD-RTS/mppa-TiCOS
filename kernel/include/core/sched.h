@@ -133,9 +133,9 @@ unsigned int masks[POK_CONFIG_SCHEDULING_MAJOR_FRAME][POK_STATE_T_NR_ELEMENTS]; 
 uint64_t start_of_MAF;
 extern uint32_t pok_thread_ids_to_pos_map[POK_CONFIG_NB_THREADS];
 // inclusions from timer.c
-extern unsigned int time_inter;
-extern unsigned int next_timer;
-extern int pok_arch_set_decr (unsigned int);
+extern uint64_t time_inter;
+extern uint64_t next_timer;
+extern int pok_arch_set_decr (uint64_t);
 typedef enum
 {
 	POK_EVENT_DELAYED_START	=0,
@@ -153,7 +153,7 @@ typedef struct pok_sched_asynch_event_t
 	pok_event_type_t type;
 	struct pok_sched_asynch_event_t* previous;
 	struct pok_sched_asynch_event_t* next;
-	
+
 } pok_sched_asynch_event_t;
 #pragma pack (pop)
 pok_sched_asynch_event_t asynch_queue[POK_CONFIG_NB_ASYNCH_EVENTS];
@@ -190,4 +190,3 @@ bool_t next_subslot_postwrite;
 #endif /* POK_NEEDS.... */
 
 #endif /* !__POK_SCHED_H__ */
-

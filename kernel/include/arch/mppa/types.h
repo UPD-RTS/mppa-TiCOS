@@ -54,10 +54,10 @@
 #ifndef __POK_MPPA_TYPES_H__
 #define __POK_MPPA_TYPES_H__
 
-#include "mOS_common_types_c.h"
-#include "mOS_common_types_s_c.h"
-#include "mOS_constants_c.h"
-#include "mOS_vcore_c.h"
+#include <mOS_common_types_c.h>
+#include <mOS_common_types_s_c.h>
+#include <mOS_constants_c.h>
+#include <mOS_vcore_c.h>
 
 typedef unsigned short		uint16_t;
 typedef unsigned long long	uint64_t;

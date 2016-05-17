@@ -99,9 +99,10 @@ typedef struct
 
 	uint32_t	partition_id;
 	uint32_t	base_addr;	/**< The base address inside the whole memory (where the segment is in the whole memory ?) */
+#ifdef POK_ARCH_PPC
 	uint32_t	base_vaddr;	/**< The virtual address of the partition. The address the threads sees when they are
 												 executed */
-
+#endif /*POK_ARCH_PPC*/
 	uint32_t	size;		/**< Size of the allocated memory segment */
 
 	const char	*name;		/**< Name of the partition */
@@ -180,9 +181,9 @@ extern pok_partition_t pok_partitions[POK_CONFIG_NB_PARTITIONS];
  * \a pid
  */
 #define POK_CHECK_PTR_IN_PARTITION(pid,ptr) (\
-					((((uint32_t)ptr)>=pok_partitions[pid].base_addr)&& \
-					(((uint32_t)ptr)<=(pok_partitions[pid].base_addr+pok_partitions[pid].size)))?1:0\
-					)
+	((((uint32_t)ptr)>=pok_partitions[pid].base_addr)&& \
+	(((uint32_t)ptr)<=(pok_partitions[pid].base_addr+pok_partitions[pid].size)))?1:0\
+)
 
 /**
  * Initialize all partitions
