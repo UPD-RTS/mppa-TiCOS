@@ -28,7 +28,7 @@
     *(.locked_text.*)
     KEEP(*(.init))
     KEEP(*(.fini))
-    *(.text)
+    *(EXCLUDE_FILE (*part*.elf) .text)
     *(.text.*)
 	*(.bsp_config_text)
      *(.gnu.linkonce.t.*)
@@ -79,7 +79,16 @@
     *(.gcc_except_table)
     *(.gcc_except_table.*)
     . = ALIGN(0x1000);
-	  __rodata_end = ABSOLUTE(.);
+
+    __archive_begin = .;
+    *(.archive)
+    __archive_end = .;
+    __archive2_begin = .;
+    *(.archive2)
+    __archive2_end = .;
+
+     __rodata_end = ABSOLUTE(.);
+
   } =0x12345678
 
   .data ALIGN(0x1000) : AT ( ALIGN( LOADADDR(.rodata) + SIZEOF(.rodata), 0x1000))
