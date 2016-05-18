@@ -12,7 +12,7 @@ CD=cd
 CONFIG_CFLAGS=-W -Wall -g -m32
 CONFIG_LDFLAGS=--warn-common
 CONFIG_QEMU_x86= -fda $(POK_PATH)/misc/grub-boot-only.img 
-CONFIG_MPPA_CC_CFLAGS=-std=gnu99 -nodefaultlibs -mcluster=node -mboard=developer -march=k1b -mos=bare 
+CONFIG_MPPA_CC_CFLAGS=-std=gnu99 -mcluster=node -mboard=developer -march=k1b -mos=bare -L$(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)
 CONFIG_MPPA_IO_CFLAGS=-std=gnu99 -DMPPA_TRACE_ENABLE
 CONFIG_MPPA_CC_LFLAGS=-L$(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP) 
 CONFIG_MPPA_IO_CFLAGS=-L$(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)
@@ -45,3 +45,8 @@ RM=/bin/rm -r -f
 SED=/bin/sed
 SLEEP=/bin/sleep
 TOUCH=/usr/bin/touch
+
+ECHO_FLAGS=-e
+ECHO_RED="\e[1;31m"
+ECHO_GREEN="\e[1;32m"
+ECHO_RESET="\e[0m"

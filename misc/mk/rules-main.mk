@@ -2,7 +2,9 @@
 
 DD=/bin/dd
 
-LDOPTS=-T $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds -o $@ $(POK_PATH)/kernel/pok.lo 
+LDOPTS=-T $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds -o $@ $(POK_PATH)/kernel/pok.lo
+
+ECHO_FLAGS_ONELINE=
 
 assemble-partitions:
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[BIN] partitions.bin"
@@ -11,7 +13,7 @@ assemble-partitions:
 		$(DD) if=/dev/zero of=$$v oflag=append conv=notrunc bs=1 count=`echo "4 - (\`ls -l $$v | awk '{print $$5}'\` % 4)" | bc`;\
 	done
 	cat $(PARTITIONS) > partitions.bin
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 
 $(TARGET): assemble-partitions
@@ -31,12 +33,14 @@ $(TARGET): assemble-partitions
 	$(ECHO) "};" >> sizes.c
 	$(CC) $(CONFIG_CFLAGS) -I $(POK_PATH)/kernel/include -c sizes.c -o sizes.o
 	$(OBJCOPY) --add-section .archive2=partitions.bin sizes.o
+	$(RM) -f $@.map
+	$(TOUCH) $@.map
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[LD] $@"
-	$(ECHO) "$(LD) $(LDFLAGS) -T `pwd`/kernel/kernel.lds -o -L`pwd`/part1 -L`pwd`/part2 $@ $(KERNEL) $(OBJS) sizes.o -Map $@.map"
-	$(LD) $(LDFLAGS) -T `pwd`/kernel/kernel.lds -o $@ $(KERNEL) $(OBJS) sizes.o -L`pwd`/part1 -L`pwd`/part2 -Map $@.map
+	$(ECHO) "$(CC) $(CFLAGS) -T `pwd`/kernel/kernel.lds -o $@ $(KERNEL) $(OBJS) sizes.o -L`pwd`/part1 -L`pwd`/part2 -z muldefs -Wl,--whole-archive -lmOS -Wl,--no-whole-archive -Wl,-Map $@.map"
+	$(CC) $(CFLAGS) -T `pwd`/kernel/kernel.lds -o $@ $(KERNEL) $(OBJS) sizes.o -L`pwd`/part1 -L`pwd`/part2 -z muldefs -Wl,--whole-archive -lmOS -Wl,--no-whole-archive -Wl,-Map $@.map
 	#$(LD) $(LDFLAGS) -T `pwd`/kernel/kernel.lds -o $@ $(KERNEL) $(OBJS) sizes.o -L`pwd`/part1 -L`pwd`/part2 -Map $@.map
 	#$(LD) $(LDFLAGS) -T $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds -o $@ $(KERNEL) $(OBJS) sizes.o -Map $@.map
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 plop: assemble-partitions
 	$(RM) -f sizes.c
@@ -53,4 +57,4 @@ plop: assemble-partitions
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[LD] $@"
 	#$(LD) $(LDFLAGS) -T $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds -o pok.elf $(KERNEL) $(OBJS) sizes.o -Map $@.map
 	$(LD) $(LDFLAGS) -T `pwd`/kernel/kernel.lds -o pok.elf $(KERNEL) $(OBJS) sizes.o -Map $@.map
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi

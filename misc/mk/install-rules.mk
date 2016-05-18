@@ -8,3 +8,6 @@ endif
 ifeq ($(ARCH), sparc)
   include $(POK_PATH)/misc/mk/sparc-install.mk
 endif
+ifeq ($(ARCH), mppa)
+  include $(POK_PATH)/misc/mk/mppa-install.mk
+endif

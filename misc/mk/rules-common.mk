@@ -13,11 +13,11 @@ GNATMAKE=$(GNATMAKE_$(ARCH))
 
 CFLAGS+=-D__POK_C__
 
-ifneq ($(XCOV),) 
+ifneq ($(XCOV),)
 CFLAGS+=-DPOK_NEEDS_COVERAGE_INFOS
 endif
 
-ifneq ($(POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE),) 
+ifneq ($(POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE),)
 CFLAGS+=-DPOK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE=1
 endif
 
@@ -26,27 +26,27 @@ endif
 $(LO_TARGET): $(LO_DEPS) $(LO_OBJS)
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[LD] $@ "
 	$(LD) $(LDFLAGS) $(LDOPTS) -r $(LO_DEPS) $(LO_OBJS) -o $(LO_TARGET)
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 %.a: $(LO_DEPS)
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[AR] $@ "
 	$(AR) $@ $(LO_DEPS)
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 %.o: %.S
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[CC] $< "
 	$(CC) -c $(CFLAGS) -DASM_SOURCE=1 $< -o $@
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 %.o: %.c
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[CC] $< "
 	$(CC) -c $(CFLAGS) $(COPTS) $< -o $@
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK"; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK"$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 %.o: %.adb %.ads
 	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[ADA] $< "
 	$(CC) -c $(ADAFLAGS) $< -o $@
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK"; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK"$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 
 $(POK_PATH)/misc/mk/config.mk:
 	cd $(POK_PATH) && $(MAKE) configure

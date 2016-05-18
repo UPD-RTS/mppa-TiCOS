@@ -15,6 +15,12 @@ endif
 libpok: 
 	$(CD) $(POK_PATH)/libpok && $(MAKE) distclean all
 
+ifeq ($(ARCH), mppa)
+$(TARGET): $(OBJS)
+	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[Assemble partition $@ "
+	$(LD) $(LDFLAGS) --nostdlib --cref -T $(LINKERSCRIPT) -o $@ --whole-archive $+ -L$(POK_PATH)/libpok -lpok  -z muldefs -Map $@.map
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO" $(ECHO_RESET); fi
+else
 # PWD is the partition subdir
 # $(@D)/partition_
 $(TARGET): $(OBJS)
@@ -23,9 +29,10 @@ $(TARGET): $(OBJS)
 	#$(LD) $(LDFLAGS) -T $(LINKERSCRIPT) $+ -o $@ -L$(POK_PATH)/libpok -lpok -Map $@.map
 	# SKIP LOADER
 	$(LD) $(LDFLAGS) --nostdlib --cref -T $(LINKERSCRIPT) -o $@ --whole-archive $+ -L$(POK_PATH)/libpok -lpok  -z muldefs -Map $@.map
-	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
+	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "$(ECHO_RESET); else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"$(ECHO_RESET); fi
 	# SKIP LOADER
 	powerpc-elf-strip $@
+endif
 
 libpok-clean:
 	$(CD) $(POK_PATH)/libpok && $(MAKE) clean
