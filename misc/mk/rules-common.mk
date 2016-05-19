@@ -56,7 +56,7 @@ $(POK_PATH)/misc/mk/config.mk:
 common-clean:
 	$(RM) *~ .depend.mk
 	$(RM) $(TARGET) $(LO_TARGET) $(LO_DEPS) $(LO_OBJS) $(OBJS) floppy.img partitions.lst partitions.cpio partitions.bin sizes.o sizes.c cpio.o *.elf.map
-
+	$(RM) *.lds
 
 
 ifneq ($(CC),)
