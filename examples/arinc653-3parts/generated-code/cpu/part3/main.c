@@ -1,3 +1,4 @@
+#include <libc/stdio.h>
 #include "activity.h"
 #include <arinc653/types.h>
 #include <arinc653/process.h>

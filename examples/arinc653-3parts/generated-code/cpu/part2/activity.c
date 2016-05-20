@@ -1,3 +1,4 @@
+#include <libc/stdio.h>
 #include <arinc653/types.h>
 #include <arinc653/time.h>
 #include "deployment.h"
@@ -18,5 +19,3 @@ void* thr2_1_job ()
 		PERIODIC_WAIT (&(ret));
 	}
 }
-
-
