@@ -1,4 +1,5 @@
 #include "activity.h"
+#include <libc/stdio.h>
 #include <arinc653/types.h>
 #include <arinc653/process.h>
 #include <arinc653/partition.h>
