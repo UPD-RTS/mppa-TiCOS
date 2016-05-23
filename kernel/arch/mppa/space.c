@@ -36,11 +36,9 @@
 #include <bsp.h>
 #include <arch.h>
 
-#ifdef POK_NEEDS_DEBUG
 #include <libc.h>
-#endif
-
 #include "thread.h"
+
 extern void pok_arch_thread_start(void);
 
 #define KERNEL_STACK_SIZE 8192

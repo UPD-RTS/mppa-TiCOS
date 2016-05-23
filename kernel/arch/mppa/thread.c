@@ -62,9 +62,7 @@
 
 #include <bsp.h>
 #include <core/thread.h>
-#ifdef POK_NEEDS_DEBUG
 #include <libc.h>
-#endif
 
 #include "thread.h"
 

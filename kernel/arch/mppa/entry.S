@@ -137,7 +137,3 @@ pok_stack:
 	.space 8 * 1024
 	.globl pok_stack_end
 pok_stack_end:
-
-pok_save_area:
-	.space 4 * 8
-	.section ".reset", "ax"
