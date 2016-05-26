@@ -43,7 +43,7 @@
 
 #define POK_BUS_FREQ_MHZ	74
 
-#define POK_FREQ_DIV	74
+#define POK_FREQ_DIV	1
 
 #define POK_FREQ_SHIFT	0
 
