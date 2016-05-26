@@ -1,4 +1,4 @@
-	.file	"custom_divdf3.s"
+.file	"custom_divdf3.s"
 
 
 .macro mul_ss_64_64_128 OP0_R0, OP0_R1, OP1_R0, OP1_R1
@@ -12,7 +12,7 @@
 	and $r32 = $r9, \OP1_R1 /* b(31) = 1 if A,B opposite signs and B negative, 0 otherwise  */
 	cmove.ltz $r7 = \OP1_R1, -1 /* no-carry value, B negative  */
 	cmove.ltz $r8 = \OP0_R1, -1 /* carry value, A negative */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	make $r33 = 0
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
@@ -38,7 +38,7 @@
 	madsuciwd $r4r5 = \OP0_R1, \OP1_R0 /* Acc += A_high x B_low */
 	cmove.ltz $r7 = \OP0_R1, -1 /* no-carry value, A negative  */
 	cmove.ltz $r8 = \OP0_R1, 0 /* carry value, A negative */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
 	;;
@@ -57,10 +57,10 @@
 	muluuwd $r4r5 = \OP1_R1, \OP0_R0  /* Acc = A_low x B_high, same sign as A */
 	;;
 	maduuciwd $r4r5 = \OP0_R1, \OP1_R0 /* Acc += A_high x B_low */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
-	make $r7 = 0 
+	make $r7 = 0
 	;;
 	addc $r7 = $r7, $r7
 	mulwd $r2r3 = $r6, \OP1_R1
@@ -82,7 +82,7 @@
 	and $r32 = $r9, \OP1_R1 /* b(31) = 1 if A,B opposite signs and B negative, 0 otherwise  */
 	cmove.ltz $r7 = \OP1_R1, -1 /* no-carry value, B negative  */
 	cmove.ltz $r8 = \OP0_R1, -1 /* carry value, A negative */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	make $r33 = 0
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
@@ -100,7 +100,7 @@
 	;;
 	addc $r3 = $r3, $r7
 	sll $r0 = $r2, \SHIFT
-	;; 
+	;;
 	or $r0 = $r0, $r5
 	slld $r5:$r1 = $r2:$r3, \SHIFT
 	;;
@@ -118,7 +118,7 @@
 	and $r32 = $r9, \OP1_R1 /* b(31) = 1 if A,B opposite signs and B negative, 0 otherwise  */
 	cmove.ltz $r7 = \OP1_R1, -1 /* no-carry value, B negative  */
 	cmove.ltz $r8 = \OP0_R1, -1 /* carry value, A negative */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	make $r33 = 0
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
@@ -132,14 +132,14 @@
 	;;
 	addcd $r2:$r3 = $r2:$r3, $r35:$r7
 	;;
-    slld $r2:$r3 = $r2:$r3, \SHIFT
-    ;;
-    srl $r4 = $r1, 32 - \SHIFT
+	slld $r2:$r3 = $r2:$r3, \SHIFT
 	;;
-    slld $r0:$r1 = $r0:$r1, \SHIFT
-    ;;
-    or $r2 = $r2, $r4
-    ;;
+	srl $r4 = $r1, 32 - \SHIFT
+	;;
+	slld $r0:$r1 = $r0:$r1, \SHIFT
+	;;
+	or $r2 = $r2, $r4
+	;;
 .endm
 
 .macro mult_64_128_ext2 OP0_R0, OP0_R1, OP1_R0, OP1_R1, R0, R1, R2, R3, SHIFT
@@ -153,7 +153,7 @@
 	and $r32 = $r9, \OP1_R1 /* b(31) = 1 if A,B opposite signs and B negative, 0 otherwise  */
 	cmove.ltz $r7 = \OP1_R1, -1 /* no-carry value, B negative  */
 	cmove.ltz $r8 = \OP0_R0, -1 /* carry value, A negative */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	make $r33 = 0
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
@@ -167,13 +167,13 @@
 	;;
 	addcd $r2:$r3 = $r2:$r3, $r35:$r7
 	;;
-    slld \R2:\R3 = $r2:$r3, \SHIFT
-    ;;
-    srl $r7 = $r1, 32 - \SHIFT
+	slld \R2:\R3 = $r2:$r3, \SHIFT
 	;;
-    slld \R0:\R1 = $r0:$r1, \SHIFT
-    or \R2 = \R2, $r7
-    ;;
+	srl $r7 = $r1, 32 - \SHIFT
+	;;
+	slld \R0:\R1 = $r0:$r1, \SHIFT
+	or \R2 = \R2, $r7
+	;;
 .endm
 
 
@@ -182,10 +182,10 @@
 	muluuwd $r34r35 = \OP1_R1, \OP0_R0  /* Acc = A_low x B_high, same sign as A */
 	;;
 	madsuciwd $r34r35 = \OP0_R1, \OP1_R0 /* Acc += A_high x B_low */
-	;; 
+	;;
 	copy $r6 = \OP0_R1
 	muluuwd $r0r1 = \OP0_R0, \OP1_R0
-    make $r7 = 0
+	make $r7 = 0
 	;;
 	addc $r7 = $r7, $r7
 	mulwd $r2r3 = $r6, \OP1_R1
@@ -194,18 +194,18 @@
 	;;
 	addcd $r2:$r3 = $r2:$r3, $r35:$r7
 	;;
-    slld $r2:$r3 = $r2:$r3, \SHIFT
-    ;;
-    srl $r4 = $r1, 32 - \SHIFT
+	slld $r2:$r3 = $r2:$r3, \SHIFT
 	;;
-    slld $r0:$r1 = $r0:$r1, \SHIFT
-    ;;
-    or $r2 = $r2, $r4
-    ;;
+	srl $r4 = $r1, 32 - \SHIFT
+	;;
+	slld $r0:$r1 = $r0:$r1, \SHIFT
+	;;
+	or $r2 = $r2, $r4
+	;;
 .endm
 
 
-	.text
+.text
 .align 8
 .global add_128_128
 .type add_128_128, @function
@@ -221,7 +221,7 @@ add_128_128:
 .size	add_128_128, .-add_128_128
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
-	.text
+.text
 .align 8
 .global sub_128_128
 .type sub_128_128, @function
@@ -238,7 +238,7 @@ sub_128_128:
 .size	sub_128_128, .-sub_128_128
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
-	.text
+.text
 .align 8
 .global mul_128_128_msb
 .type mul_128_128_msb, @function
@@ -299,13 +299,13 @@ mul_128_128_msb:
 	;;
 	addcid $r0:$r1 = $r44:$r45, $r0:$r1
 	;;
-	addcd $r2:$r3 = $r38:$r39, $r2:$r3 
+	addcd $r2:$r3 = $r38:$r39, $r2:$r3
 	ret
 	;;
 .size	mul_128_128_msb, .-mul_128_128_msb
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
-	.text
+.text
 .align 8
 .global mul_64_128_msb
 .type mul_64_128_msb, @function
@@ -336,14 +336,14 @@ mul_64_128_msb:
 	;;
 	addcid $r0:$r1 = $r40:$r41, $r0:$r1
 	;;
-	addcd $r2:$r3 = $r34:$r35, $r2:$r3 
+	addcd $r2:$r3 = $r34:$r35, $r2:$r3
 	ret
 	;;
 .size	mul_64_128_msb, .-mul_64_128_msb
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
 
-	.text
+.text
 .align 8
 .global mul_64_128_shift
 .type mul_64_128_shift, @function
@@ -377,7 +377,7 @@ mul_64_128_shift:
 	;;
 	addcid $r0:$r1 = $r40:$r41, $r0:$r1
 	;;
-	addcd $r2:$r3 = $r34:$r35, $r2:$r3 
+	addcd $r2:$r3 = $r34:$r35, $r2:$r3
 	sbf $r6 = $r42, 32
 	;;
 	srl $r5 = $r1, $r6
@@ -391,7 +391,7 @@ mul_64_128_shift:
 .size	mul_64_128_shift, .-mul_64_128_shift
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
-	.text
+.text
 .align 8
 .global shiftL_128
 .type shiftL_128, @function
@@ -411,7 +411,7 @@ shiftL_128:
 .size	shiftL_128, .-shiftL_128
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
-	.text
+.text
 .align 8
 .global shiftR_128
 .type shiftR_128, @function
@@ -433,9 +433,7 @@ shiftR_128:
 .size	shiftR_128, .-shiftR_128
 .ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
 
-
-
-	.text
+.text
 .align 8
 .globl __divdf3
 .type	__divdf3, @function
@@ -482,68 +480,68 @@ __divdf3:
 	make $r0 = 1 /* final bit for nr */
 	/* $r0r1 contains Q2.62 approx of 1/d (8 bits ) */
 	;;
-    /* $r0r1 contains an approximation to 1/d in Q2.62
-       $r2r3 contains d  in Q3.61 saved in $r50r51
-       $r4r5 contains dividend in Q3.61 saved in $r52r53 */
-    /* first newton raphson iteration */
-    mulwd $r6r7 = $r1, $r3 /* Q5.59 */
-    copy $r52 = $r4
-    copy $r53 = $r5
-    ;;
-    /* 2.0 in Q5.69 */
-    make $r8 = 0
-    make $r9 = 0x10000000 
-    copy $r50 = $r2
-    copy $r51 = $r3
-    ;;
-    sbfd $r6:$r7 = $r6:$r7, $r8:$r9 /* sub in Q5.59 */
+	/* $r0r1 contains an approximation to 1/d in Q2.62
+	$r2r3 contains d  in Q3.61 saved in $r50r51
+	$r4r5 contains dividend in Q3.61 saved in $r52r53 */
+	/* first newton raphson iteration */
+	mulwd $r6r7 = $r1, $r3 /* Q5.59 */
+	copy $r52 = $r4
+	copy $r53 = $r5
+	;;
+	/* 2.0 in Q5.69 */
+	make $r8 = 0
+	make $r9 = 0x10000000
+	copy $r50 = $r2
+	copy $r51 = $r3
+	;;
+	sbfd $r6:$r7 = $r6:$r7, $r8:$r9 /* sub in Q5.59 */
 	cb.lez $r60, specialcases     /* branch if exp_inv <= 0 */
 	sbf $r61 = $r60, 2045         /* testing exp_inv >= 2045 */
-    ;;
+	;;
 	cb.lez $r61, specialcases     /* branching if exp_inv >= 2045 */
-    slldm $r6 = $r6:$r7, 2 /* sub in Q3.61 */
-    ;;
-    mulwd $r0r1 = $r1, $r6 /* new approx in Q5.59 */
-    ;;
-    slld $r0:$r1 = $r0:$r1, 3 /* new approx in Q2.62 */
-    ;;
-    /* second newton iteration */
-    msbwd $r8r9 = $r1, $r3 /* prod in Q5.59 */
-    ;;
-    /* STALL */
-    slldm $r9 = $r8:$r9, 2  /* prod in Q3.61 */
-    ;;
-    mulwd $r0r1 = $r9, $r1 
-    ;;
-    /* STALL */
-    make $r54 = 0
-    make $r55 = 0x40000000 
-    ;;
-    slld $r0:$r1 = $r0:$r1, 3 /* new approx in Q2.62 */
-    ;;
-    copy $r56 = $r0
-    copy $r57 = $r1
-    ;;
-    /* third newton raphson iteration */
-    mulExtract_s64_s64_s128 $r0, $r1, $r2, $r3, 2
-    ;;
-    sbfd $r0:$r1 = $r0:$r1, $r54:$r55
-    ;;
-    /*mult_64_128_ext*/
+	slldm $r6 = $r6:$r7, 2 /* sub in Q3.61 */
+	;;
+	mulwd $r0r1 = $r1, $r6 /* new approx in Q5.59 */
+	;;
+	slld $r0:$r1 = $r0:$r1, 3 /* new approx in Q2.62 */
+	;;
+	/* second newton iteration */
+	msbwd $r8r9 = $r1, $r3 /* prod in Q5.59 */
+	;;
+	/* STALL */
+	slldm $r9 = $r8:$r9, 2  /* prod in Q3.61 */
+	;;
+	mulwd $r0r1 = $r9, $r1
+	;;
+	/* STALL */
+	make $r54 = 0
+	make $r55 = 0x40000000
+	;;
+	slld $r0:$r1 = $r0:$r1, 3 /* new approx in Q2.62 */
+	;;
+	copy $r56 = $r0
+	copy $r57 = $r1
+	;;
+	/* third newton raphson iteration */
+	mulExtract_s64_s64_s128 $r0, $r1, $r2, $r3, 2
+	;;
+	sbfd $r0:$r1 = $r0:$r1, $r54:$r55
+	;;
+	/*mult_64_128_ext*/
 	mulExtract_s64_s64_s128 $r0, $r1, $r56, $r57, 3
 	;;
-    copy $r56 = $r0
-    copy $r57 = $r1
-    ;;
-	/* fourth newton raphson iteration */
-    mulExtract_s64_s64_s128 $r0, $r1, $r50, $r51, 2
-    ;;
-    sbfd $r0:$r1 = $r0:$r1, $r54:$r55
-    ;;
-	/* placing approx in $r2r3r4r5 */
-    mult_64_128_ext2 $r0, $r1, $r56, $r57, $r2, $r3, $r4, $r5, 3
+	copy $r56 = $r0
+	copy $r57 = $r1
 	;;
-	/* starting effective division computation by multiplicating with dividend */	
+	/* fourth newton raphson iteration */
+	mulExtract_s64_s64_s128 $r0, $r1, $r50, $r51, 2
+	;;
+	sbfd $r0:$r1 = $r0:$r1, $r54:$r55
+	;;
+	/* placing approx in $r2r3r4r5 */
+	mult_64_128_ext2 $r0, $r1, $r56, $r57, $r2, $r3, $r4, $r5, 3
+	;;
+	/* starting effective division computation by multiplicating with dividend */
 	/* copying dividend */
 	copy $r0 = $r52
 	copy $r1 = $r53
@@ -569,7 +567,7 @@ __divdf3:
 	;;
 	addcid $r0:$r1 = $r44:$r45, $r0:$r1
 	;;
-	addcd $r2:$r3 = $r46:$r47, $r2:$r3 
+	addcd $r2:$r3 = $r46:$r47, $r2:$r3
 	;;
 	srl $r5 = $r1, 30
 	;;
@@ -609,9 +607,9 @@ rounding:
 	;;
 	srld $r38:$r39 = $r2:$r3, 8
 	;;
-	compdl.eq $r34 = $r34:$r35, $r38:$r39 
+	compdl.eq $r34 = $r34:$r35, $r38:$r39
 	;;
-	compdl.eq $r36 = $r36:$r37, $r38:$r39 
+	compdl.eq $r36 = $r36:$r37, $r38:$r39
 	;;*/
 	extfz $r34 = $r34, 31, 8
 	extfz $r38 = $r2, 31, 8
@@ -621,9 +619,9 @@ rounding:
 	;;
 	compdl.eq $r34 = $r34:$r35, $r38:$r3
 	;;
-	compdl.eq $r36 = $r36:$r37, $r38:$r3 
+	compdl.eq $r36 = $r36:$r37, $r38:$r3
 	/* rounding constant */
-	make $r32 = 1 << 8 
+	make $r32 = 1 << 8
 	make $r33 = 0
 	;;
 	addd $r32:$r33 = $r32:$r33, $r2:$r3     /* rounding */
@@ -640,11 +638,11 @@ rounding:
 	or $r1 = $r1, $r7                    /* inserting exponent into result MSB */
 	/* cmove.eqz $r4 = $r36, -1 */
 	make $r4 = 0
-    ret
+	ret
 	;;
 precise:
 	/* d        was saved in $r50r51 */
-    /* dividend was saved in $r52r53 */
+	/* dividend was saved in $r52r53 */
 	/* approx   was saved in $r56r57 */
 	/* ra       will be saved in $r49 */
 	mult_64_128_ext $r56, $r57, $r50, $r51, 2 /* prod = approx * d*/
@@ -695,9 +693,9 @@ precise:
 	;;
 	/* 2.0 - approx */
 	sbfcid $r0:$r1 = $r0:$r1, $r4:$r4
-	/* saving */ 
+	/* saving */
 	copy $r6 = $r46
-	copy $r7 = $r47 
+	copy $r7 = $r47
 	;;
 	sbfcd $r2:$r3 = $r2:$r3, $r4:$r5
 	copy $r4 = $r44
@@ -737,7 +735,7 @@ precise:
 	srl $r5 = $r1, $r9
 	sll $r60 = $r60, 20                     /* preparing exponent */
 	/* rounding constant */
-	make $r32 = 1 << 8 
+	make $r32 = 1 << 8
 	make $r33 = 0
 	;;
 	slld $r0:$r1 = $r0:$r1, $r8
@@ -754,9 +752,9 @@ precise:
 	;;
 	#srld $r38:$r39 = $r2:$r3, 8
 	;;
-	compdl.eq $r34 = $r34:$r35, $r38:$r39 
+	compdl.eq $r34 = $r34:$r35, $r38:$r39
 	;;
-	compdl.eq $r36 = $r36:$r37, $r38:$r39 
+	compdl.eq $r36 = $r36:$r37, $r38:$r39
 	;;*/
 	extfz $r34 = $r34, 31, 8
 	extfz $r38 = $r2, 31, 8
@@ -765,7 +763,7 @@ precise:
 	;;
 	compdl.eq $r34 = $r34:$r35, $r38:$r3
 	;;
-	compdl.eq $r36 = $r36:$r37, $r38:$r3 
+	compdl.eq $r36 = $r36:$r37, $r38:$r3
 	;;
 	addd $r32:$r33 = $r32:$r33, $r2:$r3     /* rounding */
 	or $r60 = $r60, $r59                    /* pasting sign with exponent */
@@ -779,11 +777,11 @@ precise:
 	or $r1 = $r1, $r60                    /* inserting exponent into result MSB */
 	/* cmove.eqz $r4 = $r36, -1 */
 	make $r4 = 3
-    ret
+	ret
 	;;
 specialcases:
 	/* $r62 contains exp_a,
-	 * $r63 contains exp_b 
+	 * $r63 contains exp_b
 	 */
 	/* $r4r5 contains mant_a
 	 * $r6r7 contains mant_b */
@@ -792,11 +790,8 @@ aissubnormal:
 	;;
 	# compdl $r6 = $r0:$r6, 0
 	;;
-
-
 bissubnormal:
-
-	make $r4 = -1 
+	make $r4 = -1
 	ret
 	;;
 aiszero:
@@ -805,13 +800,13 @@ aiszero:
 	;;
 	lor $r4 = $r4, $r2
 	extfz $r7 = $r3, 19, 0
-	comp.eq $r6 = $r62, 0x7ff 
+	comp.eq $r6 = $r62, 0x7ff
 	;;
 	cb.eqz $r4, returnnan /* if b is zero return nan */
 	/* test wheter b is nan */
 	lor $r5 = $r7, $r2 /* is there a 1 in mant_a */
 	xor $r7 = $r1, $r3
-	;; 
+	;;
 	land $r5 = $r5, $r6
 	and  $r7 = $r7, 0x80000000
 	;;
@@ -826,13 +821,13 @@ bsizero:
 	;;
 	lor $r4 = $r4, $r0
 	extfz $r7 = $r1, 19, 0
-	comp.eq $r6 = $r62, 0x7ff 
+	comp.eq $r6 = $r62, 0x7ff
 	;;
 	cb.eqz $r4, returnnan /* if a is zero return nan */
 	/* test wheter a is nan */
 	lor $r5 = $r7, $r0 /* is there a 1 in mant_a */
 	xor $r7 = $r1, $r3
-	;; 
+	;;
 	land $r5 = $r5, $r6
 	and  $r7 = $r7, 0x80000000
 	;;
@@ -864,4 +859,3 @@ returnnan:
 	;;
 	.size	__divdf3, .-__divdf3
 	.ident	"GCC: (GNU) 4.7.0 20120311 (prerelease)"
-

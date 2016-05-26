@@ -48,36 +48,58 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
-unsigned long long __udivdi3 (unsigned long long num, unsigned long long den)
+static unsigned long long
+divmodsi4(int modwanted, unsigned long long num, unsigned long long den)
 {
+	long long int bit = 1;
+	long long int res = 0;
 
-	unsigned long long quot, qbit;
-
-	quot = 0;
-	qbit = 1;
-
-	if (den == 0)
+	while (den < num && bit && !(den & (1L<<31)))
 	{
-		return 0;
+		den <<=1;
+		bit <<=1;
 	}
 
-	while ((long long) den >= 0)
+	while (bit)
 	{
-		den <<= 1;
-		qbit <<= 1;
-	}
-
-	while (qbit)
-	{
-		if (den <= num)
+		if (num >= den)
 		{
 			num -= den;
-			quot += qbit;
+			res |= bit;
 		}
-		den >>= 1;
-		qbit >>= 1;
+		bit >>=1;
+		den >>=1;
+	}
+	if (modwanted)
+		return num;
+	return res;
+}
+
+long long __modsi3 (long long numerator, long long denominator)
+{
+	int sign = 0;
+	long long modul;
+
+	if (numerator < 0)
+	{
+		numerator = -numerator;
+		sign = 1;
+	}
+	if (denominator < 0)
+	{
+		denominator = -denominator;
 	}
 
-	return quot;
+	modul =  divmodsi4 (1, numerator, denominator);
+	if (sign)
+		return -modul;
+	return modul;
+}
 
+unsigned long long
+__umodsi3 (unsigned long long numerator, unsigned long long denominator)
+{
+	unsigned long long modul;
+	modul = divmodsi4 (1,  numerator, denominator);
+	return modul;
 }
