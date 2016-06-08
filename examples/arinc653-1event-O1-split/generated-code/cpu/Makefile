@@ -1,10 +1,10 @@
-export ARCH=ppc
+export ARCH=mppa
 export BSP=prep
 export POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE=1
 include $(POK_PATH)/misc/mk/config.mk
 include $(POK_PATH)/misc/mk/common-$(ARCH).mk
 TARGET=$(shell pwd)/pok.elf
-PARTITIONS= part1/part1.elf 
+PARTITIONS=part1/part1.elf
 
 HEADERFILE=kernel/deployment.h
 $(if $(wildcard $(HEADERFILE)),,$(error "kernel/deployment.h is missing, bye bye."))
@@ -16,26 +16,61 @@ export SKIP_LOADER=$(shell grep -i POK_SKIP_LOADER $(HEADERFILE)|grep -v "/")
 export PARTITIONS_ADDR=`awk '{if ($$2 == "POK_CONFIG_PARTITIONS_LOADADDR") print $$3}' $(HEADERFILE)|sed 's/{//'|sed 's/}//'|sed 's/,/ /g'`
 
 KERNEL=kernel/kernel.lo
+ifeq ($(ARCH), mppa)
+all: build-lds partitions sections build-kernel $(TARGET)
+else
 all: build-lds build-kernel partitions $(TARGET)
+endif
 
 build-lds: kernel-lds	partitions-lds
 
-kernel-lds:  
-# Handle kernel linker script
+ifeq ($(ARCH), mppa)
+sections:
+	$(ECHO) "Extracting loadable sections from partitions"
+	cp ./kernel/deployment.h ./kernel/deployment_t.h
+	mv ./kernel/deployment.h ./kernel/deployment_original.h
+	mv ./kernel/deployment_t.h ./kernel/deployment.h
+	sed -i "s/.*#endif.*/\n/" ./kernel/deployment.h
+	$(ECHO) "#ifdef POK_ARCH_MPPA" >> ./kernel/deployment.h
+	$(ECHO) -n "	#define POK_PARTITION_ENTRIES {" >> ./kernel/deployment.h
+	c=1;for v in $(PARTITIONS); do \
+		$(ECHO) -n "PART_ENTRY_$${c}" >> ./kernel/deployment.h; \
+		parts=`$(ECHO) "$(PARTITIONS)" | wc -w`; \
+		$(ECHO) -n `if (( c < parts )) ; then echo , ; fi` >> ./kernel/deployment.h ;\
+		c=`$(ECHO) $${c}+1 | bc` ; \
+	done
+	$(ECHO) "}" >> ./kernel/deployment.h;
+	$(ECHO) "#endif" >> ./kernel/deployment.h
+	$(ECHO) "#endif" >> ./kernel/deployment.h
+	c=1;for v in $(PARTITIONS); do \
+		entry=`k1-readelf -l "part$${c}/part$${c}.elf" | grep -w '^Entry' | grep -o '0x.*'`; \
+		sed -i "s/PART_ENTRY_$${c}/$${entry}/g" kernel/deployment.h ; \
+	c=`$(ECHO) $${c}+1 | bc` ; \
+	done
+endif
+
+kernel-lds:
+# Handle mppa kernel linker script
+ifeq ($(ARCH), mppa)
+	$(ECHO) "MPPA compilation: creating kernel linker script"
+	$(ECHO) "Using DEFAULT Base physical addresses"
+	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds ./kernel/kernel.lds
+else
+# Handle ppc kernel linker script
 ifeq ($(shell grep -i POK_NEEDS_QEMU_SETUP $(HEADERFILE)|grep -v "/"),)
 	$(ECHO) "PRAORTIS SIM setup $(ARCH)"
-	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/PROARTIS_sim/kernel_template.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds 
-	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/PROARTIS_sim/kernel_postscript.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_postscript.lds 
-	sed s/placeholder/0xFC000000/ $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds > $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds 
+	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/PROARTIS_sim/kernel_template.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds
+	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/PROARTIS_sim/kernel_postscript.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_postscript.lds
+	sed s/placeholder/0xFC000000/ $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds > $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds
 else
-	$(ECHO) "QEMU setup" 
-	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/QEMU/kernel_template.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds 
-	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/QEMU/kernel_postscript.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_postscript.lds 
-	sed s/placeholder/0xFFF00000/ $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds > $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds 
+	$(ECHO) "QEMU setup"
+	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/QEMU/kernel_template.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds
+	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/QEMU/kernel_postscript.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_postscript.lds
+	sed s/placeholder/0xFFF00000/ $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds > $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds
 endif
 ifeq ($(shell grep -i POK_SKIP_LOADER $(HEADERFILE)|grep -v "/"),)
 	$(ECHO) "Using DEFAULT Base physical addresses"
-#	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds 
+#	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds
 #	sed s/placeholder/0xFC000000/ $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds > $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds
 	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds ./kernel/kernel.lds ; \
 #	rm -f $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds
@@ -53,11 +88,30 @@ $(ECHO) "Base address" $$v "-" $$c ": in kernel.lds" ; \
 		c=`$(ECHO) $${c}+1 | bc` ; \
 	done
 	cat $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_postscript.lds > $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds ; \
-  cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds ./kernel/kernel.lds ; \
-	rm -f $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds 
+  	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds ./kernel/kernel.lds ; \
+	rm -f $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_t.lds
 endif
+endif
+
 partitions-lds:
 # Handle partitions linker scripts
+ifeq ($(ARCH), mppa)
+	$(ECHO) "Creating partition linker scripts"
+	c=1;last_text=60000;for v in $(PARTITIONS); do \
+		text_address=`$(ECHO) "ibase=obase=16; $${last_text}" | bc`; \
+		$(ECHO) "$$text_address" ; \
+		data_address=`$(ECHO) "ibase=obase=16; $${text_address}+20000" | bc`; \
+		last_text=`$(ECHO) "ibase=obase=16; $${data_address}+1000" | bc`; \
+		$(ECHO) "Base text address 0x" $$text_address ": in ./part"$$c"/partition_"$$c".lds" ; \
+		$(ECHO) "Base data address 0x" $$data_address ": in ./part"$$c"/partition_"$$c".lds" ; \
+		cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/partition_template.lds ./part$$c/partition_$${c}_t.lds ; \
+		sed s/TEXT_ADDRESS/0x$$text_address/ ./part$$c/partition_$${c}_t.lds > ./part$$c/partition_$${c}_t2.lds; \
+		sed s/DATA_ADDRESS/0x$$data_address/ ./part$$c/partition_$${c}_t2.lds > ./part$$c/partition_$${c}.lds; \
+		rm -f ./part$$c/partition_$${c}_t.lds; \
+		rm -f ./part$$c/partition_$${c}_t2.lds; \
+		c=`$(ECHO) $${c}+1 | bc` ; \
+	done
+else
 ifeq ($(shell grep -i POK_SKIP_LOADER $(HEADERFILE)|grep -v "/"),)
 	$(eval PARTITION_LDS=partition_template.lds)
 else
@@ -83,9 +137,14 @@ else
     c=`$(ECHO) $${c}+1 | bc` ; \
 	done
 endif
+endif
 
 build-kernel:
 	$(CD) kernel && $(MAKE)
+ifeq ($(ARCH),mppa)
+	rm ./kernel/deployment.h
+	mv ./kernel/deployment_original.h ./kernel/deployment.h
+endif
 
 partitions:
 	$(CD) part1 && $(MAKE)

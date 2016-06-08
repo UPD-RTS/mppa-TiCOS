@@ -1,3 +1,4 @@
+#include <libc/stdio.h>
 #include <arinc653/types.h>
 #include <arinc653/time.h>
 #include <arinc653/process.h>
@@ -60,5 +61,3 @@ void* thr1_3_set1_job ()
 		PERIODIC_WAIT (&(ret));
 	}
 }
-
-
