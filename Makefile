@@ -9,11 +9,12 @@ BUILD_DIR = build-all
 
 all:
 	$(MAKE) -C examples $@ || exit 1;
-	for dir in $(EXAMPLES_SUBDIRS);	\
-	do \
-		mkdir -p $(BUILD_DIR)/$$dir; \
-		cp ./examples/$$dir/generated-code/cpu/pok.elf ./$(BUILD_DIR)/$$dir/pok.elf; \
-		cp ./examples/$$dir/generated-code/cpu/pok.elf.map ./$(BUILD_DIR)/$$dir/pok.elf.map; \
+	for dir in $(EXAMPLES_SUBDIRS);								\
+	do 											\
+		mkdir -p $(BUILD_DIR)/$$dir; 							\
+		cp ./examples/$$dir/generated-code/cpu/pok.elf ./$(BUILD_DIR)/$$dir/pok.elf;	\
+		cp ./examples/$$dir/generated-code/cpu/pok.elf.map ./$(BUILD_DIR)/$$dir/pok.elf.map;\
+		cp ./misc/mk/mppa-run.mk ./$(BUILD_DIR)/$$dir/Makefile;				\
 	done
 
 clean:
