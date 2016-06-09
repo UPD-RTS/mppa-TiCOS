@@ -86,7 +86,7 @@ uint32_t		pok_thread_ids_to_pos_map[POK_CONFIG_NB_THREADS];
 
 #ifdef POK_NEEDS_SCHED_O1_SPLIT
 /* we store the deadline of each thread */
-uint64_t pok_threads_deadline[POK_CONFIG_NB_THREADS-2] = ((uint64_t[]) POK_CONFIG_SPORADIC_DEADLINE);
+uint64_t pok_threads_deadline[POK_CONFIG_NB_THREADS-2] = POK_CONFIG_SPORADIC_DEADLINE;
 /* we store a bitmask for every thread with:
  * - all 0s if the thread is not a predecessor
  * - a 1 in the position corresponding to the successor otherwise
@@ -102,11 +102,11 @@ uint32_t is_predecessor[POK_CONFIG_NB_THREADS] = {0};
 /* we store an array of booleans to say if a thread has tardiness; the array is indexed
  * with the thread id
  */
-bool_t has_tardiness[POK_CONFIG_NB_THREADS] = ((bool_t[]) POK_CONFIG_SPORADIC_TARDINESS);
+bool_t has_tardiness[POK_CONFIG_NB_THREADS] = POK_CONFIG_SPORADIC_TARDINESS;
 /* we store an array of events id to keep the mapping between predecessors threads and
  * their events
  */
-uint8_t predecessors_events_id[POK_CONFIG_NB_THREADS-2] = ((uint8_t[])POK_CONFIG_PREDECESSORS_EVENTS);
+uint8_t predecessors_events_id[POK_CONFIG_NB_THREADS-2] = POK_CONFIG_PREDECESSORS_EVENTS;
 #endif
 
 #ifdef POK_NEEDS_SCHED_FPPS

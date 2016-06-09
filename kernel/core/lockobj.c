@@ -61,7 +61,7 @@
 
 // lockobjs are used by events, blackboards, buffers.
 
-#if  defined (POK_NEEDS_LOCKOBJECTS)  
+#if  defined (POK_NEEDS_LOCKOBJECTS)
 
 #include <arch.h>
 #include <errno.h>
@@ -86,7 +86,7 @@ extern uint32_t successors_bitmasks[];
 pok_ret_t pok_lockobj_init ()
 {
 
- #if POK_CONFIG_NB_LOCKOBJECTS > 0	// i.e. defined (POK_NEEDS_LOCKOBJECTS) 
+ #if POK_CONFIG_NB_LOCKOBJECTS > 0	// i.e. defined (POK_NEEDS_LOCKOBJECTS)
 	uint8_t i;
   #ifdef POK_NEEDS_PARTITIONS
    #ifdef POK_NEEDS_ERROR_HANDLING
@@ -98,13 +98,13 @@ pok_ret_t pok_lockobj_init ()
 	{
 		total_lockobjects = total_lockobjects + pok_partitions[i].nlockobjs;
 	}
-	
-	if (total_lockobjects != POK_CONFIG_NB_LOCKOBJECTS) 
+
+	if (total_lockobjects != POK_CONFIG_NB_LOCKOBJECTS)
 	{
 		pok_kernel_error (POK_ERROR_KIND_KERNEL_CONFIG);
 	}
    #endif // POK_NEEDS_ERROR_HANDLING
-  #endif  // POK_NEEDS_PARTITIONS		
+  #endif  // POK_NEEDS_PARTITIONS
 
 	for ( i = 0 ; i < POK_CONFIG_NB_LOCKOBJECTS ; i++)
 	{
@@ -133,11 +133,11 @@ pok_ret_t pok_lockobj_create (pok_lockobj_t* obj, const pok_lockobj_attr_t* attr
 	{
 		return POK_ERRNO_LOCKOBJ_POLICY;
 	}
-	
+
 	/* Check the kind of the locjobj, must have a declared kind
 	 * If not, of course, we reject the creation. */
 	if ( /*(attr->kind != POK_LOCKOBJ_KIND_MUTEX) 	only the POK_LOCKOBJ_KIND_EVENT used a the moment
-		&& (attr->kind != POK_LOCKOBJ_KIND_SEMAPHORE) 
+		&& (attr->kind != POK_LOCKOBJ_KIND_SEMAPHORE)
 		&& */ (attr->kind != POK_LOCKOBJ_KIND_EVENT))
 	{
 		return POK_ERRNO_LOCKOBJ_KIND;
@@ -152,7 +152,7 @@ pok_ret_t pok_lockobj_create (pok_lockobj_t* obj, const pok_lockobj_attr_t* attr
 	/* Initialize the bitmask */
 	obj->waiting_threads = 0;
  #endif
- 
+
 	obj->queueing_policy	= attr->queueing_policy;
 	obj->locking_policy		= attr->locking_policy;
 	obj->kind				= attr->kind;
@@ -174,7 +174,7 @@ pok_ret_t pok_lockobj_partition_create (pok_lockobj_id_t* id, const pok_lockobj_
 	pok_ret_t ret;
 	uint8_t lower_bound = 0;
 	uint8_t upper_bound = 0;
-	uint8_t nb_lockobjs = 0;
+	//uint8_t nb_lockobjs = 0; /* set but not used */
 	bool_t  found = FALSE;
 
 	if (  (POK_CURRENT_PARTITION.mode != POK_PARTITION_MODE_INIT_COLD) &&
@@ -182,12 +182,12 @@ pok_ret_t pok_lockobj_partition_create (pok_lockobj_id_t* id, const pok_lockobj_
 	{
 		return POK_ERRNO_MODE;
 	}
-	
+
 	pid = POK_SCHED_CURRENT_PARTITION;
 
 	lower_bound = pok_partitions[pid].lockobj_index_low;
 	upper_bound = pok_partitions[pid].lockobj_index_high;
-	nb_lockobjs = pok_partitions[pid].nlockobjs;
+	//nb_lockobjs = pok_partitions[pid].nlockobjs; /* set but not used */
 
 	/*
 	 * Find a lockobject for the partition
@@ -198,7 +198,7 @@ pok_ret_t pok_lockobj_partition_create (pok_lockobj_id_t* id, const pok_lockobj_
 
 		if (pok_partitions_lockobjs[mid].initialized == FALSE)
 		{
-			found = TRUE; 
+			found = TRUE;
 			break;
 		}
 		mid++;
@@ -252,7 +252,7 @@ pok_ret_t pok_lockobj_eventwait (pok_lockobj_t* obj, const uint64_t timeout)
 	 // Thre si no need to wait
 	if (obj->is_locked == FALSE){
   #ifdef DEBUG_LOCK
-		printf ("EVENT is already UP!");			
+		printf ("EVENT is already UP!");
   #endif
 		return POK_ERRNO_OK;
 	 }
@@ -304,7 +304,7 @@ pok_ret_t pok_lockobj_eventwait (pok_lockobj_t* obj, const uint64_t timeout)
 }
 
 /*
-*	Scan the array of threads and unlock the FIRST thread is waiting for 
+*	Scan the array of threads and unlock the FIRST thread is waiting for
 *	the event associated to the lock object.
 * 	NO priotiy used
 */
@@ -315,20 +315,20 @@ pok_ret_t pok_lockobj_eventsignal (pok_lockobj_t* obj)
  #ifndef POK_NEEDS_SCHED_O1_SPLIT
 	uint32_t tmp;
 	//pok_ret_t ret;
-	int found = 0;
+	//int found = 0; FIXME: variable set but not used
 
 	for (tmp = 0 ; tmp < POK_CONFIG_NB_THREADS ; tmp++)
 	{
 		if (tmp == POK_SCHED_CURRENT_THREAD)
 			continue;
-		
+
 		if (obj->thread_state[tmp] == LOCKOBJ_STATE_WAITEVENT)
 		{
-			found = 1;
+			//found = 1; FIXME: variable set but not used
   #ifdef DEBUG_LOCK
 			printf("unlocking th %i\n", tmp);
   #endif
-			// Update the lockobj state 
+			// Update the lockobj state
 			obj->thread_state[tmp] = LOCKOBJ_STATE_UNLOCK;
 			pok_sched_unlock_thread (tmp);
 			//SPIN_UNLOCK (obj->eventspin);
@@ -379,7 +379,7 @@ pok_ret_t pok_lockobj_eventsignal (pok_lockobj_t* obj)
 
 /*
 *	Unlock ALL threads that are waiting for the event associated to the lock object
-*	(e.g. message in a blackboard/buffer, free space in a buffer) 
+*	(e.g. message in a blackboard/buffer, free space in a buffer)
 */
 pok_ret_t pok_lockobj_eventbroadcast (pok_lockobj_t* obj)
 {
@@ -392,18 +392,18 @@ pok_ret_t pok_lockobj_eventbroadcast (pok_lockobj_t* obj)
 	{
 		if (tmp == POK_SCHED_CURRENT_THREAD)
 			continue;
-		
+
 		if (obj->thread_state[tmp] == LOCKOBJ_STATE_WAITEVENT)
 		{
   #ifdef DEBUG_LOCK
-			printf("unlockiing th %i\n",tmp); 
+			printf("unlockiing th %i\n",tmp);
   #endif
 			pok_sched_unlock_thread (tmp);
 		}
 	}
 	obj->is_locked = FALSE;
 	//SPIN_UNLOCK (obj->eventspin);
-	
+
  #else /* POK_NEEDS_SCHED_O1_SPLIT is defined */
 
 	int current_thread_position;
@@ -449,7 +449,7 @@ pok_ret_t pok_lockobj_eventbroadcast (pok_lockobj_t* obj)
 */
 pok_ret_t pok_lockobj_lock (pok_lockobj_t* obj, const pok_lockobj_lockattr_t* attr)
 {
-	uint64_t timeout = 0;
+	//uint64_t timeout = 0;
 
 	if (obj->initialized == FALSE)
 	{
@@ -478,9 +478,9 @@ pok_ret_t pok_lockobj_lock (pok_lockobj_t* obj, const pok_lockobj_lockattr_t* at
 		/*
 		 * attr->time corresponds to the timeout for the waiting object
 		 */
-		if ((attr != NULL) && (attr->time > 0))
+		if ((attr != POK_NULL) && (attr->time > 0))
 		{
-			timeout = attr->time;
+			//timeout = attr->time; /* NO SUPPORT FOR TIMEOUT RIGHT NOW */
 		}
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
 		while ( (obj->is_locked != 0 ) || (obj->thread_state[POK_SCHED_CURRENT_THREAD] == LOCKOBJ_STATE_LOCK))
@@ -489,15 +489,15 @@ pok_ret_t pok_lockobj_lock (pok_lockobj_t* obj, const pok_lockobj_lockattr_t* at
  #endif
 		{
 			obj->thread_state[POK_SCHED_CURRENT_THREAD] = LOCKOBJ_STATE_LOCK;
-		
+
 			/* NO SUPPORT FOR TIMEOUT RIGHT NOW */
 
 			pok_sched_lock_current_thread ();
-			
+
 //			SPIN_UNLOCK (obj->spin);
 
 		}
-		
+
 		switch (obj->kind)
 		{
 			default:
@@ -524,17 +524,17 @@ pok_ret_t pok_lockobj_unlock (pok_lockobj_t* obj, const pok_lockobj_lockattr_t* 
 
 	uint32_t res;
 	(void) attr;			/* unused at this time */
-	
+
 	if (obj->initialized == FALSE)
 	{
 		return POK_ERRNO_LOCKOBJ_NOTREADY;
 	}
-	
+
 	res = 0;
 	//SPIN_LOCK (obj->spin);
 
 	switch (obj->kind)
-	{		
+	{
 		default:
 		{
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
@@ -544,19 +544,19 @@ pok_ret_t pok_lockobj_unlock (pok_lockobj_t* obj, const pok_lockobj_lockattr_t* 
  #endif
 			break;
 		}
-	}  
-	
+	}
+
 	res = POK_SCHED_CURRENT_THREAD;
 	res = (res + 1) % (POK_CONFIG_NB_THREADS);
 
 	do
-	{ 
+	{
 		if (obj->thread_state[res] == LOCKOBJ_STATE_LOCK)
-		{ 
+		{
 			obj->thread_state[res] = LOCKOBJ_STATE_UNLOCK;
 			pok_sched_unlock_thread (res);
 			break;
-		}  
+		}
 		res = (res + 1) % (POK_CONFIG_NB_THREADS);
 	}
 	while ((res != POK_SCHED_CURRENT_THREAD));
@@ -579,9 +579,9 @@ pok_ret_t pok_lockobj_partition_wrapper (const pok_lockobj_id_t id, const pok_lo
 	{
 		return POK_ERRNO_EINVAL;
 	}
-	
+
 	if ( id >= pok_partitions[POK_SCHED_CURRENT_PARTITION].lockobj_index_high)
-	{	
+	{
 		return POK_ERRNO_EINVAL;
 	}
 
@@ -633,4 +633,3 @@ pok_ret_t pok_lockobj_partition_wrapper (const pok_lockobj_id_t id, const pok_lo
  #endif /* POK_NEEDS_LOCKOBJECTS */
 
 #endif /* defined (POK_NEEDS_LOCKOBJECTS) || defined (POK_NEEDS_PORTS_QUEUEING) || defined (POK_NEEDS_PORTS_SAMPLING) */
-

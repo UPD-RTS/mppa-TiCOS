@@ -185,7 +185,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 			/* Middleware syscalls */
 #ifdef POK_NEEDS_PORTS_SAMPLING
 		case POK_SYSCALL_MIDDLEWARE_SAMPLING_CREATE:
-			if (args->arg6 != NULL){
+			if (args->arg6 != POK_NULL){
  #ifdef POK_SD
 				printf("in syscall.c base addr: 0x%x, args->arg6 0x%x,(args->arg6 + infos->base_addr) 0x%x\n",
 				infos->base_addr, args->arg6,(args->arg6 + infos->base_addr));
@@ -238,7 +238,7 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 
 #ifdef POK_NEEDS_PORTS_QUEUEING
 		case POK_SYSCALL_MIDDLEWARE_QUEUEING_CREATE:
-			if (args->arg7 != NULL){
+			if (args->arg7 != POK_NULL){
 #ifdef POK_QD
 				printf("in syscall.c base addr: 0x%x, args->arg6 0x%x,(args->arg6 + infos->base_addr) 0x%x\n",
 				infos->base_addr, args->arg7,(args->arg7 + infos->base_addr));
@@ -302,9 +302,9 @@ pok_ret_t pok_core_syscall (	const pok_syscall_id_t		 syscall_id,
 			break;
 
 		case POK_SYSCALL_LOCKOBJ_OPERATION:
-			if (args->arg2 == NULL)
+			if (args->arg2 == POK_NULL)
 			{
-				return pok_lockobj_partition_wrapper ((const uint8_t) args->arg1, NULL);
+				return pok_lockobj_partition_wrapper ((const uint8_t) args->arg1, POK_NULL);
 			}
 			else
 			{

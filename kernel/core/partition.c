@@ -315,8 +315,10 @@ pok_ret_t pok_partition_init ()
 
 	for (i = 0 ; i < POK_CONFIG_NB_PARTITIONS ; i++)
 	{
+#if POK_NEEDS_DEBUG
 		printf("[DEBUG] Setting up main thread of partition: %d, addr: %x\n",
 					i, pok_partitions[i].thread_main_entry);
+#endif
 		pok_partition_setup_main_thread (i);
 	}
 

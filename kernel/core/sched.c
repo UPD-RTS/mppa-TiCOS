@@ -119,7 +119,7 @@ uint8_t  pok_sched_slots_allocation[POK_CONFIG_SCHEDULING_NBSLOTS] = POK_CONFIG_
 //uint8_t  pok_asynch_events[POK_CONFIG_NB_PARTITIONS] = ((uint8_t[])POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS);
 uint8_t  pok_asynch_events[POK_CONFIG_NB_PARTITIONS] = POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS;
  #if defined (POK_NEEDS_PORTS_SAMPLING) || defined (POK_NEEDS_PORTS_QUEUEING)
-uint8_t  pok_postwrite_times[POK_CONFIG_SCHEDULING_NBSLOTS] = ((uint8_t[])POK_CONFIG_PARTITIONS_POSTWRITE_TIME);
+uint8_t  pok_postwrite_times[POK_CONFIG_SCHEDULING_NBSLOTS] = POK_CONFIG_PARTITIONS_POSTWRITE_TIME;
  #endif
 #endif
 
@@ -1305,7 +1305,7 @@ uint32_t pok_sched_part_o1 ()
  #ifdef POK_NEEDS_SCHED_O1_SPLIT
 uint32_t pok_sched_part_o1_split()
 {
-	int fake_sporadic_position;
+	//int fake_sporadic_position; /*set but not used*/
 	uint32_t is_late = 0;
 	int selected_position;
 
@@ -1326,7 +1326,7 @@ uint32_t pok_sched_part_o1_split()
 	if ( deadline_condition || tardiness_condition )
 	{
 		/* sporadic thread can execute */
-		fake_sporadic_position = IDLE_THREAD - POK_CURRENT_PARTITION.thread_index_low;
+		//fake_sporadic_position = IDLE_THREAD - POK_CURRENT_PARTITION.thread_index_low; /*set but not used*/
 		is_late = 0;
 	}
 	else
