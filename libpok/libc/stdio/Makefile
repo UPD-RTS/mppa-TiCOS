@@ -6,8 +6,7 @@ include $(TOPDIR)/misc/mk/config.mk
 LO_TARGET=	stdio.lo
 
 LO_OBJS=	printf.o \
-		__umodsi3.o \
-		__udivsi3.o
+		udivmodsi4.o \
 
 LO_DEPS=
 
