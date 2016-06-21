@@ -43,7 +43,7 @@
 
 #define POK_BUS_FREQ_MHZ	74
 
-#define POK_FREQ_DIV	74
+#define POK_FREQ_DIV	1
 
 #define POK_FREQ_SHIFT	0
 
@@ -58,5 +58,7 @@
 #define POK_CONFIG_NB_ASYNCH_EVENTS	0
 
 #define POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS	{0, 0, 0, 0}
+
+#define POK_NEEDS_DEBUG 1
 
 #endif
