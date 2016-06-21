@@ -1,5 +1,6 @@
 /*
- *  Copyright (c) 2012  University of Padua, Department of Mathematics
+ *  Copyright (C) 2013-2016 Kalray SA.
+ *  All rights reserved.
  *
  *  This file is free software: you may copy, redistribute and/or modify it
  *  under the terms of the GNU General Public License as published by the
@@ -14,8 +15,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  This file incorporates work covered by the following copyright and
- *  permission notice:
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
  *
  * 		Copyright (c) 2007-2009 POK team
  *
@@ -41,65 +42,110 @@
  *		COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
  *		INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
  *		BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTEtions and the following
+ *			  disclaimer in the documentation and/or other materials
+ *			  provided with the distribution.
+ *			* Neither the name of the POK Team nor the names of its main
+ *			  author (Julien Delange) or its contributors may be used to
+ *			  endorse or promote products derived from this software
+ *			  without specific prior written permission.
+ *
+ *		THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *		AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *		LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *		FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NORRUPTION) HOWEVER
  *		CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  *		LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *		ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 static unsigned long long
-divmodsi4(int modwanted, unsigned long long num, unsigned long long den)
+udivmoddi4(unsigned long long num, unsigned long long den, int modwanted)
 {
-	long long int bit = 1;
-	long long int res = 0;
+	unsigned long long r = num, q = 0;
 
-	while (den < num && bit && !(den & (1L<<31)))
-	{
-		den <<=1;
-		bit <<=1;
-	}
-
-	while (bit)
-	{
-		if (num >= den)
-		{
-			num -= den;
-			res |= bit;
+	if(den <= r) {
+		unsigned k = __builtin_k1_clzdl (den) - __builtin_k1_clzdl (r);
+		den = den << k;
+		if(r >= den) {
+			r = r - den;
+			q = 1LL << k;
 		}
-		bit >>=1;
-		den >>=1;
-	}
-	if (modwanted)
-		return num;
-	return res;
-}
-
-long long __modsi3 (long long numerator, long long denominator)
-{
-	int sign = 0;
-	long long modul;
-
-	if (numerator < 0)
-	{
-		numerator = -numerator;
-		sign = 1;
-	}
-	if (denominator < 0)
-	{
-		denominator = -denominator;
+		if(k != 0) {
+			unsigned i = k;
+			den = den >> 1;
+			do {
+				r = __builtin_k1_stsud (den, r);
+				i--;
+			} while (i!= 0);
+			q = q + r;
+			r = r >> k;
+			q = q - (r << k);
+		}
 	}
 
-	modul =  divmodsi4 (1, numerator, denominator);
-	if (sign)
-		return -modul;
-	return modul;
+	return modwanted ? r : q;
 }
 
 unsigned long long
-__umodsi3 (unsigned long long numerator, unsigned long long denominator)
+__udivdi3 (unsigned long long a, unsigned long long b)
 {
-	unsigned long long modul;
-	modul = divmodsi4 (1,  numerator, denominator);
-	return modul;
+	return udivmoddi4 (a, b, 0);
+}
+
+unsigned long long
+__umoddi3 (unsigned long long a, unsigned long long b)
+{
+	return udivmoddi4 (a, b, 1);
+}
+
+long long
+__divdi3 (long long a, long long b)
+{
+	int neg = 0;
+	long long res;
+
+	if (a < 0)
+	{
+		a = -a;
+		neg = !neg;
+	}
+
+	if (b < 0)
+	{
+		b = -b;
+		neg = !neg;
+	}
+
+	res = udivmoddi4 (a, b, 0);
+
+	if (neg)
+		res = -res;
+
+	return res;
+}
+
+long long
+__moddi3 (long long a, long long b)
+{
+	int neg = 0;
+	long long res;
+
+	if (a < 0)
+	{
+		a = -a;
+		neg = 1;
+	}
+
+	if (b < 0)
+		b = -b;
+
+	res = udivmoddi4 (a, b, 1);
+
+	if (neg)
+		res = -res;
+
+	return res;
 }
