@@ -132,6 +132,20 @@ void pok_arch_thread_start() {
 	pok_thread_start_execution((void (*)())entry, id);
 }
 
+pok_ret_t pok_arch_cache_disable ()
+{
+	mOS_dcache_disable();
+	mOS_icache_disable();
+	return (POK_ERRNO_OK);
+}
+
+pok_ret_t pok_arch_cache_enable ()
+{
+	mOS_dcache_enable();
+	mOS_icache_enable();
+	return (POK_ERRNO_OK);
+}
+
 // Inits the architecture, no need to do anything in PATMOS
 pok_ret_t pok_arch_init ()
 {
@@ -145,8 +159,7 @@ pok_ret_t pok_arch_init ()
 
 	if (pid == 0) {
 		/* Disable Dcache and Icache */
-		mOS_dcache_disable();
-		mOS_icache_disable();
+		pok_arch_cache_disable();
 
 		/* Clear bss. This function is in legacy.h, thus deprecated */
 		__k1_bss_section(((__k1_uint8_t*) &_bss_start), ((__k1_uint32_t)&_bss_end) - ((__k1_uint32_t)     &_bss_start));
@@ -199,6 +212,7 @@ pok_ret_t pok_arch_preempt_enable()
 
 	return (POK_ERRNO_OK);
 }
+
 
 pok_ret_t pok_arch_cache_invalidate ()
 {
