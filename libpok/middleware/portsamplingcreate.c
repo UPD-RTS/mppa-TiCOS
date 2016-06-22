@@ -1,23 +1,23 @@
-/*  
- * Copyright (c) 2012  University of Padua, Department of Mathematics  
- *  
- *  This file is free software: you may copy, redistribute and/or modify it  
- *  under the terms of the GNU General Public License as published by the  
- *  Free Software Foundation, either version 2 of the License, or (at your  
- *  option) any later version.  
- *  
- *  This file is distributed in the hope that it will be useful, but  
- *  WITHOUT ANY WARRANTY; without even the implied warranty of  
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  
- *  General Public License for more details.  
- *  
- *  You should have received a copy of the GNU General Public License  
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.  
- *  
- * This file incorporates work covered by the following copyright and  
- * permission notice:  
- *  
- * 		Copyright (c) 2007-2009 POK team
+/*
+ * Copyright (c) 2012  University of Padua, Department of Mathematics
+ *
+ *  This file is free software: you may copy, redistribute and/or modify it
+ *  under the terms of the GNU General Public License as published by the
+ *  Free Software Foundation, either version 2 of the License, or (at your
+ *  option) any later version.
+ *
+ *  This file is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -58,21 +58,21 @@
 #include <core/syscall.h>
 #include <middleware/port.h>
 
-pok_ret_t pok_port_sampling_create (char*						name, 
-									const pok_port_size_t		size, 
-									const pok_port_direction_t	direction,
-									const uint64_t				refresh,
-									pok_port_id_t*				id,
-									void *						partition_input_buffers)
+pok_ret_t pok_port_sampling_create (const char *name,
+					const pok_port_size_t size,
+					const pok_port_direction_t direction,
+					const uint64_t refresh,
+					pok_port_id_t *id,
+					void *partition_input_buffers)
 {
 
-return (pok_syscall6 (POK_SYSCALL_MIDDLEWARE_SAMPLING_CREATE,
-						 (uint32_t) name,
-						 (uint32_t) size,
-						 (uint32_t) direction,
-						 (uint32_t) refresh,
-						 (uint32_t) id,
-						 (uint32_t) partition_input_buffers));
+	return (pok_syscall6 (POK_SYSCALL_MIDDLEWARE_SAMPLING_CREATE,
+				(uint32_t) name,
+				(uint32_t) size,
+				(uint32_t) direction,
+				(uint32_t) refresh,
+				(uint32_t) id,
+				(uint32_t) partition_input_buffers));
 }
 
 

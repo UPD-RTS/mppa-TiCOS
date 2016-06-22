@@ -17,7 +17,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -58,20 +58,19 @@
 #include <types.h>
 
 
-pok_ret_t pok_port_sampling_read (const pok_port_id_t id, 
-								 void*					data, 
-								 pok_port_size_t*	 len,
-								 bool_t*				 valid)
+pok_ret_t pok_port_sampling_read (const pok_port_id_t id,
+					void* data,
+					pok_port_size_t *len,
+					bool_t *valid)
 {
 
 	return (pok_syscall4 (POK_SYSCALL_MIDDLEWARE_SAMPLING_READ,
-								 (uint32_t) id,
-								 (uint32_t) data,
-								 (uint32_t) len,
-								 (uint32_t) valid));
+				(uint32_t) id,
+				(uint32_t) data,
+				(uint32_t) len,
+				(uint32_t) valid));
 }
 
 
 
 #endif
-

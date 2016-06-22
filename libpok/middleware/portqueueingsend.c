@@ -17,7 +17,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -57,16 +57,16 @@
 #include <core/syscall.h>
 #include <types.h>
 
-pok_ret_t pok_port_queueing_send (const pok_port_id_t id, 
-											 const void* data, 
-											 const pok_port_size_t len, 
-											 const uint64_t timeout)
+pok_ret_t pok_port_queueing_send (const pok_port_id_t id,
+					const void *data,
+					const pok_port_size_t len,
+					const uint64_t timeout)
 {
 	return (pok_syscall4 (POK_SYSCALL_MIDDLEWARE_QUEUEING_SEND,
-						 (uint32_t) id,
-						 (uint32_t) data,
-						 (uint32_t) len,
-						 (uint32_t) timeout));
+				(uint32_t) id,
+				(uint32_t) data,
+				(uint32_t) len,
+				(uint32_t) timeout));
 }
 
 #endif

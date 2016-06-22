@@ -56,7 +56,9 @@
 #include <arinc653/types.h>
 #include <arinc653/sampling.h>
 #include <libc/string.h>
-
+#ifdef POK_SD
+#include <libc/stdio.h>
+#endif
 
 #ifndef POK_NEEDS_PORTS_SAMPLING_DYNAMIC
   extern MESSAGE_ADDR_TYPE *receiving_addresses[];
@@ -64,19 +66,19 @@
 
 #if (POK_CONFIG_PART_NB_INPUT_SAMPLING_PORTS > 0)
 // array of input port buffers
-extern unsigned char *input_buffers[]; // the size of the array can vary across partition 
-uint8_t input_buffers_index=0; 
+extern unsigned char *input_buffers[]; // the size of the array can vary across partition
+uint8_t input_buffers_index=0;
 #endif
 
 /********************************************************************
 * SERVICE  CREATE_SAMPLING_PORT
 *********************************************************************/
 void CREATE_SAMPLING_PORT
-	(	const SAMPLING_PORT_NAME_TYPE	/* in */	SAMPLING_PORT_NAME, 
-		const MESSAGE_SIZE_TYPE			/* in */	MAX_MESSAGE_SIZE, 
-		const PORT_DIRECTION_TYPE		/* in */	PORT_DIRECTION, 
-		const SYSTEM_TIME_TYPE			/* in */	REFRESH_PERIOD, 
-		SAMPLING_PORT_ID_TYPE * const	/* out */	SAMPLING_PORT_ID, 
+	(	const SAMPLING_PORT_NAME_TYPE	/* in */	SAMPLING_PORT_NAME,
+		const MESSAGE_SIZE_TYPE			/* in */	MAX_MESSAGE_SIZE,
+		const PORT_DIRECTION_TYPE		/* in */	PORT_DIRECTION,
+		const SYSTEM_TIME_TYPE			/* in */	REFRESH_PERIOD,
+		SAMPLING_PORT_ID_TYPE * const	/* out */	SAMPLING_PORT_ID,
 		RETURN_CODE_TYPE * const		/* out */	RETURN_CODE)
 {
 		pok_port_direction_t	core_direction;
@@ -96,7 +98,7 @@ void CREATE_SAMPLING_PORT
 						*SAMPLING_PORT_ID = 0xEEEEEEEE;
 						return;
 		}
-		
+
 		if (core_direction == POK_PORT_DIRECTION_IN)
 		{
 #ifdef POK_SD
@@ -105,18 +107,18 @@ void CREATE_SAMPLING_PORT
 
 #if (POK_CONFIG_PART_NB_INPUT_SAMPLING_PORTS > 0)
  #ifdef POK_SD
-			printf("****[POK_CONFIG_PART_NB_INPUT_SAMLING_PORTS][POK_CONFIG_MAX_MESSAGE_SIZE] %d, %d\n",
-				POK_CONFIG_PART_NB_INPUT_SAMLING_PORTS,POK_CONFIG_MAX_MESSAGE_SIZE);
+			printf("****[POK_CONFIG_PART_NB_INPUT_SAMPLING_PORTS][POK_CONFIG_MAX_MESSAGE_SIZE] %d, %d\n",
+				POK_CONFIG_PART_NB_INPUT_SAMPLING_PORTS,POK_CONFIG_MAX_MESSAGE_SIZE);
 			printf("in CREATE message %c\n",(input_buffers[input_buffers_index])[0]);
 			printf("input_buffers[input_buffers_index] 0x%x\n",
-					(unsigned char *)(input_buffers[input_buffers_index]));
+					(uint32_t)(*input_buffers[input_buffers_index]));
  #endif
 			core_ret = pok_port_sampling_create (SAMPLING_PORT_NAME, MAX_MESSAGE_SIZE,
-							core_direction, REFRESH_PERIOD, &core_id, 
-							(unsigned char *)(input_buffers[input_buffers_index])); 
-			*(receiving_addresses[core_id]) =  (unsigned char *)(input_buffers[input_buffers_index]);
+							core_direction, REFRESH_PERIOD, &core_id,
+							(unsigned char *)(&input_buffers[input_buffers_index]));
+			*(receiving_addresses[core_id]) =  (unsigned char *)(&input_buffers[input_buffers_index]);
 			input_buffers_index++;
-#endif // (POK_CONFIG_PART_NB_INPUT_SAMPLING_PORTS > 0)			
+#endif // (POK_CONFIG_PART_NB_INPUT_SAMPLING_PORTS > 0)
 		}else{
 			core_ret = pok_port_sampling_create (SAMPLING_PORT_NAME, MAX_MESSAGE_SIZE,
 								core_direction, REFRESH_PERIOD, &core_id, NULL);
@@ -131,24 +133,25 @@ void CREATE_SAMPLING_PORT
 * SERVICE  WRITE_SAMPLING_MESSAGE
 *********************************************************************/
 void WRITE_SAMPLING_MESSAGE
-		(const SAMPLING_PORT_ID_TYPE	/* in */	SAMPLING_PORT_ID, 
-		const MESSAGE_ADDR_TYPE			/* in */	MESSAGE_ADDR, 
-		const MESSAGE_SIZE_TYPE			/* in */	LENGTH, 
+		(const SAMPLING_PORT_ID_TYPE	/* in */	SAMPLING_PORT_ID,
+		const MESSAGE_ADDR_TYPE			/* in */	MESSAGE_ADDR,
+		const MESSAGE_SIZE_TYPE			/* in */	LENGTH,
 		RETURN_CODE_TYPE * const  		/* out */	RETURN_CODE)
 {
 	pok_ret_t core_ret;
 	core_ret = pok_port_sampling_write (SAMPLING_PORT_ID, MESSAGE_ADDR, LENGTH);
+	//printf ("WRITE SAMPLING MESSAGE ADDRESS: %x", MESSAGE_ADDR[0]);
 	*RETURN_CODE = core_ret;
 }
- 
+
 
 
 /********************************************************************
 * SERVICE  READ_SAMPLING_MESSAGE
 *********************************************************************/
 void READ_SAMPLING_MESSAGE
-		(const SAMPLING_PORT_ID_TYPE	/* in */	SAMPLING_PORT_ID, 
-		MESSAGE_ADDR_TYPE				/* in out */MESSAGE_ADDR, 
+		(const SAMPLING_PORT_ID_TYPE	/* in */	SAMPLING_PORT_ID,
+		MESSAGE_ADDR_TYPE				/* in out */MESSAGE_ADDR,
 		MESSAGE_SIZE_TYPE * const		/* out */	LENGTH,
 		VALIDITY_TYPE * const	  		/* out */	VALIDITY,
 		RETURN_CODE_TYPE * const  		/* out */	RETURN_CODE)
@@ -162,14 +165,14 @@ void READ_SAMPLING_MESSAGE
 	core_ret = pok_port_sampling_read  (SAMPLING_PORT_ID, MESSAGE_ADDR, &len, &valid);
 #else
 	(void) MESSAGE_ADDR;
-	
+
 	MESSAGE_ADDR_TYPE tmp_message_addr;
 	core_ret = pok_port_sampling_read  (SAMPLING_PORT_ID, &tmp_message_addr, &len, &valid);
 
   #ifdef POK_SD
-	//printf("address in receiving_addresses[%d] 0x%x\n",SAMPLING_PORT_ID,receiving_addresses[SAMPLING_PORT_ID]);
-	//printf("address in returned tmp_message_addr 0x%x\n",tmp_message_addr);
-	//printf("message in returned address %c\n",((unsigned char *)tmp_message_addr)[0]);
+	printf("address in receiving_addresses[%d] 0x%x\n",SAMPLING_PORT_ID,receiving_addresses[SAMPLING_PORT_ID]);
+	printf("address in returned tmp_message_addr 0x%x\n",tmp_message_addr);
+	printf("message in returned address %c\n",((unsigned char *)tmp_message_addr)[0]);
 	if (len >1)
 	{
 		unsigned int j;
@@ -177,12 +180,12 @@ void READ_SAMPLING_MESSAGE
 		{
 			printf(" 0x%x", ((unsigned char *)tmp_message_addr)[j]);
 		}
-		printf("\n");					
+		printf("\n");
 	}
   #endif
 #endif
 	// maxlen and len are the same
-	*LENGTH = len;  
+	*LENGTH = len;
 	*VALIDITY = valid;
 	*RETURN_CODE = core_ret;
 #ifdef POK_SD
@@ -197,26 +200,26 @@ void READ_SAMPLING_MESSAGE
 * SERVICE  GET_SAMPLING_PORT_ID
 ********************************************************************/
 void GET_SAMPLING_PORT_ID
-		(const SAMPLING_PORT_NAME_TYPE	/* in */	SAMPLING_PORT_NAME, 
-		SAMPLING_PORT_ID_TYPE * const	/* out */	SAMPLING_PORT_ID, 
+		(const SAMPLING_PORT_NAME_TYPE	/* in */	SAMPLING_PORT_NAME,
+		SAMPLING_PORT_ID_TYPE * const	/* out */	SAMPLING_PORT_ID,
 		RETURN_CODE_TYPE * const  		/* out */	RETURN_CODE)
 
 {
 	pok_port_id_t		  core_id;
-  
+
 	pok_port_sampling_id (SAMPLING_PORT_NAME, &core_id, NULL);
-	
-	*SAMPLING_PORT_ID = core_id; 
+
+	*SAMPLING_PORT_ID = core_id;
 	*RETURN_CODE = NO_ERROR;
 }
- 
+
 
 /********************************************************************
 * SERVICE  GET_SAMPLING_PORT_STATUS
 ********************************************************************/
 void GET_SAMPLING_PORT_STATUS
-		(const SAMPLING_PORT_ID_TYPE		/* in */	SAMPLING_PORT_ID, 
-		SAMPLING_PORT_STATUS_TYPE * const	/* out */	SAMPLING_PORT_STATUS, 
+		(const SAMPLING_PORT_ID_TYPE		/* in */	SAMPLING_PORT_ID,
+		SAMPLING_PORT_STATUS_TYPE * const	/* out */	SAMPLING_PORT_STATUS,
 		RETURN_CODE_TYPE * const  			/* out */	RETURN_CODE)
 
 {

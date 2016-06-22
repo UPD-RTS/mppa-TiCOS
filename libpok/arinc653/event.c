@@ -56,42 +56,42 @@
 #include <libc/string.h>	/* For strcmp */
 
 #include <errno.h>			/* For POK_ERRNO_... maccros */
+#ifdef DEBUG_EVT
+#include <libc/stdio.h>
+#endif
 
 #define CHECK_EVENTS_INIT if (pok_arinc653_events_initialized == 0) \
-							  { \
-								  uint16_t bla; \
-								  for (bla = 0 ; bla < POK_CONFIG_ARINC653_NB_EVENTS ; bla++) \
-								  {\
-									  pok_arinc653_events_layers[bla].ready = 0;\
-								  }\
-							  }\
-							  pok_arinc653_events_initialized = 1;
+	{ \
+		uint16_t bla; \
+		for (bla = 0; bla < POK_CONFIG_ARINC653_NB_EVENTS; bla++) \
+		{ \
+			pok_arinc653_events_layers[bla].ready = 0; \
+		} \
+	} \
+	pok_arinc653_events_initialized = 1;
 
-
-
-//#define DEBUG_EVT 1
 
 bool_t pok_arinc653_events_initialized = 0;
 
 typedef struct
 {
-	pok_event_id_t	 core_id;
-	pok_bool_t		 ready;
-}pok_arinc653_event_layer_t;
+	pok_event_id_t core_id;
+	pok_bool_t ready;
+} pok_arinc653_event_layer_t;
 
-extern char*				pok_arinc653_events_names[POK_CONFIG_ARINC653_NB_EVENTS];
-pok_arinc653_event_layer_t	pok_arinc653_events_layers[POK_CONFIG_NB_EVENTS];
+extern char *pok_arinc653_events_names[POK_CONFIG_ARINC653_NB_EVENTS];
+pok_arinc653_event_layer_t pok_arinc653_events_layers[POK_CONFIG_NB_EVENTS];
 
 /********************************************************************
-* SERVICE  CREATE_EVENT
-*********************************************************************/
+ * SERVICE  CREATE_EVENT
+ *********************************************************************/
 void CREATE_EVENT (EVENT_NAME_TYPE EVENT_NAME,
-						 EVENT_ID_TYPE *EVENT_ID,
-						 RETURN_CODE_TYPE *RETURN_CODE)
+                   EVENT_ID_TYPE *EVENT_ID,
+                   RETURN_CODE_TYPE *RETURN_CODE)
 {
-	RETURN_CODE_TYPE	return_code_name;
-	pok_event_id_t		core_id;
-	pok_ret_t			core_ret;
+	RETURN_CODE_TYPE return_code_name;
+	pok_event_id_t core_id;
+	pok_ret_t core_ret;
 
 	*RETURN_CODE = INVALID_CONFIG;
 
@@ -118,12 +118,12 @@ void CREATE_EVENT (EVENT_NAME_TYPE EVENT_NAME,
 	}
 
 	core_ret = pok_event_create (&core_id);
-	// ARINC EVENTS are created in a "down" state		
+	// ARINC EVENTS are created in a "down" state
 	pok_event_lock (core_id);
 
 	/* DEBUG INFO
-	printf("ID=%d\n", core_id);
-	*/
+	   printf("ID=%d\n", core_id);
+	 */
 
 	if (core_ret != POK_ERRNO_OK)
 	{
@@ -131,14 +131,14 @@ void CREATE_EVENT (EVENT_NAME_TYPE EVENT_NAME,
 		return;
 	}
 
-	pok_arinc653_events_layers[*EVENT_ID].ready	 	= 1;
-	pok_arinc653_events_layers[*EVENT_ID].core_id 	= core_id;
+	pok_arinc653_events_layers[*EVENT_ID].ready = 1;
+	pok_arinc653_events_layers[*EVENT_ID].core_id = core_id;
 	*RETURN_CODE = NO_ERROR;
 }
 
 /********************************************************************
-* SERVICE  SET_EVENT
-*********************************************************************/
+ * SERVICE  SET_EVENT
+ *********************************************************************/
 void SET_EVENT (EVENT_ID_TYPE EVENT_ID, RETURN_CODE_TYPE *RETURN_CODE)
 {
 	pok_ret_t core_ret;
@@ -176,8 +176,8 @@ void SET_EVENT (EVENT_ID_TYPE EVENT_ID, RETURN_CODE_TYPE *RETURN_CODE)
 }
 
 /********************************************************************
-* SERVICE  RESET_EVENT
-*********************************************************************/
+ * SERVICE  RESET_EVENT
+ *********************************************************************/
 void RESET_EVENT (EVENT_ID_TYPE EVENT_ID, RETURN_CODE_TYPE *RETURN_CODE)
 {
 	//(void) EVENT_ID;
@@ -185,7 +185,7 @@ void RESET_EVENT (EVENT_ID_TYPE EVENT_ID, RETURN_CODE_TYPE *RETURN_CODE)
 	pok_ret_t core_ret;
 
 	*RETURN_CODE = INVALID_PARAM;
-	
+
 	CHECK_EVENTS_INIT
 
 	if (EVENT_ID >= POK_CONFIG_ARINC653_NB_EVENTS)
@@ -203,15 +203,15 @@ void RESET_EVENT (EVENT_ID_TYPE EVENT_ID, RETURN_CODE_TYPE *RETURN_CODE)
 #endif
 		*RETURN_CODE = NO_ERROR;
 		return;
-  }
+	}
 }
 
 /********************************************************************
-* SERVICE  WAIT_EVENT
-*********************************************************************/
+ * SERVICE  WAIT_EVENT
+ *********************************************************************/
 void WAIT_EVENT (EVENT_ID_TYPE EVENT_ID,
-					  SYSTEM_TIME_TYPE TIME_OUT,
-					  RETURN_CODE_TYPE *RETURN_CODE)
+			SYSTEM_TIME_TYPE TIME_OUT,
+			RETURN_CODE_TYPE *RETURN_CODE)
 {
 	pok_ret_t core_ret;
 
@@ -223,7 +223,7 @@ void WAIT_EVENT (EVENT_ID_TYPE EVENT_ID,
 	{
 		*RETURN_CODE = INVALID_CONFIG;
 #ifdef DEBUG_EVT
-			printf ("Evt: INVALID CONFIG");
+		printf ("Evt: INVALID CONFIG");
 #endif
 		return;
 	}
@@ -246,17 +246,17 @@ void WAIT_EVENT (EVENT_ID_TYPE EVENT_ID,
 #endif
 	switch (core_ret)
 	{
-		case POK_ERRNO_OK:
-			*RETURN_CODE = NO_ERROR;
-			break;
+	case POK_ERRNO_OK:
+		*RETURN_CODE = NO_ERROR;
+		break;
 
-		case POK_ERRNO_TIMEOUT:
-			*RETURN_CODE = TIMED_OUT;
-			break;
+	case POK_ERRNO_TIMEOUT:
+		*RETURN_CODE = TIMED_OUT;
+		break;
 
-		default:
-			*RETURN_CODE = INVALID_PARAM;
-			break;
+	default:
+		*RETURN_CODE = INVALID_PARAM;
+		break;
 	}
 #ifdef DEBUG_EVT
 	printf ("Evt WAIT returns: %i", (int)(*RETURN_CODE));
@@ -264,11 +264,11 @@ void WAIT_EVENT (EVENT_ID_TYPE EVENT_ID,
 }
 
 /********************************************************************
-* SERVICE  GET_EVENT_ID
-*********************************************************************/
+ * SERVICE  GET_EVENT_ID
+ *********************************************************************/
 void GET_EVENT_ID (EVENT_NAME_TYPE EVENT_NAME,
-						 EVENT_ID_TYPE *EVENT_ID,
-						 RETURN_CODE_TYPE *RETURN_CODE)
+						EVENT_ID_TYPE *EVENT_ID,
+						RETURN_CODE_TYPE *RETURN_CODE)
 {
 	uint16_t i;
 	uint16_t len;
@@ -279,7 +279,7 @@ void GET_EVENT_ID (EVENT_NAME_TYPE EVENT_NAME,
 
 	CHECK_EVENTS_INIT
 
-	for (i = 0 ; i < POK_CONFIG_ARINC653_NB_EVENTS ; i++)
+	for (i = 0; i < POK_CONFIG_ARINC653_NB_EVENTS; i++)
 	{
 		if (strncmp (EVENT_NAME, pok_arinc653_events_names[i], len) == 0)
 		{
@@ -291,11 +291,11 @@ void GET_EVENT_ID (EVENT_NAME_TYPE EVENT_NAME,
 }
 
 /********************************************************************
-* SERVICE  GET_EVENT_STATUS
-*********************************************************************/
+ * SERVICE  GET_EVENT_STATUS
+ *********************************************************************/
 void GET_EVENT_STATUS (EVENT_ID_TYPE EVENT_ID,
-							  EVENT_STATUS_TYPE *EVENT_STATUS,
-							  RETURN_CODE_TYPE *RETURN_CODE)
+						EVENT_STATUS_TYPE *EVENT_STATUS,
+						RETURN_CODE_TYPE *RETURN_CODE)
 {
 	(void) EVENT_ID;
 	(void) EVENT_STATUS;

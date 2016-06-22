@@ -75,16 +75,16 @@ extern pok_port_t	pok_ports[POK_CONFIG_NB_PORTS];
 extern pok_queue_t	pok_queues[POK_CONFIG_NB_PARTITIONS];
 
 
-pok_ret_t pok_port_sampling_write (	const pok_port_id_t	id, 
-					const void*		data, 
+pok_ret_t pok_port_sampling_write (	const pok_port_id_t	id,
+					const void*		data,
 					const pok_port_size_t	len)
 {
- #ifdef POK_SD 
+ #ifdef POK_SD
 	 printf ("Sampling port write");
  #endif
 	/* We don't handle the timeout at this time */
 
-	if (data == NULL)
+	if (data == POK_NULL)
 	{
  #ifdef POK_SD
 			 printf ("NULL DATA!!");
@@ -112,7 +112,7 @@ pok_ret_t pok_port_sampling_write (	const pok_port_id_t	id,
  #endif
 		return POK_ERRNO_EINVAL;
 	}
-	
+
 	if ((len <= 0 ) || (len > pok_ports[id].max_message_size))
 	{
  #ifdef POK_SD
@@ -132,9 +132,9 @@ pok_ret_t pok_port_sampling_write (	const pok_port_id_t	id,
 	pok_ports[id].token.msg_slot = (unsigned char *)data;
 	pok_ports[id].token.size = len;
 	pok_ports[id].off_e = len;
- #ifdef POK_SD 
-/*	printf ("\nWrite token P:%i msg '%c' or '%i' ( size:%i) address:0x%x\n", id, 
-	*(unsigned char*)pok_ports[id].token.msg_slot, *(int*)pok_ports[id].token.msg_slot, 
+ #ifdef POK_SD
+/*	printf ("\nWrite token P:%i msg '%c' or '%i' ( size:%i) address:0x%x\n", id,
+	*(unsigned char*)pok_ports[id].token.msg_slot, *(int*)pok_ports[id].token.msg_slot,
 	pok_ports[id].token.size, (uint32_t)pok_ports[id].token.msg_slot);
 */
  #endif
@@ -147,7 +147,7 @@ pok_ret_t pok_port_sampling_write (	const pok_port_id_t	id,
 	for (i=0; i<len; i++)
 	{
 		printf("%c ",((char *)data)[i]);
-	}	
+	}
 
 	printf (" in port: id %i ", id);
 	printf (" (message length: %d)\n", len);

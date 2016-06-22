@@ -65,14 +65,14 @@ extern pok_port_t	pok_ports[POK_CONFIG_NB_PORTS];
 extern pok_queue_t	pok_queue;
 
 
-pok_ret_t pok_port_queueing_send (	const pok_port_id_t	id, 
-					const void*		data, 
-					const pok_port_size_t 	len, 
+pok_ret_t pok_port_queueing_send (	const pok_port_id_t	id,
+					const void*		data,
+					const pok_port_size_t 	len,
 					uint64_t		timeout)
 {
 
 	(void) timeout;
-	
+
 	if (id > POK_CONFIG_NB_PORTS)
 	{
 #ifdef POK_QD
@@ -86,7 +86,7 @@ pok_ret_t pok_port_queueing_send (	const pok_port_id_t	id,
 		return POK_ERRNO_SIZE;
 	}
 
-	if (data == NULL)
+	if (data == POK_NULL)
 	{
 #ifdef POK_QD
 		printf("data == NULL \n");
@@ -141,9 +141,9 @@ pok_ret_t pok_port_queueing_send (	const pok_port_id_t	id,
 		if (pok_ports[id].all_tokens_empty){
 			pok_ports[id].all_tokens_empty = FALSE;
 			pok_ports[id].first_not_empty  = 0;
-		}	
+		}
 		if (pok_ports[id].first_empty == pok_ports[id].first_not_empty){
-			pok_ports[id].all_tokens_full  = TRUE;	
+			pok_ports[id].all_tokens_full  = TRUE;
 		}
 #ifdef POK_QD
 		printf ("	pok_ports[id].first_empty %d\n",pok_ports[id].first_empty);

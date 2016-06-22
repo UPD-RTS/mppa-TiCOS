@@ -17,7 +17,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -58,14 +58,14 @@
 #include <core/syscall.h>
 #include <middleware/port.h>
 
-pok_ret_t pok_port_sampling_write (const pok_port_id_t	id, 
-								 const void*				data, 
-								 const pok_port_size_t  len)
+pok_ret_t pok_port_sampling_write (const pok_port_id_t id,
+					const void *data,
+					const pok_port_size_t len)
 {
 	return (pok_syscall3 (POK_SYSCALL_MIDDLEWARE_SAMPLING_WRITE,
-								 (uint32_t) id,
-								 (uint32_t) data,
-								 (uint32_t) len));
+				(uint32_t) id,
+				(uint32_t) data,
+				(uint32_t) len));
 }
 
 #endif

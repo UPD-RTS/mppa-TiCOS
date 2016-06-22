@@ -63,8 +63,8 @@ extern uint8_t		 pok_current_partition;
 
 extern pok_port_t	 pok_ports[POK_CONFIG_NB_PORTS];
 
-pok_ret_t pok_port_sampling_create  (	char*				name, 
-					const pok_port_size_t		max_message_size, 
+pok_ret_t pok_port_sampling_create  (	char*				name,
+					const pok_port_size_t		max_message_size,
 					const pok_port_direction_t	direction,
 					const uint64_t			refresh,
 					pok_port_id_t*			id,
@@ -94,22 +94,26 @@ pok_ret_t pok_port_sampling_create  (	char*				name,
 	pok_ports[*id].max_message_size	= max_message_size;
 
 	if (direction == POK_PORT_DIRECTION_IN){
+#ifndef POK_ARCH_MPPA
 		uint32_t base_addr = pok_partitions[pok_current_partition].base_addr;
+#else
+		uint32_t base_addr = 0;
+#endif
 		uint32_t base_buffer_phisical_address =  (uint32_t)partition_level_buffer + base_addr;
 #ifdef POK_SD
 		printf("partition_level_buffer 0x%x\n",(unsigned char *)partition_level_buffer);
 		printf("phisicall address 0x%x\n",base_buffer_phisical_address);
 #endif
 		pok_ports[*id].token.msg_slot = (unsigned char *)base_buffer_phisical_address;
-		pok_ports[*id].token.msg_slot_vaddr = (uint32_t)partition_level_buffer;	
+		pok_ports[*id].token.msg_slot_vaddr = (uint32_t)partition_level_buffer;
 
-#ifdef POK_SD				
+#ifdef POK_SD
 		printf("token address 0x%x\n",(unsigned char *)pok_ports[*id].token.msg_slot);
 		printf("token virtual address 0x%x\n",(unsigned char *)pok_ports[*id].token.msg_slot_vaddr);
 #endif
 
-		pok_ports[*id].token.empty = TRUE; 
-		pok_ports[*id].token. size = 0;	
+		pok_ports[*id].token.empty = TRUE;
+		pok_ports[*id].token. size = 0;
 	}
 	return ret;
 }

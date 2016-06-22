@@ -63,14 +63,14 @@
 extern pok_port_t	 pok_ports[POK_CONFIG_NB_PORTS];
 
 // read the message in the queue
-pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id, 
-					void*				data, 
+pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id,
+					void*				data,
 					pok_port_size_t*	len,
 					bool_t*				valid)
 {
 	pok_ret_t ret;
-	
-	if (data == NULL)
+
+	if (data == POK_NULL)
 	{
 		return POK_ERRNO_EINVAL;
 	}
@@ -103,17 +103,17 @@ pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id,
 	pok_port_size_t size = 0;
 
 // Sampling port semantics: always return the last value
- #ifdef POK_SD 
+ #ifdef POK_SD
  	printf("pok_ports[%i].token.empty->%i\n", id, pok_ports[id].token.empty);
  #endif
 	if (pok_ports[id].token.empty)
-	{	
+	{
 		ret = POK_ERRNO_EMPTY;
 	} else {
 		// Data is already there
 		// data = (void*) pok_ports[id].token.msg_slot;
-#ifdef POK_SD 
-		printf("before memcpy\n");	
+#ifdef POK_SD
+		printf("before memcpy\n");
 		printf("message addr in data addr 0x%x\n",((unsigned char *)*(unsigned char **)data));
 		printf("in pok_ports[id].token.msg_slot[0] %c\n",((unsigned char *)pok_ports[id].token.msg_slot)[0]);
 		printf("token address 0x%x\n",(unsigned char *)pok_ports[id].token.msg_slot);
@@ -121,13 +121,13 @@ pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id,
 #endif
 		// update the data pointer to the input buffer
 		*(unsigned char **)data = (unsigned char *)pok_ports[id].token.msg_slot_vaddr;
- #ifdef POK_SD 
+ #ifdef POK_SD
 		printf("after memcpy\n");
 		printf("message addr in data addr 0x%x\n",((unsigned char *)*(unsigned char **)data));
 		printf("in pok_ports[id].token.msg_slot %c or 0x%x\n",
 				((unsigned char *)pok_ports[id].token.msg_slot)[0],
 				((unsigned char *)pok_ports[id].token.msg_slot)[0]);
-			
+
 		if (pok_ports[id].token.size >1)
 		{
 			unsigned int j;
@@ -135,11 +135,11 @@ pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id,
 			{
 				printf(" 0x%x", ((unsigned char *)pok_ports[id].token.msg_slot)[j]);
 			}
-			printf("\n");					
+			printf("\n");
 		}
  #endif
 
- #ifdef POK_SD 
+ #ifdef POK_SD
 		printf("in READ SAMPLING size: %d\n",pok_ports[id].token.size);
  #endif
 		// Update size
@@ -151,13 +151,13 @@ pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id,
 	{
 		*len = 0;
 		*valid = 0;
-		return POK_ERRNO_NOACTION; 
+		return POK_ERRNO_NOACTION;
 	}
 	else
 	{
 		*len = size;
 		*valid = TRUE;
- #ifdef POK_SD 
+ #ifdef POK_SD
 		printf("return from sampling read POK_ERRNO_OK, size=%d\n",*len);
  #endif
 		return POK_ERRNO_OK;
@@ -166,4 +166,3 @@ pok_ret_t pok_port_sampling_read (	const 			pok_port_id_t id,
 }
 
 #endif
-

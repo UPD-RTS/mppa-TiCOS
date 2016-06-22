@@ -91,12 +91,12 @@ pok_ret_t pok_port_queueing_create (	char*					name,
 	ret = pok_port_create (name, max_message_size*max_nb_messages, direction, POK_PORT_KIND_QUEUEING, id);
 
 #ifdef POK_QD
-	printf("Create result: %d, POK_ERRNO_EXISTS d ", ret, POK_ERRNO_EXISTS);
+	printf("Create result: %d, POK_ERRNO_EXISTS %d", ret, POK_ERRNO_EXISTS);
 	printf("Max_nb_messages : %d\n",max_nb_messages);
 #endif
 
-	pok_ports[*id].max_nb_messages = max_nb_messages; 
-	pok_ports[*id].max_message_size = max_message_size; 
+	pok_ports[*id].max_nb_messages = max_nb_messages;
+	pok_ports[*id].max_message_size = max_message_size;
 
 	if (ret == POK_ERRNO_OK)
 	{
@@ -108,9 +108,13 @@ pok_ret_t pok_port_queueing_create (	char*					name,
 			printf("direction %d\n",direction);
 			printf("virtual address of partition_level_buffer 0x%x\n",(unsigned char *)partition_level_buffer);
 			printf("virtual address of partition_level_buffer - integer 0x%x\n",(uint32_t)partition_level_buffer);
-#endif	
-			uint8_t t;	
+#endif
+			uint8_t t;
+#ifndef POK_ARCH_MPPA
 			uint32_t base_addr = pok_partitions[pok_current_partition].base_addr;
+#else
+			uint32_t base_addr = 0;
+#endif
 			uint32_t base_buffer_phisical_address =  (uint32_t)partition_level_buffer + base_addr;
 
 #ifdef POK_QD
@@ -125,7 +129,7 @@ pok_ret_t pok_port_queueing_create (	char*					name,
 			{
 				virtual_address_of_inner_buffer = *((uint32_t *)(base_buffer_phisical_address + (t*sizeof(unsigned char *))));
 				phisical_address_of_inner_buffer =  virtual_address_of_inner_buffer + base_addr;
-	
+
 #ifdef POK_QD
 				printf("in pok_port_queueing_create - n.of token %i\n",t);
 				printf("virtual_address_of_inner_buffer  - integer 0x%x\n", virtual_address_of_inner_buffer);
@@ -133,8 +137,8 @@ pok_ret_t pok_port_queueing_create (	char*					name,
 #endif
 				pok_ports[*id].tokens[t].msg_slot = (unsigned char *)phisical_address_of_inner_buffer;
 				pok_ports[*id].tokens[t].msg_slot_vaddr = virtual_address_of_inner_buffer;
-				pok_ports[*id].tokens[t].empty = TRUE; 
-				pok_ports[*id].tokens[t].size = 0;	
+				pok_ports[*id].tokens[t].empty = TRUE;
+				pok_ports[*id].tokens[t].size = 0;
 			}
 		}
 		return POK_ERRNO_OK;

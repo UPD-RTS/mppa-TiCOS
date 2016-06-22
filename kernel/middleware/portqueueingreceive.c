@@ -67,10 +67,10 @@
 extern pok_port_t	 pok_ports[POK_CONFIG_NB_PORTS];
 
 // receives all data present in the queue
-pok_ret_t pok_port_queueing_receive (	const pok_port_id_t	id, 
-				 	uint64_t		timeout, 
-					const pok_port_size_t	maxlen, 
-					void*			data, 
+pok_ret_t pok_port_queueing_receive (	const pok_port_id_t	id,
+				 	uint64_t		timeout,
+					const pok_port_size_t	maxlen,
+					void*			data,
 					pok_port_size_t*	len)
 {
 
@@ -80,18 +80,19 @@ pok_ret_t pok_port_queueing_receive (	const pok_port_id_t	id,
 	printf("In kernel pok_port_queueing_receive\n");
 #endif
 
+	/* VARIABLE SET BUT NOT USED
 	pok_port_size_t	clen;
 	pok_port_size_t	rlen;
+	clen = 0 ;
+	rlen = 0 ; */
+
 	pok_ret_t ret;
 
-	clen = 0 ;
-	rlen = 0 ;
-
-	if (data == NULL)
+	if (data == POK_NULL)
 	{
 		return POK_ERRNO_EINVAL;
 	}
-	
+
 	if (maxlen <= 0)
 	{
 		return POK_ERRNO_EINVAL;
@@ -126,26 +127,26 @@ pok_ret_t pok_port_queueing_receive (	const pok_port_id_t	id,
 	printf("All tokens are empty? %d\n",pok_ports[id].all_tokens_empty);
  #endif
 	if (pok_ports[id].all_tokens_empty)
-	{		
+	{
 		ret = POK_ERRNO_EMPTY;
-	} 
+	}
 	else
-	{		
+	{
 		// Data is already there
  #ifdef POK_QD
 		printf("Token address 0x%x\n",pok_ports[id].tokens[pok_ports[id].first_not_empty].msg_slot);
 		printf("Token v address 0x%x\n",pok_ports[id].tokens[ pok_ports[id].first_not_empty ].msg_slot_vaddr);
 		printf("Message size in token %d \n",pok_ports[id].tokens[pok_ports[id].first_not_empty].size);
 		printf("Message in pok_ports[id].tokens[pok_ports[id].first_not_empty].msg_slot[0] %c\n",
-						pok_ports[id].tokens[ pok_ports[id].first_not_empty ].msg_slot[0]); 
-		printf("Data addr (unsigned char **)data: 0x%x\n",(unsigned char **)data);		
+						pok_ports[id].tokens[ pok_ports[id].first_not_empty ].msg_slot[0]);
+		printf("Data addr (unsigned char **)data: 0x%x\n",(unsigned char **)data);
 		printf("Message addr in data addr 0x%x\n",((unsigned char *)*(unsigned char **)data));
- #endif							
-			
+ #endif
+
 		// change the address
 		*(unsigned char **)data = (unsigned char *)pok_ports[id].tokens[ pok_ports[id].first_not_empty ].msg_slot_vaddr;
 
-		// Update the message size 
+		// Update the message size
 		*len = pok_ports[id].tokens[pok_ports[id].first_not_empty].size;
 
 		pok_ports[id].all_tokens_full = FALSE;
@@ -158,15 +159,15 @@ pok_ret_t pok_port_queueing_receive (	const pok_port_id_t	id,
 			pok_ports[id].first_not_empty = -1;
 			pok_ports[id].first_empty = 0;
 			pok_ports[id].all_tokens_empty = TRUE;
-		}		
+		}
 
- #ifdef POK_QD 
+ #ifdef POK_QD
 		printf("after address copy \n");
 		printf("message size %d \n",*len);
 		printf("data addr: 0x%x\n",(unsigned char *)data);
 		printf("message addr in data addr 0x%x\n",((unsigned char *)*(unsigned char **)data));
  #endif
-	
+
 		ret = POK_ERRNO_OK;
 	}
 	//pok_arch_cache_read_HID0 ();

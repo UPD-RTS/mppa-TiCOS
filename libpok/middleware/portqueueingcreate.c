@@ -17,7 +17,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- * 		Copyright (c) 2007-2009 POK team
+ *              Copyright (c) 2007-2009 POK team
  *
  *		Redistribution and use in source and binary forms, with or without
  *		modification, are permitted provided that the following conditions
@@ -55,27 +55,26 @@
 #include <types.h>
 #include <core/syscall.h>
 #include <middleware/port.h>
-
-pok_ret_t pok_port_queueing_create (char*	name, 
-								const pok_port_size_t					size,
-								const pok_range_t						max_nb_messages, 
-								const pok_port_direction_t				direction,
-								const pok_port_queueing_discipline_t	discipline,
-								pok_port_id_t*							id,
-								void *									partition_input_buffers)
-{
-
 #ifdef POK_QD
-printf("in middleware pok_port_queueing_create \n\tbefore pok_syscall7\n");
+#include <libc/stdio.h>
 #endif
-return (pok_syscall7 (POK_SYSCALL_MIDDLEWARE_QUEUEING_CREATE,
-					(uint32_t) name, 
-					(uint32_t) size, 
-					(uint32_t) max_nb_messages, 
-					(uint32_t) direction,
-					(uint32_t) discipline,
-					(uint32_t) id,
-					(uint32_t) partition_input_buffers));
+
+pok_ret_t pok_port_queueing_create (const char* name,
+				const pok_port_size_t size,
+				const pok_range_t max_nb_messages,
+				const pok_port_direction_t direction,
+				const pok_port_queueing_discipline_t discipline,
+				pok_port_id_t* id,
+				void * partition_input_buffers)
+{
+	return (pok_syscall7 (POK_SYSCALL_MIDDLEWARE_QUEUEING_CREATE,
+				(uint32_t) name,
+				(uint32_t) size,
+				(uint32_t) max_nb_messages,
+				(uint32_t) direction,
+				(uint32_t) discipline,
+				(uint32_t) id,
+				(uint32_t) partition_input_buffers));
 
 }
 

@@ -25,14 +25,14 @@
 #include <core/syscall.h>
 #include <middleware/port.h>
 
-pok_ret_t pok_port_sampling_id (char*				name, 
-								pok_port_id_t*		id, 
-								const pok_port_direction_t	direction)
+pok_ret_t pok_port_sampling_id (const char *name,
+				pok_port_id_t *id,
+				const pok_port_direction_t direction)
 {
 	return (pok_syscall3 (POK_SYSCALL_MIDDLEWARE_SAMPLING_ID,
-						 (uint32_t) name,
-						 (uint32_t) id,
-						 (uint32_t) direction));
+				(uint32_t) name,
+				(uint32_t) id,
+				(uint32_t) direction));
 }
 
 #endif
