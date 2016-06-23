@@ -27,7 +27,7 @@ EXTERN( _vstart,__bsp_global_desc, bin_descriptor, locked_assert_func, locked_me
 SECTIONS
 {
 INCLUDE "prologue_link.ld"
-   
+
    .tls_pe0 ALIGN(8) :  AT ( ALIGN( LOADADDR(.tbss) + SIZEOF(.tbss), 8))
    {
     _tls_pe0_start = ABSOLUTE(.);
@@ -198,12 +198,15 @@ INCLUDE "prologue_link.ld"
       _heap_start    = ABSOLUTE(.);
       . = ABSOLUTE(ROM_MEM_START);
   }
+
+  . =  0xF5000;
+  _pok_heap_start = ABSOLUTE(.);
+
   _start_async_copy = VIRT_U_MEM_START;
   _end_async_copy = VIRT_U_MEM_END;
   _heap_end      =  VIRT_U_MEM_END;
   _bin_start_frame = LOADADDR(.boot) >> 12;
   _bin_end_frame   = INTERNAL_RAM_SIZE >> 12;
-
 
 INCLUDE "epilogue_link.ld"
 
