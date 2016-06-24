@@ -1,3 +1,4 @@
+#include <libc/stdio.h>
 #include <arinc653/types.h>
 #include <arinc653/time.h>
 #include <arinc653/sampling.h>
@@ -114,5 +115,3 @@ void* thr2_4_job ()
 		PERIODIC_WAIT (&(ret));
 	}
 }
-
-

@@ -61,11 +61,11 @@ uint8_t QS_7_deployment_destinations [1] = {QD_5_global};
 // Array of destination ports for each port (destination ports must be NULL)
 uint8_t* 	pok_ports_destinations[POK_CONFIG_NB_PORTS] = {
 			SS_0_deployment_destinations,
-			NULL,
+			POK_NULL,
 			QS_2_deployment_destinations,
-			NULL,
-			NULL,
-			NULL,
+			POK_NULL,
+			POK_NULL,
+			POK_NULL,
 			QS_6_deployment_destinations,
 			QS_7_deployment_destinations};
 
@@ -78,4 +78,3 @@ uint8_t slot1_inputports_to_preload[2] = {QD_4,QD_1};
 uint8_t slot2_inputports_to_preload[2] = {SD_3,QD_5};
 uint8_t* pok_inputports_to_preload[POK_CONFIG_SCHEDULING_NBSLOTS] = {slot1_inputports_to_preload,slot2_inputports_to_preload};
 uint8_t pok_nb_inputports_to_preload[POK_CONFIG_SCHEDULING_NBSLOTS] = {2,2};
-

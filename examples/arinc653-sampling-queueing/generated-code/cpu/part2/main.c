@@ -1,3 +1,4 @@
+#include <libc/stdio.h>
 #include "activity.h"
 #include <arinc653/types.h>
 #include <arinc653/process.h>
@@ -23,11 +24,11 @@ int main ()
 	RETURN_CODE_TYPE ret;
 
 	printf("	part2 - Main thread\n");
-	// Sampling ports creation 
+	// Sampling ports creation
 	CREATE_SAMPLING_PORT ("port_04", POK_CONFIG_MAX_MESSAGE_SIZE, DESTINATION, 2000, &(SD_3_id), &(ret));
 	printf("	Sampling port created! id: 4, name: port_04, core id:%d, ret:%d\n", SD_3_id, ret);
 
-	// Queuing ports creation 
+	// Queuing ports creation
 	CREATE_QUEUING_PORT ("port_03", POK_CONFIG_MAX_MESSAGE_SIZE,  POK_CONFIG_PART_MAX_QUEUING_MESSAGES, SOURCE, 0, &(QS_2_id), &(ret));
 	printf("	Queueing port created! id: 3, name: port_03, core id:%d, ret:%d\n", QS_2_id, ret);
 	CREATE_QUEUING_PORT ("port_07", POK_CONFIG_MAX_MESSAGE_SIZE,  POK_CONFIG_PART_MAX_QUEUING_MESSAGES, SOURCE, 0, &(QS_6_id), &(ret));
