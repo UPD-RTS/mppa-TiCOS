@@ -56,8 +56,6 @@
 #include "mOS_segment_manager_u.h"
 #include <HAL/hal/hal.h>
 
-extern int VIRT_U_MEM_START;
-
 /*********************************************************************************************
  * Interrupts handlers should be used as they would be on a real hardware. They should save  *
  * the remaining registers of the context, or ensure that they will not modify any of these  *

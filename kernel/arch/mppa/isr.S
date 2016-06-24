@@ -61,48 +61,48 @@
  */
 
 #include <HAL/hal/hal.h>
-#include "HAL/hal/context.h"
-#include "mOS_common_types_s_c.h"
+#include <HAL/hal/context.h>
+#include <mOS_common_types_s_c.h>
 
 .section .locked_text, "ax", @progbits
 .align 8
 .global _interval_ISR
 .proc _interval_ISR
 _interval_ISR:
-	add	$r12, $r12, -16     ## space for the registers
+	add	$r12, $r12, -16     		## create scratch area
 	;;
 	sd 0[$r12] = $p16;
-	make $r16 = pok_current_context
-	;;
+	make $r16 = pok_current_context		# load memory adress of
+	;;					# current context
 	lw $r17 = 0[$r16]
 	;;
-	_vk1_context64_save $r17
+	_vk1_context64_save $r17		# save it
 	;;
 	ld $p16 = 0[$r12]
 	make	$r0, _scoreboard_start
 	get	$r3, $pcr
 	;;
-	extfz	$r1, $r3, 15, 11
+	extfz	$r1, $r3, 15, 11		# retrieve the current PE in $r1
 	;;
 	sll	$r1, $r1, 8
 	;;
 	add	$r2, $r2, $r1
 	;;
-	lw	$r0 = MOS_VC_REG_PS[ $r2 ]
-	copy	$r1, $r12
+	lw	$r0 = MOS_VC_REG_PS[ $r2 ]	# retrieve the current $ps in $r0
+	copy	$r1, $r12			# retrieve the stack pointer in $r1
 	;;
 	srl	$r0 = $r0, 28
-	add	$r12, $r12, -16			## create scratch area
+	add	$r12, $r12, -16			## create nested scratch area
 	call	__k1_do_int			## jump to C code
 	;;
 __vk1_asm_return_from_int:
-	add	$r12, $r12, 16			## destroy scratch area
+	add	$r12, $r12, 16			## destroy nested scratch area
 	;;
-	make $r16 = pok_current_context
+	make $r16 = pok_current_context		# retrieve the elected context
 	;;
 	lw $r13 = 0[$r16]
 	;;
-	_vk1_context64_restore $r13
+	_vk1_context64_restore $r13		# restore this new context
 	;;
 	scall	MOS_VC_RFE
 	;;
@@ -123,11 +123,14 @@ _system_call_ISR: # _system_call_ISR ()
 # Register usage
 # $ r0-r7 syscall parameters
 #**************
-	add $r12 = $r12, -64	# space for registers
+	add $r12 = $r12, -16			# create scratch area
 	;;
-	copy $r40, $r0
-	copy $r41, $r1
-	copy $r42, $r2
+	copy $r0, $r7				# reswitch the registers (see syscall.S)
+	copy $r7, $r0				# $r0 = SN and $r7 = arg
+	;;
+	copy $r40, $r0				# save registers $r0-$r7
+	copy $r41, $r1				# because _vk1_context64_save
+	copy $r42, $r2				# modifies them
 	copy $r43, $r3
 	;;
 	copy $r36, $r4
@@ -135,15 +138,15 @@ _system_call_ISR: # _system_call_ISR ()
 	copy $r38, $r6
 	copy $r39, $r7
 	;;
-	make $r16 = pok_current_context
+	make $r16 = pok_current_context		# retrieves current context
 	;;
 	lw $r17 = 0[$r16]
 	;;
-	_vk1_context64_save $r17
+	_vk1_context64_save $r17		#saves it
 	;;
-	make $r12 = pok_stack_end;
+	make $r12 = _scoreboard_kstack_start;	# stack switch
 	;;
-	copy $r0, $r40
+	copy $r0, $r40				# restore registers $r0-$r7
 	copy $r1, $r41
 	copy $r2, $r42
 	copy $r3, $r43
@@ -153,16 +156,21 @@ _system_call_ISR: # _system_call_ISR ()
 	copy $r6, $r38
 	copy $r7, $r39
 	;;
-	add $r12 = $r12, -16
-	call pok_arch_sc_int
+	add $r12 = $r12, -16			# create nested scratch area
+	call pok_arch_sc_int			# jump to C code
 	;;
 __vk1_asm_return_from_sc:
-	add $r12 = $r12, 16
+	add $r12 = $r12, 16			# destroy nested scratch area
+	;;
 	make $r16 = pok_current_context
 	;;
 	lw $r13 = 0[$r16]
 	;;
-	_vk1_context64_restore $r13
+	sw 0[$r13] = $r0
+	;;
+	_vk1_context64_restore $r13		# restore context
+	;;
+	add $r12 = $r12, 16			# destroy scratch area
 	;;
 	scall MOS_VC_RFE
 	;;

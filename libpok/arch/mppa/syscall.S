@@ -43,7 +43,10 @@ pok_syscall4:
 pok_syscall5:
 pok_syscall6:
 pok_syscall7:
-	scall $r0
+	copy $r0, $r7		# mOS catches scall and puts the scall number in
+	copy $r7, $r0		# $r7. TiCOS expects it in $r0 and use $r7 as
+	;;			# argument, thus the switch.
+	scall $r7
 	;;
 	ret
 	;;

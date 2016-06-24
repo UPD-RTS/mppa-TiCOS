@@ -60,9 +60,8 @@
  *		POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "entry.h"
-#include "mOS_common_types_s_c.h"
-#include "HAL/hal/context.h"
+#include <mOS_common_types_s_c.h>
+#include <HAL/hal/context.h>
 
 # ax: section is allocatable and executable
 # progbits: section contains data
@@ -70,7 +69,6 @@
 .align 8
 
 # Global variables
-.global pok_arch_init
 .global _data_start
 
 .global _vstart
@@ -95,28 +93,24 @@ _vstart: # _vstart ()
 	scall	MOS_VC_IDLE1		# otherwise the PE waits the end of
 	;;				# the booting process
 __proceed:				# Defines stack for each PE in the scoreboard
-	make	$r3, BOOT_STACK_SIZE	# Normally BOOT_STACK_SIZE = 0x100
+	make	$r3, BOOT_STACK_SIZE	# Normally BOOT_STACK_SIZE = 0x100 (see kernel.lds)
 	;;
-	ctz	$r3, $r3		# 8 stored in $r3
+	ctz	$r3, $r3		# 8 (number of zeros in $r3) stored in $r3
 	;;
 	sll	$r2, $r2, $r3		# shift proc ID << $r3
 	;;
-	add	$r2 = $r2, 8
-	;;
+	add	$r2 = $r2, 8		# calculates how much the boot stack pointer
+	;;				# should be moved for the current PE
 	neg	$r2, $r2
 	;;
 	make	$r12 = _scoreboard_boot_stack_start - 8
 	;;
 	add	$r12 = $r12, $r2 	# move stack down
 	;;
-	call	pok_boot		# pok_boot and clear_bss before
+	call	pok_boot		# C boot function
 	;;
 	wpurge
 	;;
-#ifdef __k1a__
-	dpurge
-	;;
-#endif
 	make 	$r0 = -1		# should not endup here!
 	;;
 	scall 	1
@@ -128,12 +122,3 @@ __proceed:				# Defines stack for each PE in the scoreboard
 	goto 	-8			# should never return
 	;;
 .endp _vstart
-
-#****************************************************************
-# Kernel's stack area
-#**************
-.section ".bss", "aw"
-pok_stack:
-	.space 8 * 1024
-	.globl pok_stack_end
-pok_stack_end:
