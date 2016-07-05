@@ -105,6 +105,12 @@ void pok_boot ()
 #endif
 
 	pok_arch_preempt_enable();
+
+#if defined (POK_NEEDS_DEBUG)
 	pok_cons_write ("POK boot finished\n", 18);
-	mOS_idle1();
+#endif
+
+	while (1) {
+		mOS_idle1();
+	}
 }

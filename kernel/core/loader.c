@@ -122,23 +122,34 @@ static pok_ret_t pok_loader_elf_load	(char* file,
 		for (j = 0; j < nb_blocks; j++ )
 		{
 			memcpy (dest+(j*POK_LOADER_BLOCK_SIZE) , elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE) , POK_LOADER_BLOCK_SIZE );
+ #if defined(POK_NEEDS_CONSOLE) && defined(POK_NEEDS_DEBUG)
 			printf ("Copied block %d/%d, from %x to %x for a size of %x \n", j+1,nb_blocks, elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE),dest+(j*POK_LOADER_BLOCK_SIZE),POK_LOADER_BLOCK_SIZE  );
+ #endif
 		}
 		memcpy (dest+(j*POK_LOADER_BLOCK_SIZE), elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE) , elf_phdr[i].p_filesz-(j*POK_LOADER_BLOCK_SIZE ));
-	 	printf ("Copied last partial block from %x to %x ( size = %x ) \n",elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE),dest+(j*POK_LOADER_BLOCK_SIZE),elf_phdr[i].p_filesz-(j*POK_LOADER_BLOCK_SIZE )  );
+ #if defined(POK_NEEDS_CONSOLE) && defined(POK_NEEDS_DEBUG)
+		printf ("Copied last partial block from %x to %x ( size = %x ) \n",elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE),dest+(j*POK_LOADER_BLOCK_SIZE),elf_phdr[i].p_filesz-(j*POK_LOADER_BLOCK_SIZE )  );
+#endif
 
  #ifndef POK_DISABLE_LOADER_DATA_INIT
+ #if defined(POK_NEEDS_CONSOLE) && defined(POK_NEEDS_DEBUG)
 		printf("Razing partition data from %x  for a size of : %x \n",dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE)  ,elf_phdr[i].p_memsz - elf_phdr[i].p_filesz );
+ #endif
 		nb_blocks = (elf_phdr[i].p_memsz - elf_phdr[i].p_filesz)/ (POK_LOADER_BLOCK_SIZE);
 		for (j = 0; j < nb_blocks; j++ )
 		{
 	  		memset (dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE) , 0, POK_LOADER_BLOCK_SIZE);
+ #if defined(POK_NEEDS_CONSOLE) && defined(POK_NEEDS_DEBUG)
 			printf ("Razed block %d/%d, from %x to %x for a size of %x \n", j+1,nb_blocks, elf_phdr[i].p_offset + file + (j*POK_LOADER_BLOCK_SIZE),dest+(j*POK_LOADER_BLOCK_SIZE),POK_LOADER_BLOCK_SIZE	);
+ #endif
 		}
 
 		memset (dest + elf_phdr[i].p_filesz+(j*POK_LOADER_BLOCK_SIZE) , 0, (elf_phdr[i].p_memsz - elf_phdr[i].p_filesz)-(j*POK_LOADER_BLOCK_SIZE)) ;
+ #if defined(POK_NEEDS_CONSOLE) && defined(POK_NEEDS_DEBUG)
 		printf ("Razed last block  from %x for a size of %x \n", dest + elf_phdr[i].p_filesz + (j*POK_LOADER_BLOCK_SIZE), (elf_phdr[i].p_memsz - elf_phdr[i].p_filesz)- (j*POK_LOADER_BLOCK_SIZE));
  #endif
+
+ #endif /* POK_DISABLE_LOADER_DATA_INIT */
 	}
 #endif /* ! POK_SKIP_LOADER */
 	return POK_ERRNO_OK;
