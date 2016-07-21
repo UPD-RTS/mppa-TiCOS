@@ -155,12 +155,10 @@ pok_ret_t pok_arch_init ()
 						- pid * (int)&KERNEL_STACK_SIZE;
 	mOS_register_stack_handler((uint64_t *) kstack);
 	mOS_register_it_handler(_interval_ISR);
+
 	_scoreboard_start.SCB_VCORE.MAGIC_VALUE = 0x12344321;
 
 	if (pid == 0) {
-		/* Disable Dcache and Icache */
-		pok_arch_cache_disable();
-
 		/* Clear bss. This function is in legacy.h, thus deprecated */
 		__k1_bss_section(((__k1_uint8_t*) &_bss_start), ((__k1_uint32_t)&_bss_end) - ((__k1_uint32_t)     &_bss_start));
 		__k1_bss_section(((__k1_uint8_t*) &_sbss_start), ((__k1_uint32_t)&_sbss_end) - ((__k1_uint32_t)   &_sbss_start));
@@ -168,6 +166,9 @@ pok_ret_t pok_arch_init ()
 		/* Register _system_call_ISR function as interrupt service routine
 		 * for system call */
 		mOS_register_scall_handler((mOS_exception_handler_t) &_system_call_ISR);
+
+		/* Disable Dcache and Icache */
+		pok_arch_cache_disable();
 	}
 
 #ifdef POK_NEEDS_DEBUG
@@ -193,6 +194,9 @@ pok_ret_t pok_arch_preempt_disable()
 	// enable interrupts
 	mOS_it_disable();
 
+	__builtin_k1_wpurge();
+	__builtin_k1_fence();
+
 	return (POK_ERRNO_OK);
 }
 
@@ -209,6 +213,9 @@ pok_ret_t pok_arch_preempt_enable()
 	mOS_set_it_level(0);
 	// enable interrupts
 	mOS_it_enable();
+
+	__builtin_k1_wpurge();
+	__builtin_k1_fence();
 
 	return (POK_ERRNO_OK);
 }

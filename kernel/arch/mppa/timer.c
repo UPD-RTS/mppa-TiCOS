@@ -38,6 +38,7 @@
 #include <dependencies.h>
 #include <libc.h>
 #include <bsp.h>
+#include <HAL/hal/hal.h>
 #include <mOS_vcore_u.h>
 
 #include "prep/bsp.h"
@@ -61,7 +62,8 @@ uint64_t time_new;
 
 uint64_t get_mppa_tb (void)
 {
-	return mOS_dsu_ts_read() / _K1_DEFAULT_CLOCK_DIV;
+	unsigned long long cycles = mOS_dsu_ts_read();
+	return (uint64_t) (cycles / _K1_DEFAULT_CLOCK_DIV);
 }
 
 unsigned long long get_mppa_rb (void)

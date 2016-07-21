@@ -33,6 +33,7 @@
 #include <dependencies.h>
 #include <arch.h>
 #include <libc.h>
+#include <soclib.h>
 
 // defined in a linker script
 extern char _pok_heap_start[];
@@ -54,9 +55,7 @@ void *pok_bsp_mem_alloc (size_t sz)
 
 pok_bool_t pok_cons_write (const char *s, size_t length)
 {
-	for (size_t i = 0; i < length; i++) {
-		if (printf("%c", s[i])==0) return i;
-	}
-
-	return length;
+	for (; length > 0; length--)
+		putchar((int)(*s++));
+	return 0;
 }
