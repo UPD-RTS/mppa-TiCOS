@@ -59,7 +59,5 @@
 
 #define POK_CONFIG_PARTITIONS_NB_ASYNCH_EVENTS	{0, 0, 0, 0}
 
-#define POK_NEEDS_DEBUG 1
-
 
 #endif

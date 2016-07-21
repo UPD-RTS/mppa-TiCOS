@@ -23,6 +23,4 @@
 
 #define POK_CONFIG_ARINC653_NB_EVENTS	1
 
-#define DEBUG_EVT 1
-
 #endif

@@ -199,7 +199,7 @@ INCLUDE "prologue_link.ld"
       . = ABSOLUTE(ROM_MEM_START);
   }
 
-  . =  0xF5000;
+  . =  EXAMPLE_START_ADDR;
   _pok_heap_start = ABSOLUTE(.);
 
   _start_async_copy = VIRT_U_MEM_START;

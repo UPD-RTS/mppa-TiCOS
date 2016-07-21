@@ -5,6 +5,8 @@ include $(POK_PATH)/misc/mk/config.mk
 include $(POK_PATH)/misc/mk/common-$(ARCH).mk
 TARGET=$(shell pwd)/pok.elf
 PARTITIONS=part1/part1.elf
+#Hexadecimal representation
+EXAMPLE_START_ADDR=60000
 
 HEADERFILE=kernel/deployment.h
 $(if $(wildcard $(HEADERFILE)),,$(error "kernel/deployment.h is missing, bye bye."))
@@ -54,7 +56,10 @@ kernel-lds:
 ifeq ($(ARCH), mppa)
 	$(ECHO) "MPPA compilation: creating kernel linker script"
 	$(ECHO) "Using DEFAULT Base physical addresses"
-	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel.lds ./kernel/kernel.lds
+	cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/kernel_template.lds ./kernel/kernel.lds ;
+	sed s/EXAMPLE_START_ADDR/0x$(EXAMPLE_START_ADDR)/ ./kernel/kernel.lds > ./kernel/kernel_tmp.lds ;
+	mv ./kernel/kernel_tmp.lds ./kernel/kernel.lds;
+
 else
 # Handle ppc kernel linker script
 ifeq ($(shell grep -i POK_NEEDS_QEMU_SETUP $(HEADERFILE)|grep -v "/"),)
@@ -97,11 +102,11 @@ partitions-lds:
 # Handle partitions linker scripts
 ifeq ($(ARCH), mppa)
 	$(ECHO) "Creating partition linker scripts"
-	c=1;last_text=60000;for v in $(PARTITIONS); do \
+	c=1;last_text=$(EXAMPLE_START_ADDR);for v in $(PARTITIONS); do \
 		text_address=`$(ECHO) "ibase=obase=16; $${last_text}" | bc`; \
 		$(ECHO) "$$text_address" ; \
 		data_address=`$(ECHO) "ibase=obase=16; $${text_address}+20000" | bc`; \
-		last_text=`$(ECHO) "ibase=obase=16; $${data_address}+1000" | bc`; \
+		last_text=`$(ECHO) "ibase=obase=16; $${data_address}+20000" | bc`; \
 		$(ECHO) "Base text address 0x" $$text_address ": in ./part"$$c"/partition_"$$c".lds" ; \
 		$(ECHO) "Base data address 0x" $$data_address ": in ./part"$$c"/partition_"$$c".lds" ; \
 		cp $(POK_PATH)/misc/ldscripts/$(ARCH)/$(BSP)/partition_template.lds ./part$$c/partition_$${c}_t.lds ; \
