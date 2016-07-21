@@ -108,8 +108,6 @@ __asm__(
 int putchar(const int x) {
 	unsigned long long int ret;
 
-	/* possibly not needed, made in xputs */
-	__asm__ __volatile__ ("make $r20 = 1\n\t;;");
 	/* syscall 4094 with two args: char (or string) address and size
 	 * Other possible syscall values are 4095 and 1104 */
 	ret = __k1_club_syscall2 (4094, (volatile int) &x, 1);
